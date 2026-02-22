@@ -111,6 +111,14 @@ class Player extends Entity {
     }
   }
 
+  // 跳跃
+  jump() {
+    if (this.onGround && this.alive) {
+      this.vy = -14;
+      this.onGround = false;
+    }
+  }
+
   // 应用物理
   _applyPhysics() {
     // 重力
