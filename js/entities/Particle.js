@@ -42,8 +42,8 @@ class Particle {
     this.vx = 0;
     this.vy = -1;
     this.size = 24;
-    this.life = 40;
-    this.decay = 1 / 40;
+    this.life = 15;
+    this.decay = 1 / 15;
     this.color = '#ff3333';
     this.gravity = 0;
     this.active = true;
@@ -60,8 +60,8 @@ class Particle {
     this.vx = 0;
     this.vy = 0;
     this.size = isSniper ? 3 : 2;
-    this.life = isSniper ? 20 : 15;
-    this.decay = 1 / (isSniper ? 20 : 15);
+    this.life = isSniper ? 5 : 4;
+    this.decay = 1 / (isSniper ? 5 : 4);
     this.color = `rgba(255, 255, 255, ${alpha})`;
     this.gravity = 0;
     this.active = true;
@@ -90,7 +90,7 @@ class Particle {
     
     if (this.isText) {
       ctx.save();
-      ctx.globalAlpha = this.life / 40;
+      ctx.globalAlpha = this.life / 15;
       ctx.fillStyle = this.color;
       ctx.font = 'bold 24px Arial';
       ctx.strokeStyle = '#000';
@@ -102,7 +102,7 @@ class Particle {
       ctx.restore();
     } else if (this.isTracer) {
       ctx.save();
-      ctx.globalAlpha = this.life / 20;
+      ctx.globalAlpha = (this.life / 5) * 0.6;
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.lineWidth = this.size;
       ctx.lineCap = 'round';
