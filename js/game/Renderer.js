@@ -636,7 +636,7 @@ class Renderer {
   drawKillFeed(killFeed) {
     const ctx = this.ctx;
     const startX = 20;
-    const startY = 80;
+    const startY = 130;
     
     ctx.save();
     
