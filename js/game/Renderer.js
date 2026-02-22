@@ -474,6 +474,55 @@ class Renderer {
                         healthPercent > 0.25 ? '#f6ad55' : '#f56565';
     ctx.fillStyle = healthColor;
     ctx.fillRect(-barWidth / 2, -45, barWidth * healthPercent, barHeight);
+    
+    // 绘制 HP 数值
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`${player.health}/${player.maxHealth}`, 0, -32);
+    
+    // 绘制弹药圆点
+    this._drawAmmoDots(ctx, player);
+  }
+
+  // 绘制弹药圆点
+  _drawAmmoDots(ctx, player) {
+    if (!player.weapon || !player.weapon.magazineSize) return;
+    
+    const currentAmmo = player.weapon.ammo;
+    const maxAmmo = player.weapon.magazineSize;
+    const dotDiameter = 3;
+    const dotSpacing = 4; // 中心到中心间距
+    const dotsPerRow = 10;
+    const rowSpacing = 5;
+    const startY = -22;
+    
+    // 计算总排数
+    const totalRows = Math.ceil(maxAmmo / dotsPerRow);
+    
+    for (let row = 0; row < totalRows; row++) {
+      const rowStart = row * dotsPerRow;
+      const rowEnd = Math.min(rowStart + dotsPerRow, maxAmmo);
+      const rowY = startY + row * rowSpacing;
+      
+      for (let i = rowStart; i < rowEnd; i++) {
+        const dotIndex = i - rowStart;
+        // 计算每个圆点的 X 位置（居中对齐）
+        const rowWidth = (rowEnd - rowStart) * dotSpacing;
+        const startX = -rowWidth / 2 + dotSpacing / 2;
+        const dotX = startX + dotIndex * dotSpacing;
+        
+        // 剩余子弹用黄色，已消耗用灰色
+        ctx.fillStyle = i < currentAmmo ? '#FFD700' : '#666666';
+        ctx.beginPath();
+        ctx.arc(dotX, rowY, dotDiameter / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   }
 
 
@@ -636,7 +685,7 @@ class Renderer {
   drawKillFeed(killFeed) {
     const ctx = this.ctx;
     const startX = 20;
-    const startY = 130;
+    const startY = 180;
     
     ctx.save();
     
