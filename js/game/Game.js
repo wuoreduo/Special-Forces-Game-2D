@@ -430,15 +430,12 @@ class Game {
   _updateCurrentPlayer() {
     const teamPlayers = this.players.filter(p => p.team === this.settings.playerTeam);
     
-    // 保存之前的控制玩家
     const prevControlledPlayer = teamPlayers.find(p => p.isControlled);
     
-    // 更新 isControlled 属性
     for (const player of teamPlayers) {
       player.isControlled = (player === teamPlayers[this.playerIndex]);
     }
     
-    // 如果之前有控制玩家且不是 AI 控制的，创建 AI 控制器接管
     if (prevControlledPlayer && prevControlledPlayer !== teamPlayers[this.playerIndex]) {
       const existingAI = this.aiControllers.find(ai => ai.player === prevControlledPlayer);
       if (!existingAI) {
@@ -448,9 +445,20 @@ class Game {
         newAI.setPatrolPoint(spawnPoint ? spawnPoint.x : prevControlledPlayer.x);
         this.aiControllers.push(newAI);
       }
+      
+      if (prevControlledPlayer.maxHealth === 1000) {
+        prevControlledPlayer.maxHealth = 100;
+        prevControlledPlayer.health = Math.min(prevControlledPlayer.health, 100);
+      }
     }
     
     this.currentPlayer = teamPlayers[this.playerIndex] || teamPlayers[0];
+    
+    if (this.settings.debugGodMode && this.currentPlayer.maxHealth === 100) {
+      this.currentPlayer.maxHealth = 1000;
+      this.currentPlayer.health = Math.max(this.currentPlayer.health, 1000);
+    }
+    
     this.camera.setTarget(this.currentPlayer);
   }
 

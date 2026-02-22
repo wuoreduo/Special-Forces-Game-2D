@@ -285,7 +285,7 @@ class Player extends Entity {
     this.x = x;
     this.y = y;
     
-    const isDebugMode = window.game && window.game.settings && window.game.settings.debugGodMode;
+    const isDebugMode = window.game && window.game.settings && window.game.settings.debugGodMode && this.isControlled;
     this.maxHealth = isDebugMode ? 1000 : 100;
     this.health = this.maxHealth;
     

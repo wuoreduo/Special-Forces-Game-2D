@@ -267,12 +267,22 @@ class UIManager {
       case 'KeyU':
         this.game.settings.debugGodMode = !this.game.settings.debugGodMode;
         
+        const teamPlayers = this.game.players.filter(p => p.team === this.game.settings.playerTeam);
+        
         if (this.game.settings.debugGodMode) {
-          player.maxHealth = 1000;
-          player.health = 1000;
+          for (const p of teamPlayers) {
+            if (p.isControlled) {
+              p.maxHealth = 1000;
+              p.health = 1000;
+            }
+          }
         } else {
-          player.maxHealth = 100;
-          player.health = Math.min(player.health, 100);
+          for (const p of teamPlayers) {
+            if (p.maxHealth === 1000) {
+              p.maxHealth = 100;
+              p.health = Math.min(p.health, 100);
+            }
+          }
         }
         
         if (this.game.audio) {
