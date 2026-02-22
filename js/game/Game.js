@@ -142,18 +142,7 @@ class Game {
       
       // 玩家控制或 AI 射击
       if (player.shooting) {
-        const bullets = player.shoot(this.gameTime);
-        if (bullets && bullets.length > 0) {
-          // 计算枪口位置（从玩家中心，沿瞄准角度，加上手臂和武器长度）
-          const centerX = player.x + player.width / 2;
-          const centerY = player.y + player.height / 2 - 5; // 手臂连接点
-          const armLength = 20;
-          const gunLength = 35;
-          const totalLength = armLength + gunLength;
-          const muzzleX = centerX + Math.cos(player.aimAngle) * totalLength;
-          const muzzleY = centerY + Math.sin(player.aimAngle) * totalLength;
-          this._createMuzzleFlash(muzzleX, muzzleY, player.aimAngle);
-        }
+        player.shoot(this.gameTime);
       }
     }
   }
@@ -258,15 +247,6 @@ class Game {
     particle.spawn(x, y, 0, 0, 5, 20, '#ff6b6b', 0);
   }
 
-  // 创建枪口火焰
-  _createMuzzleFlash(x, y, angle) {
-    for (let i = 0; i < 5; i++) {
-      const particle = this.particlePool.get();
-      const vx = Math.cos(angle) * 3 + Utils.randomRange(-2, 2);
-      const vy = Math.sin(angle) * 3 + Utils.randomRange(-2, 2);
-      particle.spawn(x, y, vx, vy, 4, 10, '#f6e05e', 0);
-    }
-  }
 
   // 检查重生
   _checkRespawns() {
@@ -426,9 +406,24 @@ class Game {
   _updateCurrentPlayer() {
     const teamPlayers = this.players.filter(p => p.team === this.settings.playerTeam);
     
+    // 保存之前的控制玩家
+    const prevControlledPlayer = teamPlayers.find(p => p.isControlled);
+    
     // 更新 isControlled 属性
     for (const player of teamPlayers) {
       player.isControlled = (player === teamPlayers[this.playerIndex]);
+    }
+    
+    // 如果之前有控制玩家且不是 AI 控制的，创建 AI 控制器接管
+    if (prevControlledPlayer && prevControlledPlayer !== teamPlayers[this.playerIndex]) {
+      const existingAI = this.aiControllers.find(ai => ai.player === prevControlledPlayer);
+      if (!existingAI) {
+        const newAI = new AIController(prevControlledPlayer, this);
+        const spawnPoints = this.map.getSpawnPoints(prevControlledPlayer.team);
+        const spawnPoint = spawnPoints[0];
+        newAI.setPatrolPoint(spawnPoint ? spawnPoint.x : prevControlledPlayer.x);
+        this.aiControllers.push(newAI);
+      }
     }
     
     this.currentPlayer = teamPlayers[this.playerIndex] || teamPlayers[0];

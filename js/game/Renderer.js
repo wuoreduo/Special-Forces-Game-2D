@@ -311,21 +311,56 @@ class Renderer {
     ctx.fillRect(-barWidth / 2, -45, barWidth * healthPercent, barHeight);
   }
 
+
+  // 绘制控制箭头
+  _drawControlArrow(player) {
+    const ctx = this.ctx;
+    const arrowX = player.x + player.width / 2;
+    const arrowY = player.y - 25;
+    const arrowSize = 15;
+    
+    ctx.save();
+    ctx.translate(arrowX, arrowY);
+    
+    // 箭头脉冲动画
+    const pulse = Math.sin(Date.now() / 200) * 3;
+    
+    // 箭头主体
+    ctx.fillStyle = '#4facfe';
+    ctx.shadowColor = '#4facfe';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(0, -arrowSize + pulse);
+    ctx.lineTo(-arrowSize / 2, arrowSize + pulse);
+    ctx.lineTo(0, arrowSize / 2 + pulse);
+    ctx.lineTo(arrowSize / 2, arrowSize + pulse);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.restore();
+  }
+
   // 绘制子弹
   drawBullet(bullet, camera) {
     if (!camera.isCircleInView(bullet, 50)) return;
     
     const ctx = this.ctx;
     
+    // 绘制轨迹
+    for (const point of bullet.trail) {
+      const screenX = point.x - camera.x;
+      const screenY = point.y - camera.y;
+      ctx.fillStyle = `rgba(255, 200, 50, ${point.alpha * 0.6})`;
+      ctx.beginPath();
+      ctx.arc(screenX, screenY, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
     ctx.save();
     ctx.translate(bullet.x, bullet.y);
     ctx.rotate(bullet.angle);
     
-    // 子弹轨迹
-    ctx.fillStyle = 'rgba(255, 200, 50, 0.3)';
-    ctx.fillRect(-10, -2, 20, 4);
-    
-    // 子弹头
+    // 子弹主体
     ctx.fillStyle = '#f6e05e';
     ctx.beginPath();
     ctx.ellipse(0, 0, 6, 3, 0, 0, Math.PI * 2);

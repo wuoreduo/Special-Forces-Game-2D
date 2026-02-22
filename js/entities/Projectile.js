@@ -10,6 +10,8 @@ class Projectile extends Entity {
     this.distTraveled = 0;
     this.maxDist = 1000;
     this.team = null;
+    this.trail = [];  // 子弹轨迹
+    this.trailTimer = 0;
   }
 
   // 初始化子弹
@@ -23,6 +25,8 @@ class Projectile extends Entity {
     this.team = team;
     this.distTraveled = 0;
     this.active = true;
+    this.trail = [];
+    this.trailTimer = 0;
     
     // 计算速度向量
     this.vx = Math.cos(angle) * speed;
@@ -32,6 +36,24 @@ class Projectile extends Entity {
   // 更新子弹
   update(dt) {
     if (!this.active) return;
+    
+    // 添加轨迹点（每 3 帧添加一个点，节省性能）
+    this.trailTimer += dt;
+    if (this.trailTimer > 16) {
+      this.trail.push({ x: this.x, y: this.y, alpha: 1 });
+      this.trailTimer = 0;
+      
+      // 限制轨迹长度
+      if (this.trail.length > 8) {
+        this.trail.shift();
+      }
+    }
+    
+    // 更新轨迹透明度
+    for (let i = 0; i < this.trail.length; i++) {
+      this.trail[i].alpha -= 0.15;
+    }
+    this.trail = this.trail.filter(t => t.alpha > 0);
     
     // 移动
     const moveX = Math.cos(this.angle) * this.speed;
@@ -61,6 +83,8 @@ class Projectile extends Entity {
     this.vx = 0;
     this.vy = 0;
     this.distTraveled = 0;
+    this.trail = [];
+    this.trailTimer = 0;
   }
 }
 
