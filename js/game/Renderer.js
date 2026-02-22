@@ -347,7 +347,7 @@ class Renderer {
 
   // 绘制子弹
   drawBullet(bullet, camera) {
-    if (!camera.isCircleInView(bullet, 50)) return;
+    if (!bullet.active || !camera.isCircleInView(bullet, 50)) return;
     
     const ctx = this.ctx;
     
@@ -366,8 +366,14 @@ class Renderer {
     // 子弹主体
     ctx.fillStyle = '#f6e05e';
     ctx.beginPath();
-    ctx.ellipse(0, 0, 6, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, 8, 4, 0, 0, Math.PI * 2);
     ctx.fill();
+    
+    // 添加发光效果
+    ctx.shadowColor = '#f6e05e';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
     
     ctx.restore();
   }

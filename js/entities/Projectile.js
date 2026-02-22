@@ -12,6 +12,7 @@ class Projectile extends Entity {
     this.team = null;
     this.trail = [];  // 子弹轨迹
     this.trailTimer = 0;
+    this.radius = 6;  // 用于视锥剔除
   }
 
   // 初始化子弹
@@ -38,10 +39,33 @@ class Projectile extends Entity {
   _checkWallCollision(newX, newY) {
     if (!this.platforms) return false;
     
-    for (const platform of this.platforms) {
-      if (newX >= platform.x && newX <= platform.x + platform.width &&
-          newY >= platform.y && newY <= platform.y + platform.height) {
-        return true;
+    // 使用射线检测，检查从旧位置到新位置的路径
+    const steps = 5;
+    const stepX = (newX - this.x) / steps;
+    const stepY = (newY - this.y) / steps;
+    
+    let checkX = this.x;
+    let checkY = this.y;
+    
+    for (let i = 0; i < steps; i++) {
+      checkX += stepX;
+      checkY += stepY;
+      
+      for (const platform of this.platforms) {
+        // 忽略边界墙（左右边界和地面）
+        const isBorderWall = (platform.x <= 0) || 
+                             (platform.x >= 1970) || 
+                             (platform.y >= 1170);
+        if (isBorderWall) continue;
+        
+        // 小碰撞盒检测（子弹半径）
+        const bulletRadius = 4;
+        if (checkX >= platform.x + bulletRadius && 
+            checkX <= platform.x + platform.width - bulletRadius &&
+            checkY >= platform.y + bulletRadius && 
+            checkY <= platform.y + platform.height - bulletRadius) {
+          return true;
+        }
       }
     }
     return false;
