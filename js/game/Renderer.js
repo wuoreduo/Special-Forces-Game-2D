@@ -635,14 +635,14 @@ class Renderer {
   // 绘制击杀信息
   drawKillFeed(killFeed) {
     const ctx = this.ctx;
-    const centerX = this.width / 2;
-    const startY = this.height - 100;
+    const startX = 20;
+    const startY = 80;
     
     ctx.save();
     
     for (let i = 0; i < killFeed.length; i++) {
       const entry = killFeed[i];
-      const y = startY - i * 45;
+      const y = startY + i * 45;
       
       ctx.globalAlpha = entry.alpha;
       
@@ -650,7 +650,7 @@ class Renderer {
       const victimColor = entry.victimTeam === 'blue' ? '#4299e1' : '#f56565';
       
       ctx.font = 'bold 22px sans-serif';
-      ctx.textAlign = 'center';
+      ctx.textAlign = 'left';
       ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
       ctx.shadowBlur = 8;
       ctx.shadowOffsetX = 2;
@@ -661,13 +661,13 @@ class Renderer {
       const padding = 15;
       
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-      ctx.fillRect(centerX - metrics.width / 2 - padding, y - 18, metrics.width + padding * 2, 36);
+      ctx.fillRect(startX - padding, y - 18, metrics.width + padding * 2, 36);
       ctx.strokeStyle = killerColor;
       ctx.lineWidth = 2;
-      ctx.strokeRect(centerX - metrics.width / 2 - padding, y - 18, metrics.width + padding * 2, 36);
+      ctx.strokeRect(startX - padding, y - 18, metrics.width + padding * 2, 36);
       
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, centerX, y + 8);
+      ctx.fillText(text, startX, y + 8);
     }
     
     ctx.restore();

@@ -315,8 +315,8 @@ class Game {
       this.killFeed.pop();
     }
     
-    // 播放击杀音效
-    if (this.audio) {
+    // 播放击杀音效（只有玩家击杀时才播放）
+    if (this.audio && killer.isControlled) {
       this.audio.playKill();
     }
   }
