@@ -8,6 +8,7 @@ class Camera {
     this.height = height;
     this.target = null;
     this.smooth = 0.1;  // 平滑系数
+    this.zoom = 1;  // 缩放比例
   }
 
   // 设置跟随目标
@@ -33,12 +34,26 @@ class Camera {
 
   // 应用摄像机变换（用于渲染）
   apply(ctx) {
-    ctx.translate(-Math.floor(this.x), -Math.floor(this.y));
+    const cx = this.width / 2;
+    const cy = this.height / 2;
+    
+    // 平移到屏幕中心
+    ctx.translate(cx, cy);
+    // 缩放
+    ctx.scale(this.zoom, this.zoom);
+    // 平移回并应用摄像机偏移
+    ctx.translate(-cx - this.x, -cy - this.y);
   }
 
   // 恢复摄像机变换
   reset(ctx) {
-    ctx.translate(Math.floor(this.x), Math.floor(this.y));
+    const cx = this.width / 2;
+    const cy = this.height / 2;
+    
+    // 反向变换：与 apply 相反
+    ctx.translate(cx + this.x, cy + this.y);
+    ctx.scale(1 / this.zoom, 1 / this.zoom);
+    ctx.translate(-cx, -cy);
   }
 
   // 检查对象是否在视野内（视锥剔除）
