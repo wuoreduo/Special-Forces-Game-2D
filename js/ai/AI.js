@@ -4,19 +4,22 @@ class AIController {
   constructor(player, game) {
     this.player = player;
     this.game = game;
-    this.state = 'idle';  // idle, patrol, chase, attack, retreat, reload
+    this.state = 'idle';
     this.target = null;
     this.stateTime = 0;
     this.moveDirection = 1;
     this.patrolStart = player.x;
     this.patrolRange = 200;
     
-    // 行为参数
-    this.detectionRange = 500;
-    this.attackRange = 300;
+    this.detectionRange = 600;
+    this.attackRange = 400;
     this.retreatHealth = 30;
-    this.updateInterval = 33;  // 30 FPS 更新
+    this.updateInterval = 33;
     this.lastUpdateTime = 0;
+    
+    this.jumpCooldown = 0;
+    this.stuckCheck = 0;
+    this.lastX = player.x;
   }
 
   // AI 更新（30 FPS）
@@ -201,14 +204,11 @@ class AIController {
       this.target.getCenterY()
     );
 
-    // 检查地图边界
     const mapBounds = this.game.map.getSize();
     const safeMargin = 100;
     
-    // 接近目标
     if (dist > this.attackRange) {
       if (dx > 0) {
-        // 检查是否在右边界
         if (this.player.x < mapBounds.width - safeMargin) {
           this.player.moveRight = true;
           this.player.moveLeft = false;
@@ -217,7 +217,6 @@ class AIController {
           this.moveDirection = -1;
         }
       } else {
-        // 检查是否在左边界
         if (this.player.x > safeMargin) {
           this.player.moveLeft = true;
           this.player.moveRight = false;
@@ -228,22 +227,21 @@ class AIController {
       }
     }
 
-    // 瞄准目标
     this._aimAtTarget();
     this.player.shooting = false;
+    
+    this._tryJumpObstacle();
+    this._checkStuck();
   }
 
   // 攻击行为
   _attackBehavior() {
     if (!this.target) return;
 
-    // 瞄准目标
     this._aimAtTarget();
 
-    // 射击
     this.player.shooting = true;
 
-    // 保持距离
     const dist = Utils.distance(
       this.player.getCenterX(),
       this.player.getCenterY(),
@@ -251,12 +249,10 @@ class AIController {
       this.target.getCenterY()
     );
 
-    // 检查地图边界
     const mapBounds = this.game.map.getSize();
     const safeMargin = 100;
 
     if (dist < this.attackRange * 0.5) {
-      // 太近了，后退
       const dx = this.player.x - this.target.x;
       if (dx > 0) {
         if (this.player.x < mapBounds.width - safeMargin) {
@@ -270,6 +266,8 @@ class AIController {
         }
       }
     }
+    
+    this._tryJumpObstacle();
   }
 
   // 撤退行为
@@ -305,8 +303,63 @@ class AIController {
   _reloadBehavior() {
     this.player.startReload();
     this.player.shooting = false;
-    // 换弹时继续巡逻移动
     this._patrolBehavior();
+  }
+
+  // 尝试跳跃障碍物
+  _tryJumpObstacle() {
+    if (this.jumpCooldown > 0) {
+      this.jumpCooldown--;
+      return;
+    }
+    
+    if (!this.player.onGround) return;
+    
+    const checkDist = 60;
+    const checkX = this.player.facingLeft ? 
+      this.player.x - checkDist : this.player.x + this.player.width + checkDist;
+    const checkY = this.player.y + this.player.height - 10;
+    
+    const platforms = this.game.map.platforms;
+    let obstacleAhead = false;
+    
+    for (const platform of platforms) {
+      if (checkX >= platform.x && checkX <= platform.x + platform.width &&
+          checkY >= platform.y && checkY <= platform.y + platform.height) {
+        obstacleAhead = true;
+        break;
+      }
+    }
+    
+    if (obstacleAhead) {
+      this.player.jump();
+      this.jumpCooldown = 20;
+    }
+    
+    const target = this.target;
+    if (target && target.y < this.player.y - 50 && this.player.onGround) {
+      const dx = Math.abs(target.x - this.player.x);
+      if (dx < 150) {
+        this.player.jump();
+        this.jumpCooldown = 20;
+      }
+    }
+  }
+  
+  // 检查是否卡住
+  _checkStuck() {
+    this.stuckCheck++;
+    if (this.stuckCheck < 10) return;
+    this.stuckCheck = 0;
+    
+    const moved = Math.abs(this.player.x - this.lastX);
+    if (moved < 5 && (this.player.moveLeft || this.player.moveRight)) {
+      if (this.player.onGround) {
+        this.player.jump();
+      }
+    }
+    
+    this.lastX = this.player.x;
   }
 
   // 瞄准目标

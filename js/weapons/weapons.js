@@ -6,12 +6,12 @@ const WEAPONS = {
     name: 'pistol',
     displayName: '手枪',
     damage: 25,
-    fireRate: 3,        // 每秒 3 发
+    fireRate: 3,
     magazineSize: 12,
-    reloadTime: 1500,   // 1.5 秒换弹
-    bulletSpeed: 36,
+    reloadTime: 1500,
+    bulletSpeed: 90,
     maxRange: 600,
-    spread: 2,          // 2 度散布
+    spread: 2,
     bulletCount: 1
   },
 
@@ -20,10 +20,10 @@ const WEAPONS = {
     name: 'smg',
     displayName: '冲锋枪',
     damage: 15,
-    fireRate: 10,       // 每秒 10 发
+    fireRate: 10,
     magazineSize: 30,
-    reloadTime: 2000,   // 2 秒换弹
-    bulletSpeed: 40,
+    reloadTime: 2000,
+    bulletSpeed: 100,
     maxRange: 400,
     spread: 5,
     bulletCount: 1
@@ -34,10 +34,10 @@ const WEAPONS = {
     name: 'rifle',
     displayName: '步枪',
     damage: 30,
-    fireRate: 5,        // 每秒 5 发
+    fireRate: 5,
     magazineSize: 20,
     reloadTime: 2000,
-    bulletSpeed: 44,
+    bulletSpeed: 110,
     maxRange: 800,
     spread: 3,
     bulletCount: 1
@@ -48,12 +48,12 @@ const WEAPONS = {
     name: 'sniper',
     displayName: '狙击枪',
     damage: 100,
-    fireRate: 0.5,      // 2 秒 1 发
+    fireRate: 0.5,
     magazineSize: 5,
-    reloadTime: 3000,   // 3 秒换弹
-    bulletSpeed: 70,
+    reloadTime: 3000,
+    bulletSpeed: 175,
     maxRange: 1500,
-    spread: 0.5,        // 非常精准
+    spread: 0.5,
     bulletCount: 1
   },
 
@@ -62,13 +62,13 @@ const WEAPONS = {
     name: 'shotgun',
     displayName: '霰弹枪',
     damage: 20,
-    fireRate: 1,        // 每秒 1 发
+    fireRate: 1,
     magazineSize: 6,
     reloadTime: 2500,
-    bulletSpeed: 30,
+    bulletSpeed: 75,
     maxRange: 250,
-    spread: 15,         // 大散布
-    bulletCount: 8      // 8 发弹丸
+    spread: 15,
+    bulletCount: 8
   }
 };
 

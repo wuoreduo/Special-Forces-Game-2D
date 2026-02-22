@@ -158,17 +158,9 @@ class PhysicsSystem {
     }
   }
 
-  // 实体间碰撞（简单推开）
+  // 实体间碰撞（已禁用 - 人与人无碰撞）
   _checkEntityCollisions(entity, entities) {
-    const nearby = this._getNearbyEntities(entity);
-
-    for (const other of nearby) {
-      if (other === entity || other.active === false) continue;
-
-      if (this._rectIntersect(entity, other)) {
-        this._resolveEntityCollision(entity, other);
-      }
-    }
+    // 人与人之间的碰撞已禁用
   }
 
   // 解析实体间碰撞
