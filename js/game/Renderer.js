@@ -224,12 +224,12 @@ class Renderer {
   // 绘制手臂
   _drawArm(ctx, player) {
     const armColor = '#f6ad55';
-    // 根据朝向调整角度：如果面朝左，使用镜像角度
-    const aimAngle = player.facingLeft ? -player.aimAngle : player.aimAngle;
+    // 补偿坐标系翻转：当 facingLeft 时，使用 Math.PI - aimAngle
+    const renderAngle = player.facingLeft ? Math.PI - player.aimAngle : player.aimAngle;
     
     ctx.save();
     ctx.translate(10, -5);
-    ctx.rotate(aimAngle);
+    ctx.rotate(renderAngle);
     
     ctx.fillStyle = armColor;
     ctx.fillRect(0, -4, 20, 8);
@@ -244,9 +244,9 @@ class Renderer {
     
     ctx.save();
     ctx.translate(10, -5);
-    // 根据朝向调整角度：如果面朝左，使用镜像角度
-    const aimAngle = player.facingLeft ? -player.aimAngle : player.aimAngle;
-    ctx.rotate(aimAngle);
+    // 补偿坐标系翻转：当 facingLeft 时，使用 Math.PI - aimAngle
+    const renderAngle = player.facingLeft ? Math.PI - player.aimAngle : player.aimAngle;
+    ctx.rotate(renderAngle);
     
     const weaponConfig = weapon.config;
     const gunColor = '#4a5568';
