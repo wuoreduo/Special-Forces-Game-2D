@@ -20,6 +20,7 @@ class AIController {
     this.jumpCooldown = 0;
     this.stuckCheck = 0;
     this.lastX = player.x;
+    this.edgeCooldown = 0;
   }
 
   // AI 更新（30 FPS）
@@ -169,14 +170,22 @@ class AIController {
   _patrolBehavior() {
     const patrolEnd = this.patrolStart + this.patrolRange * this.moveDirection;
     
-    // 检查是否到达巡逻终点或接近地图边界
     const mapBounds = this.game.map.getSize();
-    const safeMargin = 100;
+    const safeMargin = 150;
     
     if (Math.abs(this.player.x - patrolEnd) < 10 ||
         this.player.x < safeMargin ||
         this.player.x > mapBounds.width - safeMargin) {
       this.moveDirection *= -1;
+      this.edgeCooldown = 20;
+    }
+    
+    if (this.edgeCooldown > 0) {
+      this.edgeCooldown--;
+      this.player.moveLeft = false;
+      this.player.moveRight = false;
+      this.player.shooting = false;
+      return;
     }
 
     if (this.moveDirection > 0) {
@@ -205,7 +214,11 @@ class AIController {
     );
 
     const mapBounds = this.game.map.getSize();
-    const safeMargin = 100;
+    const safeMargin = 150;
+    
+    if (this.edgeCooldown > 0) {
+      this.edgeCooldown--;
+    }
     
     if (dist > this.attackRange) {
       if (dx > 0) {
@@ -214,7 +227,13 @@ class AIController {
           this.player.moveLeft = false;
           this.player.facingLeft = false;
         } else {
-          this.moveDirection = -1;
+          if (this.edgeCooldown <= 0) {
+            this.moveDirection = -1;
+            this.edgeCooldown = 20;
+          }
+          this.player.moveLeft = true;
+          this.player.moveRight = false;
+          this.player.facingLeft = true;
         }
       } else {
         if (this.player.x > safeMargin) {
@@ -222,7 +241,13 @@ class AIController {
           this.player.moveRight = false;
           this.player.facingLeft = true;
         } else {
-          this.moveDirection = 1;
+          if (this.edgeCooldown <= 0) {
+            this.moveDirection = 1;
+            this.edgeCooldown = 20;
+          }
+          this.player.moveRight = true;
+          this.player.moveLeft = false;
+          this.player.facingLeft = false;
         }
       }
     }
@@ -348,9 +373,18 @@ class AIController {
   
   // 检查是否卡住
   _checkStuck() {
+    if (this.edgeCooldown > 0) return;
+    
     this.stuckCheck++;
     if (this.stuckCheck < 10) return;
     this.stuckCheck = 0;
+    
+    const mapBounds = this.game.map.getSize();
+    const safeMargin = 150;
+    
+    if (this.player.x < safeMargin || this.player.x > mapBounds.width - safeMargin) {
+      return;
+    }
     
     const moved = Math.abs(this.player.x - this.lastX);
     if (moved < 5 && (this.player.moveLeft || this.player.moveRight)) {

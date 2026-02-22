@@ -7,8 +7,10 @@ class Camera {
     this.width = width;
     this.height = height;
     this.target = null;
-    this.smooth = 0.1;  // 平滑系数
-    this.zoom = 1;  // 缩放比例
+    this.smooth = 0.1;
+    this.zoom = 1;
+    this.globalView = false;
+    this.defaultZoom = 3;
   }
 
   // 设置跟随目标
@@ -18,6 +20,13 @@ class Camera {
 
   // 更新摄像机位置
   update(mapWidth, mapHeight) {
+    if (this.globalView) {
+      this.zoom = 1;
+      this.x = 0;
+      this.y = 0;
+      return;
+    }
+
     if (!this.target) return;
 
     // 考虑缩放后的视野范围
@@ -34,6 +43,22 @@ class Camera {
     // 限制在地图范围内
     this.x = Utils.clamp(this.x, 0, Math.max(0, mapWidth - viewWidth));
     this.y = Utils.clamp(this.y, 0, Math.max(0, mapHeight - viewHeight));
+  }
+
+  // 切换全局/局部视角
+  toggleGlobalView() {
+    this.globalView = !this.globalView;
+    if (this.globalView) {
+      this.zoom = 1;
+    } else {
+      this.zoom = this.defaultZoom;
+    }
+  }
+
+  // 设置全局视角
+  setGlobalView(enabled) {
+    this.globalView = enabled;
+    this.zoom = enabled ? 1 : this.defaultZoom;
   }
 
   // 应用摄像机变换（用于渲染）

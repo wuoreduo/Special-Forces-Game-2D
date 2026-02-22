@@ -254,6 +254,9 @@ class UIManager {
       case 'KeyF':
         player.melee(this.game.gameTime);
         break;
+      case 'KeyV':
+        this.game.camera.toggleGlobalView();
+        break;
       case 'Tab':
         e.preventDefault();
         this.game.switchTeammate();

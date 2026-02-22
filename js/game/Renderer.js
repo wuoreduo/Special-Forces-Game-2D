@@ -38,10 +38,7 @@ class Renderer {
       this.backgroundCache.height = this.height;
       const ctx = this.backgroundCache.getContext('2d');
       
-      const gradient = ctx.createLinearGradient(0, 0, 0, this.height);
-      gradient.addColorStop(0, '#16213e');
-      gradient.addColorStop(1, '#1a1a2e');
-      ctx.fillStyle = gradient;
+      ctx.fillStyle = '#16213e';
       ctx.fillRect(0, 0, this.width, this.height);
     }
     

@@ -13,7 +13,8 @@ class Game {
     this.renderer = new Renderer(this.canvas);
     this.physics = new PhysicsSystem();
     this.camera = new Camera(this.canvas.width, this.canvas.height);
-    this.camera.zoom = 3;  // 视野缩小为 1/3（放大 3 倍）
+    this.camera.defaultZoom = 3;  // 视野缩小为 1/3（放大 3 倍）
+    this.camera.zoom = 3;
     this.map = new GameMap();
     this.ui = new UIManager(this);
     this.audio = window.AudioSystem;
