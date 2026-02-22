@@ -220,30 +220,28 @@ class Renderer {
     const helmetColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
     const helmetDark = player.team === 'blue' ? '#1a365d' : '#742a2a';
     
-    // 头盔外壳（完整的圆顶头盔）
-    ctx.fillStyle = helmetColor;
-    ctx.beginPath();
-    ctx.arc(0, -18, 18, Math.PI * 0.05, Math.PI * 0.95);
-    ctx.lineTo(-17, -5);
-    ctx.fillRect(-17, -5, 34, 12);
-    ctx.fill();
-    
-    // 头盔顶部
-    ctx.fillStyle = helmetDark;
-    ctx.beginPath();
-    ctx.arc(0, -22, 15, Math.PI * 0.1, Math.PI * 0.9);
-    ctx.fill();
-    
-    // 护目镜（黑色，横贯式）- 代替眼睛
-    ctx.fillStyle = '#2d3748';
-    ctx.beginPath();
-    ctx.roundRect(-15, -21, 30, 8, 2);
-    ctx.fill();
-    
-    // 脸部（黄种人肤色，只露出下半部分）
+    // 1. 先画完整的脸部（黄种人肤色）
     ctx.fillStyle = skinColor;
     ctx.beginPath();
-    ctx.arc(0, -12, 14, 0, Math.PI * 0.5, false);
+    ctx.arc(0, -14, 16, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 2. 画头盔外壳（覆盖头顶和两侧）
+    ctx.fillStyle = helmetColor;
+    ctx.beginPath();
+    ctx.arc(0, -18, 18, Math.PI * 0.1, Math.PI * 0.9);
+    ctx.fill();
+    
+    // 3. 头盔顶部装饰
+    ctx.fillStyle = helmetDark;
+    ctx.beginPath();
+    ctx.arc(0, -22, 15, Math.PI * 0.15, Math.PI * 0.85);
+    ctx.fill();
+    
+    // 4. 护目镜（黑色，横贯式）- 代替眼睛
+    ctx.fillStyle = '#2d3748';
+    ctx.beginPath();
+    ctx.roundRect(-15, -20, 30, 7, 2);
     ctx.fill();
   }
 

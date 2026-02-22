@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>角色形象预览</title>
+  <style>
+    body {
+      margin: 0;
+      background: #1a1a2e;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h2 {
+      color: #4facfe;
+      margin-bottom: 10px;
+    }
+    .container {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .preview-box {
+      background: #2d3748;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    canvas {
+      border: 2px solid #4a5568;
+      border-radius: 4px;
+      background: linear-gradient(to bottom, #16213e, #0f162d);
+    }
+    .controls {
+      background: #2d3748;
+      padding: 15px 30px;
+      border-radius: 8px;
+      margin: 20px;
+    }
+    button {
+      background: #4facfe;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #00f2fe;
+    }
+    button.active {
+      background: #48bb78;
+    }
+    .detail-view {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎮 角色形象预览 - 大头短腿可爱风格</h2>
+  
+  <div class="controls">
+    <button onclick="setTeam('blue')" class="active" id="btnBlue">🔵 蓝队</button>
+    <button onclick="setTeam('red')" id="btnRed">🔴 红队</button>
+  </div>
+
+  <div class="container">
+    <div class="preview-box">
+      <h3>全身像</h3>
+      <canvas id="canvasFull" width="200" height="350"></canvas>
+    </div>
+    <div class="preview-box">
+      <h3>头部特写</h3>
+      <canvas id="canvasHead" width="150" height="150"></canvas>
+    </div>
+    <div class="preview-box">
+      <h3>身体结构</h3>
+      <canvas id="canvasBody" width="150" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="detail-view">
+    <div class="preview-box">
+      <h3>头部结构分解</h3>
+      <canvas id="canvasHeadSteps" width="400" height="150"></canvas>
+    </div>
+  </div>
+
+  <script>
+    let currentTeam = 'blue';
+
+    function setTeam(team) {
+      currentTeam = team;
+      document.getElementById('btnBlue').classList.toggle('active', team === 'blue');
+      document.getElementById('btnRed').classList.toggle('active', team === 'red');
+      drawAll();
+    }
+
+    function getColors() {
+      return {
+        body: currentTeam === 'blue' ? '#4299e1' : '#f56565',
+        vest: currentTeam === 'blue' ? '#2c5282' : '#9b2c2c',
+        sleeve: currentTeam === 'blue' ? '#2b6cb0' : '#e53e3e',
+        leg: currentTeam === 'blue' ? '#2c5282' : '#9b2c2c',
+        helmet: currentTeam === 'blue' ? '#2c5282' : '#9b2c2c',
+        helmetDark: currentTeam === 'blue' ? '#1a365d' : '#742a2a',
+        boot: '#1a202c',
+        glove: '#1a202c',
+        skin: '#f6ad55'
+      };
+    }
+
+    function drawAll() {
+      const colors = getColors();
+      
+      // 全身像
+      drawFullBody(document.getElementById('canvasFull').getContext('2d'), colors);
+      
+      // 头部特写
+      drawHeadCloseup(document.getElementById('canvasHead').getContext('2d'), colors);
+      
+      // 身体结构
+      drawBodyStructure(document.getElementById('canvasBody').getContext('2d'), colors);
+      
+      // 头部结构分解
+      drawHeadSteps(document.getElementById('canvasHeadSteps').getContext('2d'), colors);
+    }
+
+    function drawFullBody(ctx, colors) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+      ctx.translate(ctx.canvas.width / 2, 80);
+
+      // 腿部
+      drawLegs(ctx, colors);
+      
+      // 身体
+      drawBody(ctx, colors);
+      
+      // 手臂
+      drawArm(ctx, 0.3, colors);
+      drawArm(ctx, -0.3, colors);
+      
+      // 头部
+      drawHead(ctx, colors);
+
+      ctx.restore();
+    }
+
+    function drawLegs(ctx, colors) {
+      const legOffset = 3;
+      
+      // 左腿
+      ctx.save();
+      ctx.translate(-6, 22);
+      ctx.rotate(legOffset * Math.PI / 180);
+      ctx.fillStyle = colors.leg;
+      ctx.fillRect(-4, 0, 8, 12);
+      ctx.fillStyle = colors.boot;
+      ctx.fillRect(-5, 10, 10, 5);
+      ctx.restore();
+      
+      // 右腿
+      ctx.save();
+      ctx.translate(6, 22);
+      ctx.rotate(-legOffset * Math.PI / 180);
+      ctx.fillStyle = colors.leg;
+      ctx.fillRect(-4, 0, 8, 12);
+      ctx.fillStyle = colors.boot;
+      ctx.fillRect(-5, 10, 10, 5);
+      ctx.restore();
+    }
+
+    function drawBody(ctx, colors) {
+      // 躯干主体
+      ctx.fillStyle = colors.body;
+      ctx.beginPath();
+      ctx.roundRect(-13, -18, 26, 40, 7);
+      ctx.fill();
+      
+      // 战术背心
+      ctx.fillStyle = colors.vest;
+      ctx.beginPath();
+      ctx.roundRect(-9, -10, 18, 24, 4);
+      ctx.fill();
+      
+      // 队伍标识
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(0, 6, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = colors.body;
+      ctx.font = 'bold 10px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(currentTeam === 'blue' ? 'B' : 'R', 0, 6);
+      
+      // 腰带
+      ctx.fillStyle = colors.boot;
+      ctx.fillRect(-11, 20, 22, 4);
+    }
+
+    function drawArm(ctx, angle, colors) {
+      ctx.save();
+      ctx.translate(10, -8);
+      ctx.rotate(angle);
+      
+      // 上臂
+      ctx.fillStyle = colors.sleeve;
+      ctx.fillRect(0, -4, 12, 8);
+      
+      // 前臂
+      ctx.fillStyle = colors.skin;
+      ctx.fillRect(12, -3, 10, 6);
+      
+      // 手套
+      ctx.fillStyle = colors.glove;
+      ctx.fillRect(20, -4, 6, 8);
+      
+      ctx.restore();
+    }
+
+    function drawHead(ctx, colors) {
+      // 1. 先画完整的脸部（黄种人肤色）
+      ctx.fillStyle = colors.skin;
+      ctx.beginPath();
+      ctx.arc(0, -14, 16, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // 2. 画头盔外壳（覆盖头顶和两侧）
+      ctx.fillStyle = colors.helmet;
+      ctx.beginPath();
+      ctx.arc(0, -18, 18, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.fill();
+      
+      // 3. 头盔顶部装饰
+      ctx.fillStyle = colors.helmetDark;
+      ctx.beginPath();
+      ctx.arc(0, -22, 15, Math.PI * 0.15, Math.PI * 0.85);
+      ctx.fill();
+      
+      // 4. 护目镜（黑色）
+      ctx.fillStyle = '#2d3748';
+      ctx.beginPath();
+      ctx.roundRect(-15, -20, 30, 7, 2);
+      ctx.fill();
+    }
+
+    function drawHeadCloseup(ctx, colors) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+      ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+      ctx.scale(2, 2); // 放大 2 倍
+      drawHead(ctx, colors);
+      ctx.restore();
+    }
+
+    function drawBodyStructure(ctx, colors) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+      ctx.translate(ctx.canvas.width / 2, 50);
+      
+      // 只显示身体和腿
+      drawLegs(ctx, colors);
+      drawBody(ctx, colors);
+      
+      ctx.restore();
+    }
+
+    function drawHeadSteps(ctx, colors) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      
+      const stepX = [60, 140, 220, 300];
+      const stepY = 75;
+      
+      // 步骤 1: 画脸
+      ctx.fillStyle = colors.skin;
+      ctx.beginPath();
+      ctx.arc(stepX[0], stepY - 14, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('1. 脸部', stepX[0], stepY + 30);
+      
+      // 步骤 2: 加头盔
+      ctx.fillStyle = colors.skin;
+      ctx.beginPath();
+      ctx.arc(stepX[1], stepY - 14, 16, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = colors.helmet;
+      ctx.beginPath();
+      ctx.arc(stepX[1], stepY - 18, 18, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.fill();
+      
+      ctx.fillStyle = colors.helmetDark;
+      ctx.beginPath();
+      ctx.arc(stepX[1], stepY - 22, 15, Math.PI * 0.15, Math.PI * 0.85);
+      ctx.fill();
+      ctx.fillText('2. 头盔', stepX[1], stepY + 30);
+      
+      // 步骤 3: 加护目镜（完成）
+      ctx.fillStyle = colors.skin;
+      ctx.beginPath();
+      ctx.arc(stepX[2], stepY - 14, 16, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = colors.helmet;
+      ctx.beginPath();
+      ctx.arc(stepX[2], stepY - 18, 18, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.fill();
+      
+      ctx.fillStyle = colors.helmetDark;
+      ctx.beginPath();
+      ctx.arc(stepX[2], stepY - 22, 15, Math.PI * 0.15, Math.PI * 0.85);
+      ctx.fill();
+      
+      ctx.fillStyle = '#2d3748';
+      ctx.beginPath();
+      ctx.roundRect(-15 + stepX[2], stepY - 20, 30, 7, 2);
+      ctx.fill();
+      ctx.fillText('3. 护目镜', stepX[2], stepY + 30);
+      
+      // 步骤 4: 最终效果
+      ctx.fillStyle = colors.skin;
+      ctx.beginPath();
+      ctx.arc(stepX[3], stepY - 14, 16, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = colors.helmet;
+      ctx.beginPath();
+      ctx.arc(stepX[3], stepY - 18, 18, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.fill();
+      
+      ctx.fillStyle = colors.helmetDark;
+      ctx.beginPath();
+      ctx.arc(stepX[3], stepY - 22, 15, Math.PI * 0.15, Math.PI * 0.85);
+      ctx.fill();
+      
+      ctx.fillStyle = '#2d3748';
+      ctx.beginPath();
+      ctx.roundRect(-15 + stepX[3], stepY - 20, 30, 7, 2);
+      ctx.fill();
+      ctx.fillText('4. 完成', stepX[3], stepY + 30);
+      
+      // 标题
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('头部绘制步骤分解', 200, 20);
+    }
+
+    // 初始化
+    drawAll();
+  </script>
+</body>
+</html>
