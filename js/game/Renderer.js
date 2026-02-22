@@ -273,54 +273,86 @@ class Renderer {
   // 绘制头部
   _drawHead(ctx, player) {
     const skinColor = '#f6ad55';
+    const skinShadow = '#d69e5a';
     const helmetColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
     const helmetDark = player.team === 'blue' ? '#1a365d' : '#742a2a';
     
-    // 面部（圆形）
+    // 脸型（椭圆，3/4 侧视效果）
     ctx.fillStyle = skinColor;
     ctx.beginPath();
-    ctx.arc(0, -20, 12, 0, Math.PI * 2);
+    ctx.ellipse(0, -20, 14, 12, 0, 0, Math.PI * 2);
     ctx.fill();
     
-    // 下巴轮廓（侧视效果）
-    ctx.fillStyle = '#d69e5a';
+    // 脸部阴影（立体感）
+    ctx.fillStyle = skinShadow;
     ctx.beginPath();
-    ctx.arc(3, -17, 5, -Math.PI / 2, Math.PI / 2);
+    ctx.ellipse(2, -18, 8, 10, 0, 0, Math.PI * 2);
     ctx.fill();
     
-    // 头盔主体（覆盖头顶）
+    // 头盔主体（包裹式）
     ctx.fillStyle = helmetColor;
     ctx.beginPath();
-    ctx.arc(0, -22, 14, Math.PI, 0);
-    ctx.lineTo(12, -20);
-    ctx.lineTo(-12, -20);
+    ctx.arc(0, -24, 15, Math.PI * 0.1, Math.PI * 0.9);
+    ctx.lineTo(-13, -15);
+    ctx.lineTo(-14, -8);
+    ctx.lineTo(14, -8);
+    ctx.lineTo(13, -15);
     ctx.closePath();
     ctx.fill();
     
-    // 头盔后部（突出）
+    // 头盔顶部细节
     ctx.fillStyle = helmetDark;
     ctx.beginPath();
-    ctx.arc(-2, -23, 13, Math.PI * 0.6, Math.PI * 1.4);
-    ctx.lineTo(-8, -20);
-    ctx.closePath();
+    ctx.arc(0, -26, 13, Math.PI * 0.2, Math.PI * 0.8);
     ctx.fill();
     
-    // 护目镜/面罩
+    // 护目镜（横贯式设计，包裹双眼）
     ctx.fillStyle = '#2d3748';
     ctx.beginPath();
-    ctx.ellipse(3, -21, 7, 5, 0, 0, Math.PI * 2);
+    ctx.roundRect(-10, -23, 20, 8, 3);
     ctx.fill();
     
-    // 镜片反光
-    ctx.fillStyle = 'rgba(79, 172, 254, 0.6)';
+    // 护目镜带
+    ctx.fillStyle = helmetDark;
+    ctx.fillRect(-12, -19, 4, 6);
+    ctx.fillRect(8, -19, 4, 6);
+    
+    // 镜片反光（左右各一）
+    ctx.fillStyle = 'rgba(79, 172, 254, 0.7)';
+    // 左镜片
     ctx.beginPath();
-    ctx.ellipse(4, -21, 4, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(-4, -20, 4, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // 右镜片
+    ctx.beginPath();
+    ctx.ellipse(4, -20, 4, 3, 0, 0, Math.PI * 2);
     ctx.fill();
     
-    // 眼睛（侧视，在护目镜下）
+    // 眼睛（两只，对称）
     ctx.fillStyle = '#1a202c';
+    // 左眼
     ctx.beginPath();
-    ctx.arc(5, -20, 2, 0, Math.PI * 2);
+    ctx.arc(-5, -19, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    // 右眼
+    ctx.beginPath();
+    ctx.arc(5, -19, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 眼睛高光
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-4, -20, 1, 0, Math.PI * 2);
+    ctx.arc(6, -20, 1, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 鼻子轮廓（侧视感）
+    ctx.fillStyle = skinShadow;
+    ctx.beginPath();
+    ctx.moveTo(0, -17);
+    ctx.lineTo(3, -15);
+    ctx.lineTo(2, -13);
+    ctx.closePath();
     ctx.fill();
   }
 
@@ -398,333 +430,544 @@ class Renderer {
     ctx.restore();
   }
   
-  // 绘制手枪
+  // 绘制手枪（现代战术风格 - Glock/SIG P320）
   _drawPistol(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 套筒（slide）
+    // 套筒（slide）- 现代聚合物设计
     ctx.fillStyle = gunMetal;
-    ctx.fillRect(15, -5, 22, 10);
+    ctx.fillRect(15, -6, 28, 12);
+    
     // 套筒前部斜角
     ctx.beginPath();
-    ctx.moveTo(37, -5);
-    ctx.lineTo(40, -3);
-    ctx.lineTo(40, 3);
-    ctx.lineTo(37, 5);
+    ctx.moveTo(43, -6);
+    ctx.lineTo(46, -4);
+    ctx.lineTo(46, 4);
+    ctx.lineTo(43, 6);
     ctx.closePath();
     ctx.fill();
     
     // 枪管（突出部分）
     ctx.fillStyle = gunDark;
-    ctx.fillRect(35, -3, 8, 6);
+    ctx.fillRect(42, -3, 6, 6);
     
-    // 套筒防滑纹
+    // 套筒防滑纹（后部）
     ctx.strokeStyle = gunDark;
     ctx.lineWidth = 1;
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 4; i++) {
       ctx.beginPath();
-      ctx.moveTo(20 + i * 3, -5);
-      ctx.lineTo(20 + i * 3, 5);
+      ctx.moveTo(18 + i * 4, -6);
+      ctx.lineTo(18 + i * 4, 6);
       ctx.stroke();
     }
     
-    // 握把（grip）
+    // 皮卡汀尼导轨（枪管下方）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(22, 6, 15, 4);
+    ctx.strokeStyle = gunMetal;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(24 + i * 4, 6);
+      ctx.lineTo(24 + i * 4, 10);
+      ctx.stroke();
+    }
+    
+    // 握把（grip）- 聚合物材质，带纹理
     ctx.fillStyle = gripBrown;
     ctx.beginPath();
-    ctx.moveTo(15, 3);
-    ctx.lineTo(20, 3);
-    ctx.lineTo(18, 16);
-    ctx.lineTo(10, 14);
+    ctx.moveTo(15, 6);
+    ctx.lineTo(22, 6);
+    ctx.lineTo(20, 20);
+    ctx.lineTo(10, 18);
     ctx.closePath();
     ctx.fill();
     
-    // 握把纹理
+    // 握把纹理（现代格状）
     ctx.fillStyle = gunDark;
-    for (let i = 0; i < 4; i++) {
-      ctx.fillRect(12, 5 + i * 2, 6, 1);
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 2; j++) {
+        ctx.fillRect(13 + j * 5, 8 + i * 2, 3, 1);
+      }
     }
     
-    // 扳机护圈
+    // 扳机护圈（方形现代设计）
     ctx.strokeStyle = gunMetal;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(18, 5, 4, 0, Math.PI, false);
+    ctx.moveTo(22, 6);
+    ctx.lineTo(22, 12);
+    ctx.lineTo(28, 12);
+    ctx.lineTo(28, 8);
     ctx.stroke();
     
-    // 击锤
+    // 扳机
     ctx.fillStyle = gunDark;
-    ctx.fillRect(12, -4, 4, 6);
-  }
-  
-  // 绘制冲锋枪
-  _drawSMG(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 机匣（receiver）
-    ctx.fillStyle = gunMetal;
-    ctx.fillRect(15, -6, 30, 12);
+    ctx.fillRect(25, 7, 2, 4);
     
-    // 枪管
+    // 击铁（后部）
     ctx.fillStyle = gunDark;
-    ctx.fillRect(45, -4, 15, 8);
+    ctx.fillRect(12, -3, 4, 6);
     
-    // 护木/前握把
-    ctx.fillStyle = gripBrown;
-    ctx.fillRect(48, 4, 12, 10);
-    
-    // 弹匣（前置，弯曲）
-    ctx.fillStyle = gunDark;
-    ctx.beginPath();
-    ctx.moveTo(25, 6);
-    ctx.lineTo(33, 6);
-    ctx.lineTo(30, 22);
-    ctx.lineTo(22, 20);
-    ctx.closePath();
-    ctx.fill();
-    // 弹匣细节
-    ctx.strokeStyle = gunMetal;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(25, 10);
-    ctx.lineTo(32, 10);
-    ctx.moveTo(24, 14);
-    ctx.lineTo(31, 14);
-    ctx.moveTo(23, 18);
-    ctx.lineTo(30, 18);
-    ctx.stroke();
-    
-    // 握把
-    ctx.fillStyle = gripBrown;
-    ctx.fillRect(22, 6, 8, 12);
-    // 握把纹理
-    ctx.fillStyle = gunDark;
-    for (let i = 0; i < 4; i++) {
-      ctx.fillRect(23, 7 + i * 2, 6, 1);
-    }
-    
-    // 枪托（折叠式）
+    // 红点瞄准镜（可选）
     ctx.fillStyle = gunBlack;
-    ctx.beginPath();
-    ctx.moveTo(10, -3);
-    ctx.lineTo(0, -3);
-    ctx.lineTo(5, 0);
-    ctx.lineTo(10, 0);
-    ctx.closePath();
-    ctx.fill();
-    
-    // 瞄准器（红点）
-    ctx.fillStyle = gunDark;
-    ctx.fillRect(30, -10, 8, 4);
+    ctx.fillRect(28, -10, 8, 4);
     ctx.fillStyle = '#e53e3e';
-    ctx.fillRect(32, -9, 4, 2);
+    ctx.fillRect(30, -9, 4, 2);
   }
   
-  // 绘制步枪
-  _drawRifle(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 机匣
+  // 绘制冲锋枪（现代战术风格 - MP5-A3 / Vector）
+  _drawSMG(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 机匣（receiver）- 现代设计
     ctx.fillStyle = gunMetal;
     ctx.fillRect(15, -7, 35, 14);
     
-    // 枪管（长）
+    // 枪管
     ctx.fillStyle = gunDark;
-    ctx.fillRect(50, -5, 25, 10);
+    ctx.fillRect(50, -5, 18, 10);
     
-    // 护木（handguard）
+    // 枪口装置（消焰器）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(68, -4, 6, 8);
+    
+    // 护木（带 M-LOK 槽）
     ctx.fillStyle = gripBrown;
-    ctx.fillRect(35, 5, 25, 10);
-    // 护木散热孔
+    ctx.fillRect(52, 5, 20, 10);
+    // M-LOK 散热孔
     ctx.fillStyle = gunDark;
-    for (let i = 0; i < 5; i++) {
-      ctx.fillRect(38 + i * 4, 7, 3, 6);
+    for (let i = 0; i < 4; i++) {
+      ctx.fillRect(54 + i * 4, 7, 3, 6);
     }
     
-    // 弹匣
+    // 弹匣（现代弧形，SMG 风格）
     ctx.fillStyle = gunDark;
     ctx.beginPath();
-    ctx.moveTo(30, 7);
-    ctx.lineTo(40, 7);
-    ctx.lineTo(38, 24);
-    ctx.lineTo(32, 24);
+    ctx.moveTo(28, 7);
+    ctx.lineTo(38, 7);
+    ctx.lineTo(36, 24);
+    ctx.lineTo(26, 22);
     ctx.closePath();
     ctx.fill();
-    // 弹匣细节
-    ctx.strokeStyle = gunMetal;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(31, 12);
-    ctx.lineTo(39, 12);
-    ctx.moveTo(32, 17);
-    ctx.lineTo(40, 17);
-    ctx.stroke();
+    // 弹匣细节（观察窗）
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(29, 10, 6, 2);
+    ctx.fillRect(28, 16, 6, 2);
     
-    // 握把
+    // 握把（垂直前握把）
+    ctx.fillStyle = gripBrown;
+    ctx.fillRect(55, 15, 8, 14);
+    // 握把纹理
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(56, 17 + i * 2, 6, 1);
+    }
+    
+    // 主握把
     ctx.fillStyle = gripBrown;
     ctx.beginPath();
     ctx.moveTo(25, 7);
-    ctx.lineTo(32, 7);
-    ctx.lineTo(30, 20);
+    ctx.lineTo(33, 7);
+    ctx.lineTo(31, 20);
     ctx.lineTo(22, 18);
     ctx.closePath();
     ctx.fill();
-    
-    // 枪托（固定式）
-    ctx.fillStyle = gunBlack;
-    ctx.beginPath();
-    ctx.moveTo(5, -5);
-    ctx.lineTo(-15, -5);
-    ctx.lineTo(-15, 5);
-    ctx.lineTo(5, 5);
-    ctx.quadraticCurveTo(10, 0, 5, -5);
-    ctx.closePath();
-    ctx.fill();
-    // 枪托垫板
+    // 握把纹理
     ctx.fillStyle = gunDark;
-    ctx.fillRect(-18, -3, 5, 6);
-    
-    // 瞄准器（红点/全息）
-    ctx.fillStyle = gunDark;
-    ctx.fillRect(35, -12, 12, 5);
-    ctx.fillStyle = '#4299e1';
-    ctx.fillRect(38, -10, 6, 3);
-    
-    // 准星
-    ctx.fillStyle = gunDark;
-    ctx.fillRect(70, -8, 3, 6);
-  }
-  
-  // 绘制狙击枪
-  _drawSniper(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 机匣（长）
-    ctx.fillStyle = gunMetal;
-    ctx.fillRect(15, -6, 40, 12);
-    
-    // 枪管（超长）
-    ctx.fillStyle = gunDark;
-    ctx.fillRect(55, -4, 50, 8);
-    
-    // 枪管散热槽
-    ctx.fillStyle = gunMetal;
-    for (let i = 0; i < 8; i++) {
-      ctx.fillRect(60 + i * 5, -4, 2, 8);
+    for (let i = 0; i < 4; i++) {
+      ctx.fillRect(26, 9 + i * 2, 5, 1);
     }
     
-    // 两脚架
-    ctx.strokeStyle = gunDark;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(50, 6);
-    ctx.lineTo(45, 18);
-    ctx.moveTo(55, 6);
-    ctx.lineTo(60, 18);
-    ctx.stroke();
-    
-    // 弹匣
-    ctx.fillStyle = gunDark;
-    ctx.fillRect(35, 6, 8, 14);
-    
-    // 握把
-    ctx.fillStyle = gripBrown;
-    ctx.beginPath();
-    ctx.moveTo(30, 6);
-    ctx.lineTo(38, 6);
-    ctx.lineTo(36, 18);
-    ctx.lineTo(27, 16);
-    ctx.closePath();
-    ctx.fill();
-    
-    // 枪托（带托腮板）
+    // 伸缩枪托（现代折叠式）
     ctx.fillStyle = gunBlack;
     ctx.beginPath();
-    ctx.moveTo(10, -4);
-    ctx.lineTo(-20, -4);
-    ctx.lineTo(-20, 6);
-    ctx.lineTo(10, 6);
-    ctx.quadraticCurveTo(15, 1, 10, -4);
+    ctx.moveTo(8, -4);
+    ctx.lineTo(-5, -4);
+    ctx.lineTo(-5, 0);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(5, -2);
     ctx.closePath();
     ctx.fill();
-    // 托腮板
-    ctx.fillStyle = gunDark;
-    ctx.fillRect(-22, -2, 5, 4);
     // 枪托垫板
     ctx.fillStyle = gunDark;
-    ctx.fillRect(-25, -1, 5, 2);
+    ctx.fillRect(-8, -3, 5, 6);
     
-    // 大型瞄准镜
-    ctx.fillStyle = gunBlack;
-    ctx.beginPath();
-    ctx.ellipse(45, -12, 25, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-    // 镜筒
-    ctx.fillRect(25, -16, 40, 8);
-    // 调节旋钮
+    // 全息瞄准镜（现代）
     ctx.fillStyle = gunDark;
-    ctx.fillRect(40, -20, 8, 4);
-    ctx.fillRect(50, -20, 6, 4);
-    // 镜片（前后）
-    ctx.fillStyle = '#4a5568';
-    ctx.fillRect(18, -14, 4, 8);
-    ctx.fillRect(68, -10, 4, 6);
+    ctx.fillRect(30, -12, 14, 5);
+    // 镜片
+    ctx.fillStyle = '#4299e1';
+    ctx.fillRect(34, -10, 8, 3);
+    
+    // 折叠机械瞄具（前）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(65, -8, 3, 6);
+    
+    // 战术灯/激光（导轨下）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(45, 15, 8, 4);
   }
   
-  // 绘制霰弹枪
-  _drawShotgun(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 机匣
+  // 绘制步枪（现代战术风格 - M4A1 / HK416）
+  _drawRifle(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 下机匣（lower receiver）
     ctx.fillStyle = gunMetal;
-    ctx.fillRect(15, -8, 30, 16);
+    ctx.fillRect(15, -5, 40, 10);
     
-    // 枪管（粗）
+    // 上机匣（upper receiver）
+    ctx.fillRect(15, -10, 40, 10);
+    
+    // 枪管（中长）
     ctx.fillStyle = gunDark;
-    ctx.fillRect(45, -6, 25, 12);
+    ctx.fillRect(55, -4, 30, 8);
     
-    // 泵动式护木（pump forend）
+    // 枪口装置（消焰器/制退器）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(85, -5, 8, 10);
+    
+    // 浮置护木（M-LOK 导轨系统）
     ctx.fillStyle = gripBrown;
-    ctx.fillRect(50, 6, 20, 10);
-    // 泵动式防滑纹
+    ctx.fillRect(40, 5, 35, 10);
+    // M-LOK 槽
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 7; i++) {
+      ctx.fillRect(42 + i * 5, 7, 4, 6);
+    }
+    
+    // 弹匣（AR-15 风格，弧形）
+    ctx.fillStyle = gunDark;
+    ctx.beginPath();
+    ctx.moveTo(32, 5);
+    ctx.lineTo(44, 5);
+    ctx.lineTo(42, 26);
+    ctx.lineTo(30, 24);
+    ctx.closePath();
+    ctx.fill();
+    // 弹匣细节（观察窗 + 纹理）
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(33, 10, 8, 2);
+    ctx.fillRect(32, 18, 8, 2);
+    // 弹匣卡笋
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(38, 4, 3, 3);
+    
+    // 握把（AR-15 风格）
+    ctx.fillStyle = gripBrown;
+    ctx.beginPath();
+    ctx.moveTo(28, 5);
+    ctx.lineTo(36, 5);
+    ctx.lineTo(34, 20);
+    ctx.lineTo(24, 18);
+    ctx.closePath();
+    ctx.fill();
+    // 握把纹理（格状）
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(26, 7 + i * 2, 6, 1);
+    }
+    
+    // 伸缩枪托（现代 6 段可调）
+    ctx.fillStyle = gunBlack;
+    ctx.beginPath();
+    ctx.moveTo(8, -7);
+    ctx.lineTo(-18, -7);
+    ctx.lineTo(-18, 7);
+    ctx.lineTo(8, 7);
+    ctx.quadraticCurveTo(12, 0, 8, -7);
+    ctx.closePath();
+    ctx.fill();
+    // 枪托调节钮
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(-5, -3, 4, 6);
+    // 枪托垫板（橡胶）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(-20, -5, 5, 10);
+    
+    // 瞄准镜导轨（平顶机匣）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(20, -12, 30, 2);
+    
+    // 红点/全息瞄准镜（现代）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(35, -18, 16, 6);
+    // 镜片（蓝色镀膜）
+    ctx.fillStyle = '#4299e1';
+    ctx.fillRect(40, -16, 10, 4);
+    
+    // 准星（折叠式）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(80, -7, 4, 6);
+    
+    // 垂直前握把（导轨下）
+    ctx.fillStyle = gripBrown;
+    ctx.fillRect(50, 15, 10, 14);
+    // 握把纹理
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(52, 17 + i * 2, 6, 1);
+    }
+    
+    // 枪灯/激光（导轨下）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(60, 15, 10, 5);
+    // 枪灯镜片
+    ctx.fillStyle = '#4a5568';
+    ctx.fillRect(68, 16, 3, 3);
+    
+    // 弹匣释放钮
+    ctx.fillStyle = gunDark;
+    ctx.beginPath();
+    ctx.arc(42, 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  // 绘制狙击枪（现代战术风格 - AWM / M24）
+  _drawSniper(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 机匣（长，精密加工）
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(15, -8, 45, 16);
+    
+    // 枪管（超长，重型）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(60, -5, 55, 10);
+    
+    // 枪口制退器（大型）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(115, -7, 12, 14);
+    // 制退器开槽
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 3; i++) {
+      ctx.fillRect(118 + i * 3, -5, 2, 10);
+    }
+    
+    // 重型护木
+    ctx.fillStyle = gripBrown;
+    ctx.fillRect(45, 6, 40, 12);
+    // 防滑纹
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 8; i++) {
+      ctx.fillRect(48 + i * 4, 8, 3, 8);
+    }
+    
+    // 弹匣（AW 风格，单排）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(35, 8, 10, 18);
+    // 弹匣细节
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(37, 12, 6, 2);
+    ctx.fillRect(37, 20, 6, 2);
+    
+    // 握把（精密射击风格）
+    ctx.fillStyle = gripBrown;
+    ctx.beginPath();
+    ctx.moveTo(30, 8);
+    ctx.lineTo(40, 8);
+    ctx.lineTo(38, 22);
+    ctx.lineTo(26, 20);
+    ctx.closePath();
+    ctx.fill();
+    // 握把纹理（精细格状）
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(31, 10 + i * 2, 6, 1);
+    }
+    
+    // 战术枪托（可调式，带托腮板）
+    ctx.fillStyle = gunBlack;
+    ctx.beginPath();
+    ctx.moveTo(10, -6);
+    ctx.lineTo(-25, -6);
+    ctx.lineTo(-25, 10);
+    ctx.lineTo(10, 10);
+    ctx.quadraticCurveTo(15, 2, 10, -6);
+    ctx.closePath();
+    ctx.fill();
+    // 可调托腮板
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(-28, -4, 8, 8);
+    // 枪托调节钮
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(-15, 0, 4, 4);
+    // 橡胶垫板
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(-30, -3, 4, 6);
+    
+    // 细长高倍瞄准镜（重点：不再是"大盘鸡"！）
+    // 镜筒主体（细长型）
+    ctx.fillStyle = gunBlack;
+    ctx.beginPath();
+    ctx.roundRect(25, -18, 55, 8, 2);
+    ctx.fill();
+    
+    // 物镜（前端，较大）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(72, -20, 8, 12);
+    // 镜片（蓝色镀膜）
+    ctx.fillStyle = '#4a5568';
+    ctx.fillRect(74, -18, 4, 8);
+    
+    // 目镜（后端）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(22, -19, 6, 10);
+    
+    // 调节旋钮（两个）
+    ctx.fillStyle = gunDark;
+    // 风调（上方）
+    ctx.fillRect(45, -24, 10, 6);
+    // 高低调（侧面）
+    ctx.fillRect(50, -18, 6, 4);
+    // 旋钮纹理
+    ctx.strokeStyle = gunMetal;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.moveTo(47 + i * 1.5, -24);
+      ctx.lineTo(47 + i * 1.5, -18);
+      ctx.stroke();
+    }
+    
+    // 两脚架（折叠式）
+    ctx.strokeStyle = gunDark;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    // 左腿
+    ctx.moveTo(55, 18);
+    ctx.lineTo(48, 32);
+    ctx.lineTo(48, 36);
+    // 右腿
+    ctx.moveTo(65, 18);
+    ctx.lineTo(72, 32);
+    ctx.lineTo(72, 36);
+    // 连接杆
+    ctx.moveTo(50, 34);
+    ctx.lineTo(70, 34);
+    ctx.stroke();
+    // 脚架底座
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(52, 18, 16, 4);
+    
+    // 消音器（可选，现代战术风格）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(125, -6, 15, 12);
+    // 消音器开槽
+    ctx.strokeStyle = gunDark;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(128 + i * 3, -6);
+      ctx.lineTo(128 + i * 3, 6);
+      ctx.stroke();
+    }
+  }
+  
+  // 绘制霰弹枪（现代战术风格 - Benelli M4 / AA-12）
+  _drawShotgun(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 机匣（大型，半自动）
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(15, -9, 35, 18);
+    
+    // 枪管（粗，短）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(50, -7, 25, 14);
+    
+    // 枪口装置（喉缩/制退器）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(75, -8, 8, 16);
+    
+    // 管状弹仓（枪管下方）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(52, 6, 22, 6);
+    // 弹仓细节（观察孔）
+    ctx.fillStyle = gunMetal;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc(56 + i * 5, 9, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // 泵动式护木（战术风格，短）
+    ctx.fillStyle = gripBrown;
+    ctx.fillRect(55, 12, 18, 10);
+    // 防滑纹（纵向）
     ctx.strokeStyle = gunDark;
     ctx.lineWidth = 1;
     for (let i = 0; i < 5; i++) {
       ctx.beginPath();
-      ctx.moveTo(52 + i * 4, 6);
-      ctx.lineTo(52 + i * 4, 16);
+      ctx.moveTo(58 + i * 3, 12);
+      ctx.lineTo(58 + i * 3, 22);
       ctx.stroke();
     }
     
-    // 管状弹仓（枪管下方）
-    ctx.fillStyle = gunDark;
-    ctx.fillRect(48, -3, 20, 4);
-    
-    // 握把
+    // 战术握把（手枪式）
     ctx.fillStyle = gripBrown;
     ctx.beginPath();
-    ctx.moveTo(20, 8);
-    ctx.lineTo(28, 8);
-    ctx.lineTo(26, 20);
-    ctx.lineTo(16, 18);
+    ctx.moveTo(22, 9);
+    ctx.lineTo(32, 9);
+    ctx.lineTo(30, 24);
+    ctx.lineTo(18, 22);
     ctx.closePath();
     ctx.fill();
     
-    // 握把纹理
+    // 握把纹理（格状）
     ctx.fillStyle = gunDark;
-    for (let i = 0; i < 4; i++) {
-      ctx.fillRect(18, 10 + i * 2, 8, 1);
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(20, 11 + i * 2, 10, 1);
     }
     
-    // 枪托
+    // 握把背部（弧形）
+    ctx.fillStyle = gripBrown;
+    ctx.beginPath();
+    ctx.arc(20, 18, 8, Math.PI * 0.5, Math.PI * 1.5);
+    ctx.fill();
+    
+    // 伸缩枪托（战术折叠式）
     ctx.fillStyle = gunBlack;
     ctx.beginPath();
-    ctx.moveTo(10, -6);
-    ctx.lineTo(-15, -6);
-    ctx.lineTo(-15, 8);
-    ctx.lineTo(10, 8);
-    ctx.quadraticCurveTo(15, 1, 10, -6);
+    ctx.moveTo(8, -6);
+    ctx.lineTo(-12, -6);
+    ctx.lineTo(-12, 8);
+    ctx.lineTo(8, 8);
+    ctx.quadraticCurveTo(12, 1, 8, -6);
     ctx.closePath();
     ctx.fill();
-    // 枪托装饰纹
-    ctx.strokeStyle = gripBrown;
+    // 枪托缓冲垫
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(-14, -4, 5, 8);
+    // 枪托调节钮
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(-5, 0, 4, 4);
+    
+    // 顶部导轨
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(18, -12, 25, 3);
+    
+    // 红点瞄准镜（战术）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(28, -17, 12, 5);
+    // 镜片
+    ctx.fillStyle = '#e53e3e';
+    ctx.fillRect(31, -15, 8, 3);
+    
+    // 准星（折叠式，前部）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(72, -10, 4, 8);
+    
+    // 战术灯/激光（导轨下）
+    ctx.fillStyle = gunBlack;
+    ctx.fillRect(40, 18, 10, 5);
+    // 激光发射口
+    ctx.fillStyle = '#e53e3e';
+    ctx.fillRect(48, 19, 3, 3);
+    
+    // 弹匣释放钮
+    ctx.fillStyle = gunDark;
+    ctx.beginPath();
+    ctx.arc(38, 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 枪背带环
+    ctx.strokeStyle = gunDark;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(-5, 0, 8, -Math.PI / 2, Math.PI / 2);
+    ctx.moveTo(-10, 6);
+    ctx.lineTo(-10, 12);
     ctx.stroke();
-    
-    // 准星
-    ctx.fillStyle = gunDark;
-    ctx.fillRect(68, -9, 3, 6);
   }
 
   // 绘制血条
