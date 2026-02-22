@@ -9,7 +9,7 @@ const WEAPONS = {
     fireRate: 3,        // 每秒 3 发
     magazineSize: 12,
     reloadTime: 1500,   // 1.5 秒换弹
-    bulletSpeed: 18,
+    bulletSpeed: 36,
     maxRange: 600,
     spread: 2,          // 2 度散布
     bulletCount: 1
@@ -23,7 +23,7 @@ const WEAPONS = {
     fireRate: 10,       // 每秒 10 发
     magazineSize: 30,
     reloadTime: 2000,   // 2 秒换弹
-    bulletSpeed: 20,
+    bulletSpeed: 40,
     maxRange: 400,
     spread: 5,
     bulletCount: 1
@@ -37,7 +37,7 @@ const WEAPONS = {
     fireRate: 5,        // 每秒 5 发
     magazineSize: 20,
     reloadTime: 2000,
-    bulletSpeed: 22,
+    bulletSpeed: 44,
     maxRange: 800,
     spread: 3,
     bulletCount: 1
@@ -51,7 +51,7 @@ const WEAPONS = {
     fireRate: 0.5,      // 2 秒 1 发
     magazineSize: 5,
     reloadTime: 3000,   // 3 秒换弹
-    bulletSpeed: 35,
+    bulletSpeed: 70,
     maxRange: 1500,
     spread: 0.5,        // 非常精准
     bulletCount: 1
@@ -65,7 +65,7 @@ const WEAPONS = {
     fireRate: 1,        // 每秒 1 发
     magazineSize: 6,
     reloadTime: 2500,
-    bulletSpeed: 15,
+    bulletSpeed: 30,
     maxRange: 250,
     spread: 15,         // 大散布
     bulletCount: 8      // 8 发弹丸

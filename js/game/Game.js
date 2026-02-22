@@ -12,7 +12,7 @@ class Game {
     // 游戏系统
     this.renderer = new Renderer(this.canvas);
     this.physics = new PhysicsSystem();
-    this.camera = new Camera(this.canvas.width, this.canvas.height);
+    this.camera = new Camera(this.canvas.width / 3, this.canvas.height / 3);
     this.map = new GameMap();
     this.ui = new UIManager(this);
     this.audio = window.AudioSystem;

@@ -2,7 +2,7 @@
 
 class PhysicsSystem {
   constructor() {
-    this.gravity = 0.6;
+    this.gravity = 0.4;
     this.friction = 0.85;
     this.gridSize = 100;  // 空间网格大小
     this.spatialGrid = new Map();
