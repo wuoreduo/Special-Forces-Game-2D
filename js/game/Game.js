@@ -31,7 +31,8 @@ class Game {
       playerTeam: 'blue',
       playerWeapon: 'pistol',
       gameDuration: 300,
-      targetKills: 50
+      targetKills: 50,
+      debugGodMode: false
     };
     
     // 实体
@@ -196,21 +197,22 @@ class Game {
         if (!player.alive || player.team === bullet.team) continue;
         
         if (player.checkBulletHit(bullet)) {
-          // 命中
+          const wasAlive = player.health > 0;
+          
           player.takeDamage(bullet.damage, bullet.owner);
           
-          // 创建命中效果
           this._createHitEffect(bullet.x, bullet.y);
           
-          // 播放音效
+          if (!player.alive && wasAlive) {
+            this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
+          }
+          
           if (this.audio) {
             this.audio.playHit();
           }
           
-          // 回收子弹
           this.bulletPool.release(bullet);
           
-          // 更新计分
           if (!player.alive) {
             this.scores[bullet.team]++;
           }
@@ -247,6 +249,24 @@ class Game {
   _createHitEffect(x, y) {
     const particle = this.particlePool.get();
     particle.spawn(x, y, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, 4, 15, '#ff6b6b', 0);
+  }
+
+  _createBloodSplatter(x, y) {
+    const count = 8 + Math.floor(Math.random() * 8);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 6;
+      const particle = this.particlePool.get();
+      particle.spawn(
+        x, y,
+        Math.cos(angle) * speed,
+        Math.sin(angle) * speed - 2,
+        3 + Math.random() * 4,
+        30 + Math.random() * 20,
+        '#8b0000',
+        0.3
+      );
+    }
   }
 
 

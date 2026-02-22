@@ -138,15 +138,16 @@ class Renderer {
 
   // 应用动画偏移
   _applyAnimationOffset(ctx, player) {
-    const anim = player.animationState;
+    if (player.falling || player.fallenAngle > 0) {
+      ctx.rotate(Utils.degToRad(player.fallenAngle));
+      return;
+    }
     
-    // 蹲下
     if (player.crouching) {
       ctx.scale(1, 0.7);
       ctx.translate(0, player.height * 0.15);
     }
     
-    // 跳跃
     if (!player.onGround) {
       ctx.rotate(Utils.degToRad(-5));
     }

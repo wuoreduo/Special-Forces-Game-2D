@@ -20,6 +20,8 @@ class Player extends Entity {
     // 动画
     this.walkAnim = 0;
     this.animationState = 'idle';  // idle, run, jump, crouch, shoot, reload, melee, death
+    this.falling = false;
+    this.fallenAngle = 0;
     
     // 武器
     this.weapon = null;
@@ -137,8 +139,14 @@ class Player extends Entity {
 
   // 更新动画状态
   _updateAnimation() {
-    // 死亡
     if (!this.alive) {
+      if (this.falling) {
+        this.fallenAngle += 10;
+        if (this.fallenAngle >= 90) {
+          this.fallenAngle = 90;
+          this.falling = false;
+        }
+      }
       this.animationState = 'death';
       return;
     }
@@ -264,6 +272,8 @@ class Player extends Entity {
     this.alive = false;
     this.deadTime = 0;
     this.deaths++;
+    this.falling = true;
+    this.fallenAngle = 0;
     
     if (killer && killer !== this) {
       killer.kills++;
@@ -274,11 +284,17 @@ class Player extends Entity {
   respawn(x, y) {
     this.x = x;
     this.y = y;
+    
+    const isDebugMode = window.game && window.game.settings && window.game.settings.debugGodMode;
+    this.maxHealth = isDebugMode ? 1000 : 100;
     this.health = this.maxHealth;
+    
     this.alive = true;
     this.vx = 0;
     this.vy = 0;
     this.reloading = false;
+    this.falling = false;
+    this.fallenAngle = 0;
     
     if (this.weapon) {
       this.weapon.ammo = this.weapon.magazineSize;

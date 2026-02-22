@@ -18,6 +18,7 @@ class UIManager {
     this.reloadHintEl = document.getElementById('reloadHint');
     this.weaponNameEl = document.getElementById('weaponName');
     this.teammatesEl = document.getElementById('teammates');
+    this.debugIndicatorEl = document.getElementById('debugIndicator');
     
     // 游戏结束元素
     this.winnerTextEl = document.getElementById('winnerText');
@@ -189,6 +190,12 @@ class UIManager {
     
     // 队友状态
     this._updateTeammates();
+    
+    if (this.game.settings.debugGodMode) {
+      this.debugIndicatorEl.classList.remove('hidden');
+    } else {
+      this.debugIndicatorEl.classList.add('hidden');
+    }
   }
 
   // 更新队友状态
@@ -256,6 +263,21 @@ class UIManager {
         break;
       case 'KeyV':
         this.game.camera.toggleGlobalView();
+        break;
+      case 'KeyU':
+        this.game.settings.debugGodMode = !this.game.settings.debugGodMode;
+        
+        if (this.game.settings.debugGodMode) {
+          player.maxHealth = 1000;
+          player.health = 1000;
+        } else {
+          player.maxHealth = 100;
+          player.health = Math.min(player.health, 100);
+        }
+        
+        if (this.game.audio) {
+          this.game.audio.playHit();
+        }
         break;
       case 'Tab':
         e.preventDefault();
