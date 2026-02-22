@@ -226,38 +226,48 @@ class Renderer {
     ctx.arc(0, -14, 16, 0, Math.PI * 2);
     ctx.fill();
     
-    // 2. 头盔主体（圆顶，覆盖头顶约1/3）
+    // 2. 头盔主体（圆顶覆盖头顶）
     ctx.fillStyle = helmetColor;
     ctx.beginPath();
     ctx.arc(0, -18, 17, Math.PI * 1.05, Math.PI * 1.95);
     ctx.fill();
     
-    // 3. 头盔边缘（立体感）
-    ctx.fillStyle = helmetDark;
+    // 3. 头盔侧边延伸（遮住耳朵）
+    ctx.fillStyle = helmetColor;
+    // 左耳侧边
+    ctx.beginPath();
+    ctx.roundRect(-18, -18, 6, 14, 2);
+    ctx.fill();
+    // 右耳侧边
+    ctx.beginPath();
+    ctx.roundRect(12, -18, 6, 14, 2);
+    ctx.fill();
+    
+    // 4. 头盔边缘描边
+    ctx.strokeStyle = helmetDark;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(0, -18, 17, Math.PI * 1.05, Math.PI * 1.95);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = helmetDark;
     ctx.stroke();
     
-    // 4. 护目镜（两个圆形镜片）
+    // 5. 护目镜（两个方形镜片+中间连接）
     ctx.fillStyle = '#1a202c';
     // 左镜片
     ctx.beginPath();
-    ctx.ellipse(-6, -15, 5, 3, 0, 0, Math.PI * 2);
+    ctx.roundRect(-11, -18, 8, 5, 1);
     ctx.fill();
     // 右镜片
     ctx.beginPath();
-    ctx.ellipse(6, -15, 5, 3, 0, 0, Math.PI * 2);
+    ctx.roundRect(3, -18, 8, 5, 1);
+    ctx.fill();
+    // 中间连接横杠
+    ctx.beginPath();
+    ctx.roundRect(-3, -17, 6, 3, 1);
     ctx.fill();
     // 镜片反光
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.beginPath();
-    ctx.ellipse(-7, -16, 2, 1, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(5, -16, 2, 1, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.fillRect(-10, -17, 3, 1);
+    ctx.fillRect(4, -17, 3, 1);
   }
 
   // 绘制手臂（简化版）
