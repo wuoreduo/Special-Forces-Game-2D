@@ -234,25 +234,22 @@
       ctx.arc(0, -14, 16, 0, Math.PI * 2);
       ctx.fill();
       
-      // 2. 画头盔（像帽子一样戴在头顶）
+      // 2. 画头盔（只覆盖头顶，像帽子一样）
       ctx.fillStyle = colors.helmet;
       ctx.beginPath();
-      ctx.arc(0, -18, 17, Math.PI * 0.05, Math.PI * 0.95);
-      ctx.lineTo(-14, -6);
-      ctx.lineTo(14, -6);
-      ctx.closePath();
+      ctx.arc(0, -16, 17, Math.PI * 0.1, Math.PI * 0.9);
       ctx.fill();
       
       // 3. 头盔顶部细节
       ctx.fillStyle = colors.helmetDark;
       ctx.beginPath();
-      ctx.arc(0, -21, 14, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.arc(0, -19, 14, Math.PI * 0.15, Math.PI * 0.85);
       ctx.fill();
       
-      // 4. 护目镜（黑色）
+      // 4. 护目镜（黑色，戴在眼睛上）
       ctx.fillStyle = '#2d3748';
       ctx.beginPath();
-      ctx.roundRect(-12, -20, 24, 6, 2);
+      ctx.roundRect(-11, -17, 22, 5, 2);
       ctx.fill();
     }
 
@@ -301,15 +298,12 @@
       
       ctx.fillStyle = colors.helmet;
       ctx.beginPath();
-      ctx.arc(stepX[1], stepY - 18, 17, Math.PI * 0.05, Math.PI * 0.95);
-      ctx.lineTo(-14 + stepX[1], stepY - 6);
-      ctx.lineTo(14 + stepX[1], stepY - 6);
-      ctx.closePath();
+      ctx.arc(stepX[1], stepY - 16, 17, Math.PI * 0.1, Math.PI * 0.9);
       ctx.fill();
       
       ctx.fillStyle = colors.helmetDark;
       ctx.beginPath();
-      ctx.arc(stepX[1], stepY - 21, 14, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.arc(stepX[1], stepY - 19, 14, Math.PI * 0.15, Math.PI * 0.85);
       ctx.fill();
       ctx.fillText('2. 头盔', stepX[1], stepY + 30);
       
@@ -321,20 +315,17 @@
       
       ctx.fillStyle = colors.helmet;
       ctx.beginPath();
-      ctx.arc(stepX[2], stepY - 18, 17, Math.PI * 0.05, Math.PI * 0.95);
-      ctx.lineTo(-14 + stepX[2], stepY - 6);
-      ctx.lineTo(14 + stepX[2], stepY - 6);
-      ctx.closePath();
+      ctx.arc(stepX[2], stepY - 16, 17, Math.PI * 0.1, Math.PI * 0.9);
       ctx.fill();
       
       ctx.fillStyle = colors.helmetDark;
       ctx.beginPath();
-      ctx.arc(stepX[2], stepY - 21, 14, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.arc(stepX[2], stepY - 19, 14, Math.PI * 0.15, Math.PI * 0.85);
       ctx.fill();
       
       ctx.fillStyle = '#2d3748';
       ctx.beginPath();
-      ctx.roundRect(-12 + stepX[2], stepY - 20, 24, 6, 2);
+      ctx.roundRect(-11 + stepX[2], stepY - 17, 22, 5, 2);
       ctx.fill();
       ctx.fillText('3. 护目镜', stepX[2], stepY + 30);
       
@@ -346,20 +337,17 @@
       
       ctx.fillStyle = colors.helmet;
       ctx.beginPath();
-      ctx.arc(stepX[3], stepY - 18, 17, Math.PI * 0.05, Math.PI * 0.95);
-      ctx.lineTo(-14 + stepX[3], stepY - 6);
-      ctx.lineTo(14 + stepX[3], stepY - 6);
-      ctx.closePath();
+      ctx.arc(stepX[3], stepY - 16, 17, Math.PI * 0.1, Math.PI * 0.9);
       ctx.fill();
       
       ctx.fillStyle = colors.helmetDark;
       ctx.beginPath();
-      ctx.arc(stepX[3], stepY - 21, 14, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.arc(stepX[3], stepY - 19, 14, Math.PI * 0.15, Math.PI * 0.85);
       ctx.fill();
       
       ctx.fillStyle = '#2d3748';
       ctx.beginPath();
-      ctx.roundRect(-12 + stepX[3], stepY - 20, 24, 6, 2);
+      ctx.roundRect(-11 + stepX[3], stepY - 17, 22, 5, 2);
       ctx.fill();
       ctx.fillText('4. 完成', stepX[3], stepY + 30);
       
