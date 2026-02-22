@@ -58,6 +58,7 @@ class Player extends Entity {
   update(dt, platforms) {
     if (!this.alive) {
       this.deadTime += dt;
+      this._updateAnimation();
       return;
     }
 
