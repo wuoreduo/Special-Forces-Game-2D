@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>特战队射击游戏 2D</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 游戏画布 -->
+  <canvas id="gameCanvas"></canvas>
+  
+  <!-- 主菜单 UI -->
+  <div id="mainMenu" class="ui-screen">
+    <div class="menu-container">
+      <h1 class="game-title">特战队射击 2D</h1>
+      
+      <div class="menu-section">
+        <h2>选择队伍</h2>
+        <div class="team-select">
+          <button class="team-btn team-blue active" data-team="blue">
+            <span class="team-icon">🔵</span>
+            <span class="team-name">蓝队</span>
+          </button>
+          <button class="team-btn team-red" data-team="red">
+            <span class="team-icon">🔴</span>
+            <span class="team-name">红队</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="menu-section">
+        <h2>选择武器</h2>
+        <div class="weapon-select">
+          <button class="weapon-btn active" data-weapon="pistol">
+            <span class="weapon-name">手枪</span>
+            <span class="weapon-stats">
+              <span class="stat">伤害：★★★</span>
+              <span class="stat">射速：★★★</span>
+            </span>
+          </button>
+          <button class="weapon-btn" data-weapon="smg">
+            <span class="weapon-name">冲锋枪</span>
+            <span class="weapon-stats">
+              <span class="stat">伤害：★★</span>
+              <span class="stat">射速：★★★★★</span>
+            </span>
+          </button>
+          <button class="weapon-btn" data-weapon="rifle">
+            <span class="weapon-name">步枪</span>
+            <span class="weapon-stats">
+              <span class="stat">伤害：★★★★</span>
+              <span class="stat">射速：★★★</span>
+            </span>
+          </button>
+          <button class="weapon-btn" data-weapon="sniper">
+            <span class="weapon-name">狙击枪</span>
+            <span class="weapon-stats">
+              <span class="stat">伤害：★★★★★</span>
+              <span class="stat">射速：★</span>
+            </span>
+          </button>
+          <button class="weapon-btn" data-weapon="shotgun">
+            <span class="weapon-name">霰弹枪</span>
+            <span class="weapon-stats">
+              <span class="stat">伤害：★★★★</span>
+              <span class="stat">射速：★★</span>
+            </span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="menu-section">
+        <h2>游戏设置</h2>
+        <div class="game-settings">
+          <div class="setting-row">
+            <label>游戏时长：</label>
+            <select id="gameDuration">
+              <option value="120">2 分钟</option>
+              <option value="300" selected>5 分钟</option>
+              <option value="600">10 分钟</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <label>目标击杀数：</label>
+            <select id="targetKills">
+              <option value="20">20 杀</option>
+              <option value="30">30 杀</option>
+              <option value="50" selected>50 杀</option>
+              <option value="100">100 杀</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <button id="startBtn" class="start-btn">开始游戏</button>
+    </div>
+  </div>
+  
+  <!-- 游戏 HUD -->
+  <div id="gameHUD" class="ui-hud hidden">
+    <div class="hud-top">
+      <div class="score-panel team-blue-score">
+        <span class="team-icon">🔵</span>
+        <span class="score" id="blueScore">0</span>
+        <span class="team-name">蓝队</span>
+      </div>
+      <div class="timer-panel">
+        <span class="timer" id="gameTimer">05:00</span>
+      </div>
+      <div class="score-panel team-red-score">
+        <span class="team-name">红队</span>
+        <span class="score" id="redScore">0</span>
+        <span class="team-icon">🔴</span>
+      </div>
+    </div>
+    
+    <div class="hud-bottom">
+      <div class="player-info">
+        <div class="health-bar-container">
+          <div class="health-bar-fill" id="playerHealth"></div>
+        </div>
+        <div class="ammo-info">
+          <span id="ammoCount">12/12</span>
+          <span class="reload-hint hidden" id="reloadHint">按 R 换弹</span>
+        </div>
+        <div class="weapon-info">
+          <span id="weaponName">手枪</span>
+        </div>
+      </div>
+      <div class="team-info">
+        <span>按 Tab 切换队友</span>
+        <div class="teammates" id="teammates"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 游戏结束 UI -->
+  <div id="gameOver" class="ui-screen hidden">
+    <div class="menu-container">
+      <h1 class="game-title" id="winnerText">蓝队获胜!</h1>
+      <div class="final-score">
+        <div class="score-row">
+          <span class="team-blue">🔵 蓝队：<span id="finalBlueScore">0</span></span>
+          <span class="team-red">🔴 红队：<span id="finalRedScore">0</span></span>
+        </div>
+      </div>
+      <button id="restartBtn" class="start-btn">重新开始</button>
+      <button id="menuBtn" class="start-btn">返回菜单</button>
+    </div>
+  </div>
+  
+  <!-- 脚本 -->
+  <script src="js/utils/utils.js"></script>
+  <script src="js/pool/ObjectPool.js"></script>
+  <script src="js/audio/Audio.js"></script>
+  <script src="js/game/Camera.js"></script>
+  <script src="js/game/Physics.js"></script>
+  <script src="js/game/Renderer.js"></script>
+  <script src="js/entities/Entity.js"></script>
+  <script src="js/entities/Player.js"></script>
+  <script src="js/entities/Projectile.js"></script>
+  <script src="js/entities/Particle.js"></script>
+  <script src="js/weapons/Weapon.js"></script>
+  <script src="js/weapons/weapons.js"></script>
+  <script src="js/ai/AI.js"></script>
+  <script src="js/map/Map.js"></script>
+  <script src="js/ui/UI.js"></script>
+  <script src="js/game/Game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
