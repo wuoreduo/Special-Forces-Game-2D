@@ -142,25 +142,28 @@ class Weapon {
       
       // 结算伤害
       if (hitInfo && hitInfo.type === 'player') {
-        const damage = this._calculateDamage(hitInfo.distance, hitInfo.isHead, falloffRate);
-        
-        const wasAlive = hitInfo.player.health > 0;
-        hitInfo.player.takeDamage(damage, owner);
-        
-        if (hitInfo.isHead) {
-          game._createHeadshotText(hitInfo.player.x, hitInfo.player.y);
-        }
-        
-        game._createHitEffect(hitInfo.point.x, hitInfo.point.y);
-        
-        if (!hitInfo.player.alive && wasAlive) {
-          game._createBloodSplatter(hitInfo.player.x + hitInfo.player.width/2, hitInfo.player.y + hitInfo.player.height/2);
-          game.scores[owner.team]++;
-          game._createKillFeed(owner, hitInfo.player);
-        }
-        
-        if (game.audio) {
-          game.audio.playHit();
+        // 无敌状态免疫伤害
+        if (!hitInfo.player.invincible) {
+          const damage = this._calculateDamage(hitInfo.distance, hitInfo.isHead, falloffRate);
+          
+          const wasAlive = hitInfo.player.health > 0;
+          hitInfo.player.takeDamage(damage, owner);
+          
+          if (hitInfo.isHead) {
+            game._createHeadshotText(hitInfo.player.x, hitInfo.player.y);
+          }
+          
+          game._createHitEffect(hitInfo.point.x, hitInfo.point.y);
+          
+          if (!hitInfo.player.alive && wasAlive) {
+            game._createBloodSplatter(hitInfo.player.x + hitInfo.player.width/2, hitInfo.player.y + hitInfo.player.height/2);
+            game.scores[owner.team]++;
+            game._createKillFeed(owner, hitInfo.player);
+          }
+          
+          if (game.audio) {
+            game.audio.playHit();
+          }
         }
       }
       
