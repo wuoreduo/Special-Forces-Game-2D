@@ -16,11 +16,12 @@ class Projectile extends Entity {
   }
 
   // 初始化子弹
-  spawn(x, y, angle, speed, damage, maxDist, team, platforms = null) {
+  spawn(x, y, angle, speed, damage, maxDist, team, platforms = null, falloffRate = 0) {
     this.x = x;
     this.y = y;
     this.angle = angle;
     this.speed = speed;
+    this.baseDamage = damage;
     this.damage = damage;
     this.maxDist = maxDist;
     this.team = team;
@@ -29,10 +30,20 @@ class Projectile extends Entity {
     this.trail = [];
     this.trailTimer = 0;
     this.platforms = platforms;
+    this.falloffRate = falloffRate;
     
     // 计算速度向量
     this.vx = Math.cos(angle) * speed;
     this.vy = Math.sin(angle) * speed;
+  }
+
+  // 获取当前距离的伤害
+  getDamage() {
+    if (this.falloffRate <= 0) {
+      return this.baseDamage;
+    }
+    const falloff = Math.min(0.5, this.distTraveled * this.falloffRate);
+    return this.baseDamage * (1 - falloff);
   }
 
   // 检查是否击中墙壁

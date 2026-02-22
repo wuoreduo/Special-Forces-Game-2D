@@ -196,10 +196,19 @@ class Game {
       for (const player of this.players) {
         if (!player.alive || player.team === bullet.team) continue;
         
-        if (player.checkBulletHit(bullet)) {
+        const hitResult = player.checkBulletHit(bullet);
+        
+        if (hitResult.hit) {
           const wasAlive = player.health > 0;
           
-          player.takeDamage(bullet.damage, bullet.owner);
+          let damage = bullet.getDamage();
+          
+          if (hitResult.isHead) {
+            damage *= 2.5;
+            this._createHeadshotText(player.x, player.y);
+          }
+          
+          player.takeDamage(damage, bullet.owner);
           
           this._createHitEffect(bullet.x, bullet.y);
           
@@ -267,6 +276,11 @@ class Game {
         0.3
       );
     }
+  }
+
+  _createHeadshotText(x, y) {
+    const particle = this.particlePool.get();
+    particle.spawnHeadshotText(x, y);
   }
 
 

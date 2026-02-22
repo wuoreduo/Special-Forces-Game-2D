@@ -12,6 +12,8 @@ class Particle {
     this.color = '#fff';
     this.active = false;
     this.gravity = 0;
+    this.isText = false;
+    this.text = '';
   }
 
   // 生成粒子
@@ -26,6 +28,24 @@ class Particle {
     this.color = color;
     this.gravity = gravity;
     this.active = true;
+    this.isText = false;
+    this.text = '';
+  }
+
+  // 生成爆头文字
+  spawnHeadshotText(x, y) {
+    this.x = x;
+    this.y = y;
+    this.vx = 0;
+    this.vy = -1;
+    this.size = 24;
+    this.life = 80;
+    this.decay = 1 / 80;
+    this.color = '#ff3333';
+    this.gravity = 0;
+    this.active = true;
+    this.isText = true;
+    this.text = 'HEADSHOT!';
   }
 
   // 更新粒子
@@ -46,12 +66,26 @@ class Particle {
   draw(ctx, camera) {
     if (!this.active) return;
     
-    ctx.globalAlpha = this.life;
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    if (this.isText) {
+      ctx.save();
+      ctx.globalAlpha = this.life / 80;
+      ctx.fillStyle = this.color;
+      ctx.font = 'bold 24px Arial';
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 3;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.strokeText(this.text, this.x, this.y);
+      ctx.fillText(this.text, this.x, this.y);
+      ctx.restore();
+    } else {
+      ctx.globalAlpha = this.life;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
   }
 
   // 重置粒子
@@ -62,6 +96,8 @@ class Particle {
     this.vx = 0;
     this.vy = 0;
     this.life = 0;
+    this.isText = false;
+    this.text = '';
   }
 }
 

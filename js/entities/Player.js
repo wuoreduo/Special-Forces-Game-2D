@@ -302,15 +302,34 @@ class Player extends Entity {
     }
   }
 
+  // 获取头部区域
+  getHeadBox() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height * 0.2
+    };
+  }
+
   // 受到子弹命中检测
   checkBulletHit(bullet) {
-    // 简单的矩形碰撞
-    return (
+    const headBox = this.getHeadBox();
+    const isHead = (
+      bullet.x >= headBox.x &&
+      bullet.x <= headBox.x + headBox.width &&
+      bullet.y >= headBox.y &&
+      bullet.y <= headBox.y + headBox.height
+    );
+    
+    const bodyHit = (
       bullet.x >= this.x &&
       bullet.x <= this.x + this.width &&
       bullet.y >= this.y &&
       bullet.y <= this.y + this.height
     );
+    
+    return bodyHit ? { hit: true, isHead } : { hit: false };
   }
 
   // 获取近战攻击范围

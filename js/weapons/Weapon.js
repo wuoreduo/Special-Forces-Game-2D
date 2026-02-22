@@ -31,6 +31,8 @@ class Weapon {
     const gunLength = 35;
     const totalLength = armLength + gunLength;
     
+    const falloffRate = this.config.damageFalloff || 0;
+    
     // 霰弹枪发射多发子弹
     for (let i = 0; i < this.bulletCount; i++) {
       // 计算散布
@@ -53,7 +55,8 @@ class Weapon {
         this.damage,
         this.maxRange,
         owner.team,
-        platforms
+        platforms,
+        falloffRate
       );
       
       bullets.push(bullet);

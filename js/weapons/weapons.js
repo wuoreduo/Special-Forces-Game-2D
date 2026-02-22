@@ -12,7 +12,8 @@ const WEAPONS = {
     bulletSpeed: 90,
     maxRange: 600,
     spread: 2,
-    bulletCount: 1
+    bulletCount: 1,
+    damageFalloff: 0.0003
   },
 
   // 冲锋枪 - 高射速
@@ -24,9 +25,10 @@ const WEAPONS = {
     magazineSize: 30,
     reloadTime: 2000,
     bulletSpeed: 100,
-    maxRange: 400,
+    maxRange: 1000,
     spread: 5,
-    bulletCount: 1
+    bulletCount: 1,
+    damageFalloff: 0.0005
   },
 
   // 步枪 - 中距离
@@ -38,9 +40,10 @@ const WEAPONS = {
     magazineSize: 20,
     reloadTime: 2000,
     bulletSpeed: 110,
-    maxRange: 800,
+    maxRange: 1000,
     spread: 3,
-    bulletCount: 1
+    bulletCount: 1,
+    damageFalloff: 0.0005
   },
 
   // 狙击枪 - 高伤害
@@ -54,7 +57,8 @@ const WEAPONS = {
     bulletSpeed: 175,
     maxRange: 1500,
     spread: 0.5,
-    bulletCount: 1
+    bulletCount: 1,
+    damageFalloff: 0
   },
 
   // 霰弹枪 - 近战散射
@@ -68,7 +72,8 @@ const WEAPONS = {
     bulletSpeed: 75,
     maxRange: 250,
     spread: 15,
-    bulletCount: 8
+    bulletCount: 8,
+    damageFalloff: 0
   }
 };
 
