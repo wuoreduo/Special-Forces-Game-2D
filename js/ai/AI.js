@@ -95,13 +95,15 @@ class AIController {
   // 更新状态
   _updateState(gameTime) {
     const prevState = this.state;
+    const mapBounds = this.game.map.getSize();
+    const atEdge = this.player.x < 30 || this.player.x > mapBounds.width - 30;
 
     // 低血量撤退
     if (this.player.health < this.retreatHealth && this.target) {
       this.state = 'retreat';
     }
-    // 有目标且可攻击
-    else if (this.target && this._canAttack()) {
+    // 有目标且可攻击（边缘时不切换攻击状态，避免震荡）
+    else if (this.target && this._canAttack() && !atEdge) {
       this.state = 'attack';
     }
     // 有目标但太远
@@ -203,31 +205,15 @@ class AIController {
       this.target.getCenterY()
     );
 
-    const mapBounds = this.game.map.getSize();
-    const safeMargin = 50;
-    
-    if (dist > this.attackRange) {
-      if (dx > 0) {
-        if (this.player.x < mapBounds.width - safeMargin) {
-          this.player.moveRight = true;
-          this.player.moveLeft = false;
-          this.player.facingLeft = false;
-        } else {
-          this.player.moveLeft = true;
-          this.player.moveRight = false;
-          this.player.facingLeft = true;
-        }
-      } else {
-        if (this.player.x > safeMargin) {
-          this.player.moveLeft = true;
-          this.player.moveRight = false;
-          this.player.facingLeft = true;
-        } else {
-          this.player.moveRight = true;
-          this.player.moveLeft = false;
-          this.player.facingLeft = false;
-        }
-      }
+    // 总是向目标方向移动
+    if (dx > 0) {
+      this.player.moveRight = true;
+      this.player.moveLeft = false;
+      this.player.facingLeft = false;
+    } else {
+      this.player.moveLeft = true;
+      this.player.moveRight = false;
+      this.player.facingLeft = true;
     }
 
     this._aimAtTarget();
@@ -253,21 +239,24 @@ class AIController {
     );
 
     const mapBounds = this.game.map.getSize();
-    const safeMargin = 100;
+    const safeMargin = 50;
 
+    // 保持距离逻辑
     if (dist < this.attackRange * 0.5) {
       const dx = this.player.x - this.target.x;
       if (dx > 0) {
-        if (this.player.x < mapBounds.width - safeMargin) {
-          this.player.moveRight = true;
-          this.player.moveLeft = false;
-        }
+        // 目标在左边，向右撤退
+        this.player.moveRight = true;
+        this.player.moveLeft = false;
       } else {
-        if (this.player.x > safeMargin) {
-          this.player.moveLeft = true;
-          this.player.moveRight = false;
-        }
+        // 目标在右边，向左撤退
+        this.player.moveLeft = true;
+        this.player.moveRight = false;
       }
+    } else {
+      // 距离合适，保持静止
+      this.player.moveLeft = false;
+      this.player.moveRight = false;
     }
     
     this._tryJumpObstacle();
@@ -278,27 +267,18 @@ class AIController {
     if (!this.target) return;
 
     const dx = this.player.x - this.target.x;
-    
-    // 检查地图边界
-    const mapBounds = this.game.map.getSize();
-    const safeMargin = 100;
 
     // 远离目标
     if (dx > 0) {
-      if (this.player.x < mapBounds.width - safeMargin) {
-        this.player.moveRight = true;
-        this.player.moveLeft = false;
-        this.player.facingLeft = false;
-      }
+      this.player.moveRight = true;
+      this.player.moveLeft = false;
+      this.player.facingLeft = false;
     } else {
-      if (this.player.x > safeMargin) {
-        this.player.moveLeft = true;
-        this.player.moveRight = false;
-        this.player.facingLeft = true;
-      }
+      this.player.moveLeft = true;
+      this.player.moveRight = false;
+      this.player.facingLeft = true;
     }
 
-    // 向后瞄准
     this._aimAtTarget();
   }
 
