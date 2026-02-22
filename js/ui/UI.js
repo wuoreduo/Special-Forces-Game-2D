@@ -14,7 +14,8 @@ class UIManager {
     this.redScoreEl = document.getElementById('redScore');
     this.gameTimerEl = document.getElementById('gameTimer');
     this.playerHealthEl = document.getElementById('playerHealth');
-    this.ammoCountEl = document.getElementById('ammoCount');
+    this.healthValueEl = document.getElementById('healthValue');
+    this.ammoDotsEl = document.getElementById('ammoDots');
     this.reloadHintEl = document.getElementById('reloadHint');
     this.weaponNameEl = document.getElementById('weaponName');
     this.secondaryWeaponNameEl = document.getElementById('secondaryWeaponName');
@@ -175,15 +176,20 @@ class UIManager {
     const healthPercent = (player.health / player.maxHealth) * 100;
     this.playerHealthEl.style.width = `${healthPercent}%`;
     
+    // HP 数值（整数）
+    const currentHP = Math.floor(player.health);
+    const maxHP = Math.floor(player.maxHealth);
+    this.healthValueEl.textContent = `${currentHP}/${maxHP}`;
+    
     if (healthPercent < 30) {
       this.playerHealthEl.classList.add('low');
     } else {
       this.playerHealthEl.classList.remove('low');
     }
     
-    // 弹药
+    // 弹药圆点
     if (player.weapon) {
-      this.ammoCountEl.textContent = `${player.weapon.ammo}/${player.weapon.magazineSize}`;
+      this._drawAmmoDots(player);
       this.weaponNameEl.textContent = player.weapon.config.displayName;
       
       // 换弹提示
@@ -208,6 +214,28 @@ class UIManager {
       this.debugIndicatorEl.classList.remove('hidden');
     } else {
       this.debugIndicatorEl.classList.add('hidden');
+    }
+  }
+
+  // 绘制弹药圆点
+  _drawAmmoDots(player) {
+    if (!player.weapon || !player.weapon.magazineSize) {
+      this.ammoDotsEl.innerHTML = '';
+      return;
+    }
+    
+    const currentAmmo = player.weapon.ammo;
+    const maxAmmo = player.weapon.magazineSize;
+    
+    this.ammoDotsEl.innerHTML = '';
+    
+    for (let i = 0; i < maxAmmo; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'ammo-dot';
+      if (i >= currentAmmo) {
+        dot.classList.add('empty');
+      }
+      this.ammoDotsEl.appendChild(dot);
     }
   }
 
