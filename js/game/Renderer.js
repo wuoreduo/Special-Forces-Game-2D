@@ -128,7 +128,15 @@ class Renderer {
     // 绘制血条
     this._drawHealthBar(ctx, player);
     
+    // 绘制名字
+    this._drawPlayerName(ctx, player);
+    
     ctx.restore();
+    
+    // 绘制无敌闪烁效果
+    if (player.invincible && player.alive) {
+      this._drawInvincibleEffect(ctx, player);
+    }
     
     // 绘制控制箭头
     if (player.isControlled && player.alive) {
@@ -473,16 +481,14 @@ class Renderer {
   _drawControlArrow(player) {
     const ctx = this.ctx;
     const arrowX = player.x + player.width / 2;
-    const arrowY = player.y - 45;  // 向上移动，浮在头盔上方
-    const arrowSize = 12;  // 缩小一点
+    const arrowY = player.y - 45;
+    const arrowSize = 12;
     
     ctx.save();
     ctx.translate(arrowX, arrowY);
     
-    // 箭头脉冲动画
     const pulse = Math.sin(Date.now() / 200) * 2;
     
-    // 箭头主体
     ctx.fillStyle = '#4facfe';
     ctx.shadowColor = '#4facfe';
     ctx.shadowBlur = 10;
@@ -493,6 +499,46 @@ class Renderer {
     ctx.lineTo(arrowSize / 2, arrowSize + pulse);
     ctx.closePath();
     ctx.fill();
+    
+    ctx.restore();
+  }
+
+  // 绘制玩家名字
+  _drawPlayerName(ctx, player) {
+    const name = player.name || '玩家';
+    const nameY = player.y - 55;
+    
+    ctx.save();
+    ctx.translate(player.x + player.width / 2, nameY);
+    
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    
+    const teamColor = player.team === 'blue' ? '#4299e1' : '#f56565';
+    ctx.fillStyle = teamColor;
+    ctx.fillText(name, 0, 0);
+    
+    ctx.restore();
+  }
+
+  // 绘制无敌效果
+  _drawInvincibleEffect(ctx, player) {
+    const blink = Math.sin(Date.now() / 50) > 0;
+    if (!blink) return;
+    
+    ctx.save();
+    ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+    
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 25, 0, Math.PI * 2);
+    ctx.stroke();
     
     ctx.restore();
   }
@@ -586,37 +632,38 @@ class Renderer {
   drawKillFeed(killFeed) {
     const ctx = this.ctx;
     const centerX = this.width / 2;
-    const startY = this.height - 150;
+    const startY = this.height - 100;
     
     ctx.save();
     
     for (let i = 0; i < killFeed.length; i++) {
       const entry = killFeed[i];
-      const y = startY - i * 30;
+      const y = startY - i * 45;
       
       ctx.globalAlpha = entry.alpha;
       
       const killerColor = entry.killerTeam === 'blue' ? '#4299e1' : '#f56565';
       const victimColor = entry.victimTeam === 'blue' ? '#4299e1' : '#f56565';
       
-      ctx.font = 'bold 14px sans-serif';
+      ctx.font = 'bold 22px sans-serif';
       ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
       
       const text = `${entry.killerName} 击杀 ${entry.victimName}`;
       const metrics = ctx.measureText(text);
-      const padding = 10;
+      const padding = 15;
       
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillRect(centerX - metrics.width / 2 - padding, y - 12, metrics.width + padding * 2, 24);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(centerX - metrics.width / 2 - padding, y - 18, metrics.width + padding * 2, 36);
+      ctx.strokeStyle = killerColor;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(centerX - metrics.width / 2 - padding, y - 18, metrics.width + padding * 2, 36);
       
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, centerX, y + 4);
-      
-      ctx.fillStyle = killerColor;
-      ctx.fillText(entry.killerName, centerX - ctx.measureText(` 击杀 ${entry.victimName}`).width / 2, y + 4);
-      
-      ctx.fillStyle = victimColor;
-      ctx.fillText(entry.victimName, centerX + ctx.measureText(`${entry.killerName} 击杀 `).width / 2, y + 4);
+      ctx.fillText(text, centerX, y + 8);
     }
     
     ctx.restore();

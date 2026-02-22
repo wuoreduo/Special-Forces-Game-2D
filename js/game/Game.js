@@ -206,6 +206,9 @@ class Game {
       for (const player of this.players) {
         if (!player.alive || player.team === bullet.team) continue;
         
+        // 无敌状态免疫伤害
+        if (player.invincible) continue;
+        
         const hitResult = player.checkBulletHit(bullet);
         
         if (hitResult.hit) {
@@ -255,6 +258,9 @@ class Game {
       
       for (const enemy of this.players) {
         if (!enemy.alive || enemy.team !== enemyTeam) continue;
+        
+        // 无敌状态免疫伤害
+        if (enemy.invincible) continue;
         
         if (Utils.rectIntersect(meleeRange, enemy)) {
           const wasAlive = enemy.alive;

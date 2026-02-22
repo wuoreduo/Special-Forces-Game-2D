@@ -45,6 +45,11 @@ class Player extends Entity {
     // 击杀统计
     this.kills = 0;
     this.deaths = 0;
+    
+    // 无敌状态
+    this.invincible = false;
+    this.invincibleTime = 0;
+    this.invincibleDuration = 3000;
   }
 
   // 设置武器
@@ -79,6 +84,14 @@ class Player extends Entity {
       this.deadTime += dt;
       this._updateAnimation();
       return;
+    }
+
+    // 无敌时间倒计时
+    if (this.invincible) {
+      this.invincibleTime -= dt;
+      if (this.invincibleTime <= 0) {
+        this.invincible = false;
+      }
     }
 
     // 换弹逻辑
@@ -321,6 +334,10 @@ class Player extends Entity {
     this.reloading = false;
     this.falling = false;
     this.fallenAngle = 0;
+    
+    // 设置无敌状态
+    this.invincible = true;
+    this.invincibleTime = this.invincibleDuration;
     
     if (this.weapon) {
       this.weapon.ammo = this.weapon.magazineSize;
