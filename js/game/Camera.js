@@ -88,16 +88,16 @@ class Camera {
   // 转换屏幕坐标到世界坐标
   screenToWorld(screenX, screenY) {
     return {
-      x: screenX + this.x,
-      y: screenY + this.y
+      x: screenX / this.zoom + this.x,
+      y: screenY / this.zoom + this.y
     };
   }
 
   // 转换世界坐标到屏幕坐标
   worldToScreen(worldX, worldY) {
     return {
-      x: worldX - this.x,
-      y: worldY - this.y
+      x: (worldX - this.x) * this.zoom,
+      y: (worldY - this.y) * this.zoom
     };
   }
 
