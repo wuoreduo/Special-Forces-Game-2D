@@ -226,22 +226,37 @@ class Renderer {
     ctx.arc(0, -14, 16, 0, Math.PI * 2);
     ctx.fill();
     
-    // 2. 画头盔（只覆盖头顶，像帽子一样）- 上半圆
+    // 2. 头盔主体（圆顶，覆盖头顶约1/3）
     ctx.fillStyle = helmetColor;
     ctx.beginPath();
-    ctx.arc(0, -24, 17, Math.PI * 1.1, Math.PI * 1.9);
+    ctx.arc(0, -18, 17, Math.PI * 1.05, Math.PI * 1.95);
     ctx.fill();
     
-    // 3. 头盔顶部细节
+    // 3. 头盔边缘（立体感）
     ctx.fillStyle = helmetDark;
     ctx.beginPath();
-    ctx.arc(0, -26, 14, Math.PI * 1.15, Math.PI * 1.85);
-    ctx.fill();
+    ctx.arc(0, -18, 17, Math.PI * 1.05, Math.PI * 1.95);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = helmetDark;
+    ctx.stroke();
     
-    // 4. 护目镜（黑色，横贯式）- 戴在眼睛上，不遮嘴
-    ctx.fillStyle = '#2d3748';
+    // 4. 护目镜（两个圆形镜片）
+    ctx.fillStyle = '#1a202c';
+    // 左镜片
     ctx.beginPath();
-    ctx.roundRect(-11, -19, 22, 5, 2);
+    ctx.ellipse(-6, -15, 5, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // 右镜片
+    ctx.beginPath();
+    ctx.ellipse(6, -15, 5, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // 镜片反光
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.beginPath();
+    ctx.ellipse(-7, -16, 2, 1, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(5, -16, 2, 1, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
