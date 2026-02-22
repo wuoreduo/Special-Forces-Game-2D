@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简化美术预览</title>
+  <style>
+    body {
+      margin: 0;
+      background: #1a1a2e;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+      justify-content: center;
+    }
+    .preview-box {
+      background: #2d3748;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    canvas {
+      border: 2px solid #4a5568;
+      border-radius: 4px;
+      background: #16213e;
+    }
+    h3 {
+      margin: 10px 0;
+      color: #4facfe;
+    }
+    .controls {
+      background: #2d3748;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px auto;
+      max-width: 800px;
+      text-align: center;
+    }
+    button {
+      background: #4facfe;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #00f2fe;
+    }
+    button.active {
+      background: #48bb78;
+    }
+    label {
+      display: inline-block;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <h2>简化美术风格预览</h2>
+    <div>
+      <label>
+        <input type="checkbox" id="showDetails" checked> 显示细节
+      </label>
+    </div>
+    <div style="margin-top: 10px;">
+      <button onclick="setTeam('blue')" class="active" id="btnBlue">蓝队</button>
+      <button onclick="setTeam('red')" id="btnRed">红队</button>
+    </div>
+    <div style="margin-top: 10px;">
+      <button onclick="setWeapon('pistol')" id="btnPistol">手枪</button>
+      <button onclick="setWeapon('smg')" id="btnSMG">冲锋枪</button>
+      <button onclick="setWeapon('rifle')" id="btnRifle" class="active">步枪</button>
+      <button onclick="setWeapon('sniper')" id="btnSniper">狙击枪</button>
+      <button onclick="setWeapon('shotgun')" id="btnShotgun">霰弹枪</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="preview-box">
+      <h3>角色正面</h3>
+      <canvas id="canvasFront" width="200" height="300"></canvas>
+    </div>
+    <div class="preview-box">
+      <h3>角色侧面</h3>
+      <canvas id="canvasSide" width="200" height="300"></canvas>
+    </div>
+    <div class="preview-box">
+      <h3>持枪姿态</h3>
+      <canvas id="canvasShoot" width="300" height="300"></canvas>
+    </div>
+    <div class="preview-box">
+      <h3>所有枪械</h3>
+      <canvas id="canvasWeapons" width="400" height="500"></canvas>
+    </div>
+  </div>
+
+  <script>
+    let currentTeam = 'blue';
+    let currentWeapon = 'rifle';
+    let showDetails = true;
+
+    function setTeam(team) {
+      currentTeam = team;
+      document.getElementById('btnBlue').classList.toggle('active', team === 'blue');
+      document.getElementById('btnRed').classList.toggle('active', team === 'red');
+      drawAll();
+    }
+
+    function setWeapon(weapon) {
+      currentWeapon = weapon;
+      ['pistol', 'smg', 'rifle', 'sniper', 'shotgun'].forEach(w => {
+        document.getElementById('btn' + w.charAt(0).toUpperCase() + w.slice(1)).classList.toggle('active', w === weapon);
+      });
+      drawAll();
+    }
+
+    document.getElementById('showDetails').addEventListener('change', (e) => {
+      showDetails = e.target.checked;
+      drawAll();
+    });
+
+    function drawAll() {
+      drawCharacter(document.getElementById('canvasFront').getContext('2d'), 0, false);
+      drawCharacter(document.getElementById('canvasSide').getContext('2d'), Math.PI / 6, false);
+      drawCharacter(document.getElementById('canvasShoot').getContext('2d'), 0, true);
+      drawAllWeapons(document.getElementById('canvasWeapons').getContext('2d'));
+    }
+
+    function drawCharacter(ctx, headAngle, holdingWeapon) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+      ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2 - 50);
+
+      const colors = getColors(currentTeam);
+
+      // 腿部 (简化：两个矩形)
+      drawLeg(ctx, -10, 40, colors.thigh, colors.shin, colors.boot);
+      drawLeg(ctx, 10, 40, colors.thigh, colors.shin, colors.boot);
+
+      // 身体 (简化：圆角矩形)
+      ctx.fillStyle = colors.body;
+      roundRect(ctx, -20, -10, 40, 50, 8);
+      ctx.fill();
+
+      // 战术背心 (简化：纯色块)
+      ctx.fillStyle = colors.vest;
+      roundRect(ctx, -15, -5, 30, 30, 5);
+      ctx.fill();
+
+      // 队伍标识 (简化：圆形徽章)
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(0, 10, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = colors.body;
+      ctx.font = 'bold 10px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(currentTeam === 'blue' ? 'B' : 'R', 0, 10);
+
+      // 肩膀 (简化：两个圆形)
+      ctx.fillStyle = colors.shoulder;
+      ctx.beginPath();
+      ctx.arc(-22, -8, 10, 0, Math.PI * 2);
+      ctx.arc(22, -8, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 头部
+      drawHead(ctx, 0, -35, colors, headAngle);
+
+      // 手臂 (简化：线条 + 矩形)
+      if (holdingWeapon) {
+        drawArm(ctx, 15, -5, 0.3, colors);
+        drawWeapon(ctx, currentWeapon, colors);
+      } else {
+        drawArm(ctx, 15, -5, 0.5, colors);
+        drawArm(ctx, -15, -5, -0.5, colors);
+      }
+
+      ctx.restore();
+    }
+
+    function drawLeg(ctx, x, y, thighColor, shinColor, bootColor) {
+      ctx.save();
+      ctx.translate(x, y);
+      
+      // 大腿
+      ctx.fillStyle = thighColor;
+      ctx.fillRect(-6, 0, 12, 20);
+      
+      // 膝盖
+      ctx.fillStyle = '#2d3748';
+      ctx.fillRect(-6, 18, 12, 5);
+      
+      // 小腿
+      ctx.fillStyle = shinColor;
+      ctx.fillRect(-5, 23, 10, 18);
+      
+      // 军靴
+      ctx.fillStyle = bootColor;
+      ctx.fillRect(-6, 38, 12, 8);
+      
+      ctx.restore();
+    }
+
+    function drawHead(ctx, x, y, colors, angle) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+
+      // 脸型 (简化：椭圆形)
+      ctx.fillStyle = '#f6ad55';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 14, 16, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 头盔 (简化：半圆 + 矩形)
+      ctx.fillStyle = colors.helmet;
+      ctx.beginPath();
+      ctx.arc(0, -5, 16, Math.PI, 0);
+      ctx.fillRect(-16, -5, 32, 10);
+      ctx.fill();
+
+      // 护目镜 (简化：横贯矩形)
+      ctx.fillStyle = '#2d3748';
+      roundRect(ctx, -12, -8, 24, 8, 3);
+      ctx.fill();
+
+      // 镜片反光 (简化：两个小矩形)
+      ctx.fillStyle = 'rgba(79, 172, 254, 0.6)';
+      ctx.fillRect(-8, -6, 6, 4);
+      ctx.fillRect(2, -6, 6, 4);
+
+      ctx.restore();
+    }
+
+    function drawArm(ctx, x, y, angle, colors) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+
+      // 上臂
+      ctx.fillStyle = colors.sleeve;
+      ctx.fillRect(0, -5, 15, 10);
+
+      // 前臂
+      ctx.fillStyle = '#f6ad55';
+      ctx.fillRect(15, -4, 14, 8);
+
+      // 手套
+      ctx.fillStyle = '#1a202c';
+      ctx.fillRect(27, -5, 8, 10);
+
+      ctx.restore();
+    }
+
+    function drawWeapon(ctx, type, colors) {
+      ctx.save();
+      ctx.translate(35, 0);
+
+      const gunMetal = '#4a5568';
+      const gunDark = '#2d3748';
+      const gunBlack = '#1a202c';
+      const gripBrown = '#5d4e37';
+
+      switch (type) {
+        case 'pistol':
+          drawSimplifiedPistol(ctx, gunMetal, gunDark, gripBrown);
+          break;
+        case 'smg':
+          drawSimplifiedSMG(ctx, gunMetal, gunDark, gripBrown);
+          break;
+        case 'rifle':
+          drawSimplifiedRifle(ctx, gunMetal, gunDark, gripBrown);
+          break;
+        case 'sniper':
+          drawSimplifiedSniper(ctx, gunMetal, gunDark, gripBrown);
+          break;
+        case 'shotgun':
+          drawSimplifiedShotgun(ctx, gunMetal, gunDark, gripBrown);
+          break;
+      }
+
+      ctx.restore();
+    }
+
+    // 简化手枪
+    function drawSimplifiedPistol(ctx, gunMetal, gunDark, gripBrown) {
+      // 套筒
+      ctx.fillStyle = gunMetal;
+      ctx.fillRect(0, -6, 30, 12);
+      
+      // 握把
+      ctx.fillStyle = gripBrown;
+      ctx.beginPath();
+      ctx.moveTo(5, 6);
+      ctx.lineTo(12, 6);
+      ctx.lineTo(10, 22);
+      ctx.lineTo(2, 20);
+      ctx.closePath();
+      ctx.fill();
+      
+      // 枪管
+      ctx.fillStyle = gunDark;
+      ctx.fillRect(28, -4, 8, 8);
+    }
+
+    // 简化冲锋枪
+    function drawSimplifiedSMG(ctx, gunMetal, gunDark, gripBrown) {
+      const gunBlack = '#1a202c';
+      // 机匣
+      ctx.fillStyle = gunMetal;
+      ctx.fillRect(0, -7, 40, 14);
+      
+      // 枪管
+      ctx.fillStyle = gunDark;
+      ctx.fillRect(40, -5, 20, 10);
+      
+      // 弹匣
+      ctx.fillStyle = gunDark;
+      ctx.fillRect(15, 7, 12, 18);
+      
+      // 握把
+      ctx.fillStyle = gripBrown;
+      ctx.fillRect(10, 7, 10, 16);
+      
+      // 枪托
+      ctx.fillStyle = gunBlack;
+      ctx.fillRect(-10, -4, 12, 8);
+    }
+
+    // 简化步枪
+    function drawSimplifiedRifle(ctx, gunMetal, gunDark, gripBrown) {
+      const gunBlack = '#1a202c';
+      // 机匣
+      ctx.fillStyle = gunMetal;
+      ctx.fillRect(0, -8, 45, 16);
+      
+      // 枪管
+      ctx.fillStyle = gunDark;
+      ctx.fillRect(45, -5, 40, 10);
+      
+      // 护木
+      ctx.fillStyle = gripBrown;
+      ctx.fillRect(45, 5, 30, 10);
+      
+      // 弹匣
+      ctx.fillStyle = gunDark;
+      ctx.beginPath();
+      ctx.moveTo(20, 8);
+      ctx.lineTo(32, 8);
+      ctx.quadraticCurveTo(36, 12, 38, 20);
+      ctx.lineTo(22, 20);
+      ctx.closePath();
+      ctx.fill();
+      
+      // 握把
+      ctx.fillStyle = gripBrown;
+      ctx.beginPath();
+      ctx.moveTo(18, 8);
+      ctx.lineTo(28, 8);
+      ctx.lineTo(26, 26);
+      ctx.lineTo(15, 24);
+      ctx.closePath();
+      ctx.fill();
+      
+      // 枪托
+      ctx.fillStyle = gunBlack;
+      ctx.fillRect(-15, -6, 18, 12);
+    }
+
+    // 简化狙击枪
+    function drawSimplifiedSniper(ctx, gunMetal, gunDark, gripBrown) {
+      const gunBlack = '#1a202c';
+      // 机匣
+      ctx.fillStyle = gunMetal;
+      ctx.fillRect(0, -8, 50, 16);
+      
+      // 枪管 (长)
+      ctx.fillStyle = gunDark;
+      ctx.fillRect(50, -5, 70, 10);
+      
+      // 瞄准镜 (细长)
+      ctx.fillStyle = gunBlack;
+      ctx.fillRect(15, -18, 50, 8);
+      
+      // 弹匣
+      ctx.fillStyle = gunDark;
+      ctx.fillRect(25, 8, 10, 16);
+      
+      // 握把
+      ctx.fillStyle = gripBrown;
+      ctx.fillRect(20, 8, 12, 18);
+      
+      // 枪托
+      ctx.fillStyle = gunBlack;
+      ctx.fillRect(-25, -6, 28, 12);
+      
+      // 两脚架
+      ctx.strokeStyle = gunDark;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(40, 8);
+      ctx.lineTo(35, 25);
+      ctx.moveTo(50, 8);
+      ctx.lineTo(55, 25);
+      ctx.stroke();
+    }
+
+    // 简化霰弹枪
+    function drawSimplifiedShotgun(ctx, gunMetal, gunDark, gripBrown) {
+      const gunBlack = '#1a202c';
+      // 机匣
+      ctx.fillStyle = gunMetal;
+      ctx.fillRect(0, -9, 35, 18);
+      
+      // 枪管 (粗)
+      ctx.fillStyle = gunDark;
+      ctx.fillRect(35, -7, 30, 14);
+      
+      // 护木
+      ctx.fillStyle = gripBrown;
+      ctx.fillRect(40, 7, 20, 10);
+      
+      // 握把
+      ctx.fillStyle = gripBrown;
+      ctx.beginPath();
+      ctx.moveTo(15, 9);
+      ctx.lineTo(28, 9);
+      ctx.lineTo(26, 24);
+      ctx.lineTo(12, 22);
+      ctx.closePath();
+      ctx.fill();
+      
+      // 枪托
+      ctx.fillStyle = gunBlack;
+      ctx.fillRect(-15, -6, 18, 12);
+    }
+
+    function drawAllWeapons(ctx) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      
+      const weapons = ['pistol', 'smg', 'rifle', 'sniper', 'shotgun'];
+      const labels = ['手枪', '冲锋枪', '步枪', '狙击枪', '霰弹枪'];
+      
+      weapons.forEach((weapon, i) => {
+        const y = 60 + i * 90;
+        
+        ctx.save();
+        ctx.translate(50, y);
+        
+        const gunMetal = '#4a5568';
+        const gunDark = '#2d3748';
+        const gripBrown = '#5d4e37';
+        
+        switch (weapon) {
+          case 'pistol':
+            drawSimplifiedPistol(ctx, gunMetal, gunDark, gripBrown);
+            break;
+          case 'smg':
+            drawSimplifiedSMG(ctx, gunMetal, gunDark, gripBrown);
+            break;
+          case 'rifle':
+            drawSimplifiedRifle(ctx, gunMetal, gunDark, gripBrown);
+            break;
+          case 'sniper':
+            drawSimplifiedSniper(ctx, gunMetal, gunDark, gripBrown);
+            break;
+          case 'shotgun':
+            drawSimplifiedShotgun(ctx, gunMetal, gunDark, gripBrown);
+            break;
+        }
+        
+        ctx.restore();
+        
+        // 标签
+        ctx.fillStyle = '#fff';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[i], 200, y + 5);
+      });
+    }
+
+    function getColors(team) {
+      if (team === 'blue') {
+        return {
+          body: '#4299e1',
+          vest: '#2c5282',
+          shoulder: '#2b6cb0',
+          thigh: '#2c5282',
+          shin: '#1a365d',
+          boot: '#1a202c',
+          helmet: '#2c5282',
+          sleeve: '#2b6cb0'
+        };
+      } else {
+        return {
+          body: '#f56565',
+          vest: '#9b2c2c',
+          shoulder: '#e53e3e',
+          thigh: '#9b2c2c',
+          shin: '#742a2a',
+          boot: '#1a202c',
+          helmet: '#9b2c2c',
+          sleeve: '#e53e3e'
+        };
+      }
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    // 初始化
+    drawAll();
+  </script>
+</body>
+</html>
