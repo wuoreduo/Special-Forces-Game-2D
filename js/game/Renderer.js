@@ -140,7 +140,7 @@ class Renderer {
   _applyAnimationOffset(ctx, player) {
     if (player.falling || player.fallenAngle > 0) {
       ctx.rotate(Utils.degToRad(-player.fallenAngle));
-      ctx.translate(0, player.height * 0.5);
+      ctx.translate(player.height * 0.7, 0);
       return;
     }
     
