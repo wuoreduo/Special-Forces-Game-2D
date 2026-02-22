@@ -154,157 +154,109 @@ class Renderer {
     }
   }
 
-  // 绘制腿部（简化版）
+  // 绘制腿部（极简版）
   _drawLegs(ctx, player) {
-    const legOffset = Math.sin(player.walkAnim) * 8;
-    const thighColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
-    const shinColor = player.team === 'blue' ? '#1a365d' : '#742a2a';
+    const legColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
     const bootColor = '#1a202c';
+    const legOffset = Math.sin(player.walkAnim) * 6;
     
     // 左腿
     ctx.save();
-    ctx.translate(-10, 20);
-    const leftLegAngle = player.onGround ? legOffset : -8;
-    ctx.rotate(Utils.degToRad(leftLegAngle));
-    
-    // 大腿
-    ctx.fillStyle = thighColor;
-    ctx.fillRect(-5, 0, 10, 18);
-    // 膝盖
-    ctx.fillStyle = '#2d3748';
-    ctx.fillRect(-5, 16, 10, 4);
-    // 小腿
-    ctx.fillStyle = shinColor;
-    ctx.fillRect(-4, 20, 8, 16);
-    // 军靴
+    ctx.translate(-8, 22);
+    ctx.rotate(Utils.degToRad(player.onGround ? legOffset : -6));
+    ctx.fillStyle = legColor;
+    ctx.fillRect(-4, 0, 8, 20);
     ctx.fillStyle = bootColor;
-    ctx.fillRect(-5, 34, 10, 6);
-    
+    ctx.fillRect(-5, 18, 10, 6);
     ctx.restore();
     
     // 右腿
     ctx.save();
-    ctx.translate(10, 20);
-    const rightLegAngle = player.onGround ? -legOffset : 8;
-    ctx.rotate(Utils.degToRad(rightLegAngle));
-    
-    // 大腿
-    ctx.fillStyle = thighColor;
-    ctx.fillRect(-5, 0, 10, 18);
-    // 膝盖
-    ctx.fillStyle = '#2d3748';
-    ctx.fillRect(-5, 16, 10, 4);
-    // 小腿
-    ctx.fillStyle = shinColor;
-    ctx.fillRect(-4, 20, 8, 16);
-    // 军靴
+    ctx.translate(8, 22);
+    ctx.rotate(Utils.degToRad(player.onGround ? -legOffset : 6));
+    ctx.fillStyle = legColor;
+    ctx.fillRect(-4, 0, 8, 20);
     ctx.fillStyle = bootColor;
-    ctx.fillRect(-5, 34, 10, 6);
-    
+    ctx.fillRect(-5, 18, 10, 6);
     ctx.restore();
   }
 
-  // 绘制身体（简化版）
+  // 绘制身体（极简版）
   _drawBody(ctx, player) {
     const bodyColor = player.team === 'blue' ? '#4299e1' : '#f56565';
     const vestColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
-    const shoulderColor = player.team === 'blue' ? '#2b6cb0' : '#e53e3e';
     
-    // 躯干主体（简化：圆角矩形）
+    // 躯干主体
     ctx.fillStyle = bodyColor;
-    ctx.beginPath();
-    ctx.roundRect(-16, -18, 32, 42, 5);
-    ctx.fill();
+    ctx.fillRect(-14, -18, 28, 38);
     
-    // 肩膀（简化：两个圆形）
-    ctx.fillStyle = shoulderColor;
-    ctx.beginPath();
-    ctx.arc(-18, -15, 8, 0, Math.PI * 2);
-    ctx.arc(18, -15, 8, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // 战术背心（简化：纯色块）
+    // 战术背心
     ctx.fillStyle = vestColor;
-    ctx.fillRect(-12, -10, 24, 26);
+    ctx.fillRect(-10, -10, 20, 24);
     
-    // 队伍标识（简化：圆形徽章）
+    // 队伍标识
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(0, 2, 8, 0, Math.PI * 2);
+    ctx.arc(0, 0, 7, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = player.team === 'blue' ? '#4299e1' : '#f56565';
-    ctx.font = 'bold 11px Arial';
+    ctx.fillStyle = bodyColor;
+    ctx.font = 'bold 10px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(player.team === 'blue' ? 'B' : 'R', 0, 2);
+    ctx.fillText(player.team === 'blue' ? 'B' : 'R', 0, 0);
     
-    // 腰带（简化）
+    // 腰带
     ctx.fillStyle = '#2d3748';
-    ctx.fillRect(-14, 20, 28, 5);
+    ctx.fillRect(-12, 18, 24, 4);
   }
 
-  // 绘制头部（简化版）
+  // 绘制头部（极简版）
   _drawHead(ctx, player) {
-    const skinColor = '#f6ad55';
     const helmetColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
     const helmetDark = player.team === 'blue' ? '#1a365d' : '#742a2a';
     
-    // 脸型（简化：椭圆形）
-    ctx.fillStyle = skinColor;
-    ctx.beginPath();
-    ctx.ellipse(0, -20, 12, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // 头盔（简化：圆顶 military helmet）
+    // 头盔
     ctx.fillStyle = helmetColor;
     ctx.beginPath();
-    ctx.arc(0, -23, 14, Math.PI * 0.1, Math.PI * 0.9);
-    ctx.lineTo(-13, -15);
-    ctx.lineTo(-14, -8);
-    ctx.lineTo(14, -8);
-    ctx.lineTo(13, -15);
+    ctx.arc(0, -22, 12, Math.PI * 0.15, Math.PI * 0.85);
+    ctx.lineTo(-11, -14);
+    ctx.lineTo(-11, -8);
+    ctx.lineTo(11, -8);
+    ctx.lineTo(11, -14);
     ctx.closePath();
     ctx.fill();
     
-    // 头盔顶部细节
-    ctx.fillStyle = helmetDark;
-    ctx.beginPath();
-    ctx.arc(0, -24, 11, Math.PI * 0.2, Math.PI * 0.8);
-    ctx.fill();
-    
-    // 护目镜（简化：横贯矩形）
+    // 护目镜
     ctx.fillStyle = '#2d3748';
-    ctx.beginPath();
-    ctx.roundRect(-10, -23, 20, 6, 2);
-    ctx.fill();
+    ctx.fillRect(-9, -23, 18, 5);
     
-    // 镜片反光（简化：两个小矩形）
+    // 镜片反光
     ctx.fillStyle = 'rgba(79, 172, 254, 0.6)';
-    ctx.fillRect(-6, -21, 4, 3);
-    ctx.fillRect(3, -21, 4, 3);
+    ctx.fillRect(-5, -21, 3, 2);
+    ctx.fillRect(3, -21, 3, 2);
   }
 
-  // 绘制手臂（简化版）
+  // 绘制手臂（极简版）
   _drawArm(ctx, player) {
     const sleeveColor = player.team === 'blue' ? '#2b6cb0' : '#e53e3e';
     const gloveColor = '#1a202c';
     const renderAngle = player.facingLeft ? Math.PI - player.aimAngle : player.aimAngle;
     
     ctx.save();
-    ctx.translate(12, -8);
+    ctx.translate(10, -6);
     ctx.rotate(renderAngle);
     
-    // 上臂（简化：矩形）
+    // 上臂
     ctx.fillStyle = sleeveColor;
-    ctx.fillRect(0, -5, 14, 10);
+    ctx.fillRect(0, -4, 12, 8);
     
-    // 前臂（简化：矩形）
+    // 前臂
     ctx.fillStyle = '#f6ad55';
-    ctx.fillRect(14, -4, 12, 8);
+    ctx.fillRect(12, -3, 10, 6);
     
-    // 手套（简化：矩形）
+    // 手套
     ctx.fillStyle = gloveColor;
-    ctx.fillRect(24, -5, 8, 10);
+    ctx.fillRect(20, -4, 6, 8);
     
     ctx.restore();
   }
@@ -352,172 +304,119 @@ class Renderer {
     ctx.restore();
   }
   
-  // 绘制手枪（简化版）
+  // 绘制手枪（极简版）
   _drawPistol(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 套筒（简化：矩形）
+    // 套筒
     ctx.fillStyle = gunMetal;
-    ctx.fillRect(15, -6, 28, 12);
+    ctx.fillRect(8, -4, 18, 8);
     
-    // 握把（简化：梯形）
+    // 握把
     ctx.fillStyle = gripBrown;
-    ctx.beginPath();
-    ctx.moveTo(18, 6);
-    ctx.lineTo(25, 6);
-    ctx.lineTo(23, 20);
-    ctx.lineTo(15, 18);
-    ctx.closePath();
-    ctx.fill();
+    ctx.fillRect(10, 4, 6, 10);
     
-    // 枪管（简化：小矩形）
+    // 枪管
     ctx.fillStyle = gunDark;
-    ctx.fillRect(40, -4, 8, 8);
-    
-    // 扳机护圈（简化：L 形）
-    ctx.strokeStyle = gunMetal;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(25, 6);
-    ctx.lineTo(25, 11);
-    ctx.lineTo(29, 11);
-    ctx.stroke();
+    ctx.fillRect(24, -3, 5, 6);
   }
   
-  // 绘制冲锋枪（简化版）
+  // 绘制冲锋枪（极简版）
   _drawSMG(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 机匣（简化：矩形）
+    // 机匣
     ctx.fillStyle = gunMetal;
-    ctx.fillRect(15, -7, 38, 14);
+    ctx.fillRect(8, -5, 22, 10);
     
-    // 枪管（简化：矩形）
+    // 枪管
     ctx.fillStyle = gunDark;
-    ctx.fillRect(53, -5, 18, 10);
+    ctx.fillRect(30, -4, 12, 8);
     
-    // 弹匣（简化：矩形）
+    // 弹匣
     ctx.fillStyle = gunDark;
-    ctx.fillRect(28, 7, 12, 16);
+    ctx.fillRect(16, 5, 7, 10);
     
-    // 握把（简化：矩形）
+    // 握把
     ctx.fillStyle = gripBrown;
-    ctx.fillRect(25, 7, 10, 14);
+    ctx.fillRect(14, 5, 5, 9);
     
-    // 枪托（简化：矩形）
+    // 枪托
     ctx.fillStyle = gunBlack;
-    ctx.fillRect(5, -4, 12, 8);
-    
-    // 护木（简化）
-    ctx.fillStyle = gripBrown;
-    ctx.fillRect(55, 5, 16, 8);
+    ctx.fillRect(2, -3, 7, 6);
   }
   
-  // 绘制步枪（简化版）
+  // 绘制步枪（极简版）
   _drawRifle(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 机匣（简化：矩形）
+    // 机匣
     ctx.fillStyle = gunMetal;
-    ctx.fillRect(10, -8, 42, 16);
+    ctx.fillRect(6, -5, 24, 10);
     
-    // 枪管（简化：长矩形）
+    // 枪管
     ctx.fillStyle = gunDark;
-    ctx.fillRect(52, -5, 38, 10);
+    ctx.fillRect(30, -4, 22, 8);
     
-    // 护木（简化：矩形）
+    // 护木
     ctx.fillStyle = gripBrown;
-    ctx.fillRect(52, 5, 28, 10);
+    ctx.fillRect(30, 4, 16, 6);
     
-    // 弹匣（简化：弧形矩形）
+    // 弹匣
     ctx.fillStyle = gunDark;
-    ctx.beginPath();
-    ctx.moveTo(25, 8);
-    ctx.lineTo(35, 8);
-    ctx.quadraticCurveTo(39, 12, 40, 22);
-    ctx.lineTo(27, 22);
-    ctx.closePath();
-    ctx.fill();
+    ctx.fillRect(14, 5, 8, 10);
     
-    // 握把（简化：梯形）
+    // 握把
     ctx.fillStyle = gripBrown;
-    ctx.beginPath();
-    ctx.moveTo(22, 8);
-    ctx.lineTo(30, 8);
-    ctx.lineTo(28, 24);
-    ctx.lineTo(19, 22);
-    ctx.closePath();
-    ctx.fill();
+    ctx.fillRect(12, 5, 5, 9);
     
-    // 枪托（简化：矩形）
+    // 枪托
     ctx.fillStyle = gunBlack;
-    ctx.fillRect(-8, -6, 20, 12);
+    ctx.fillRect(-4, -4, 11, 8);
   }
 
-  // 绘制狙击枪（简化版）
+  // 绘制狙击枪（极简版）
   _drawSniper(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 机匣（简化：长矩形）
+    // 机匣
     ctx.fillStyle = gunMetal;
-    ctx.fillRect(10, -8, 48, 16);
+    ctx.fillRect(6, -5, 26, 10);
     
-    // 枪管（简化：超长矩形）
+    // 枪管
     ctx.fillStyle = gunDark;
-    ctx.fillRect(58, -5, 65, 10);
+    ctx.fillRect(32, -3, 35, 6);
     
-    // 瞄准镜（简化：细长矩形）
+    // 瞄准镜
     ctx.fillStyle = gunBlack;
-    ctx.fillRect(20, -18, 45, 8);
+    ctx.fillRect(12, -10, 24, 5);
     
-    // 弹匣（简化：小矩形）
+    // 弹匣
     ctx.fillStyle = gunDark;
-    ctx.fillRect(30, 8, 10, 14);
+    ctx.fillRect(16, 5, 6, 8);
     
-    // 握把（简化：梯形）
+    // 握把
     ctx.fillStyle = gripBrown;
-    ctx.beginPath();
-    ctx.moveTo(25, 8);
-    ctx.lineTo(35, 8);
-    ctx.lineTo(33, 22);
-    ctx.lineTo(22, 20);
-    ctx.closePath();
-    ctx.fill();
+    ctx.fillRect(14, 5, 5, 9);
     
-    // 枪托（简化：长矩形）
+    // 枪托
     ctx.fillStyle = gunBlack;
-    ctx.fillRect(-20, -6, 32, 12);
-    
-    // 两脚架（简化：两条线）
-    ctx.strokeStyle = gunDark;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(45, 8);
-    ctx.lineTo(40, 22);
-    ctx.moveTo(55, 8);
-    ctx.lineTo(60, 22);
-    ctx.stroke();
+    ctx.fillRect(-10, -4, 17, 8);
   }
   
-  // 绘制霰弹枪（简化版）
+  // 绘制霰弹枪（极简版）
   _drawShotgun(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
-    // 机匣（简化：大矩形）
+    // 机匣
     ctx.fillStyle = gunMetal;
-    ctx.fillRect(10, -9, 32, 18);
+    ctx.fillRect(6, -6, 18, 12);
     
-    // 枪管（简化：粗矩形）
+    // 枪管
     ctx.fillStyle = gunDark;
-    ctx.fillRect(42, -7, 28, 14);
+    ctx.fillRect(24, -5, 16, 10);
     
-    // 护木（简化：矩形）
+    // 护木
     ctx.fillStyle = gripBrown;
-    ctx.fillRect(45, 7, 20, 10);
+    ctx.fillRect(26, 5, 10, 5);
     
-    // 握把（简化：梯形）
+    // 握把
     ctx.fillStyle = gripBrown;
-    ctx.beginPath();
-    ctx.moveTo(20, 9);
-    ctx.lineTo(30, 9);
-    ctx.lineTo(28, 23);
-    ctx.lineTo(17, 21);
-    ctx.closePath();
-    ctx.fill();
+    ctx.fillRect(12, 6, 5, 9);
     
-    // 枪托（简化：矩形）
+    // 枪托
     ctx.fillStyle = gunBlack;
-    ctx.fillRect(-10, -6, 22, 12);
+    ctx.fillRect(-6, -5, 13, 10);
   }
 
   // 绘制血条
