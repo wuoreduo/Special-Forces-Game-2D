@@ -128,14 +128,14 @@ class Renderer {
     // 绘制血条
     this._drawHealthBar(ctx, player);
     
-    // 绘制名字
-    this._drawPlayerName(ctx, player);
-    
     ctx.restore();
+    
+    // 绘制名字（在恢复坐标系后，不受翻转影响）
+    this._drawPlayerName(player);
     
     // 绘制无敌闪烁效果
     if (player.invincible && player.alive) {
-      this._drawInvincibleEffect(ctx, player);
+      this._drawInvincibleEffect(player);
     }
     
     // 绘制控制箭头
@@ -504,12 +504,13 @@ class Renderer {
   }
 
   // 绘制玩家名字
-  _drawPlayerName(ctx, player) {
+  _drawPlayerName(player) {
+    const ctx = this.ctx;
     const name = player.name || '玩家';
+    const nameX = player.x + player.width / 2;
     const nameY = player.y - 55;
     
     ctx.save();
-    ctx.translate(player.x + player.width / 2, nameY);
     
     ctx.font = 'bold 14px sans-serif';
     ctx.textAlign = 'center';
@@ -521,23 +522,26 @@ class Renderer {
     
     const teamColor = player.team === 'blue' ? '#4299e1' : '#f56565';
     ctx.fillStyle = teamColor;
-    ctx.fillText(name, 0, 0);
+    ctx.fillText(name, nameX, nameY);
     
     ctx.restore();
   }
 
   // 绘制无敌效果
-  _drawInvincibleEffect(ctx, player) {
+  _drawInvincibleEffect(player) {
+    const ctx = this.ctx;
     const blink = Math.sin(Date.now() / 50) > 0;
     if (!blink) return;
     
     ctx.save();
-    ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+    
+    const centerX = player.x + player.width / 2;
+    const centerY = player.y + player.height / 2;
     
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(0, 0, 25, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, 25, 0, Math.PI * 2);
     ctx.stroke();
     
     ctx.restore();
