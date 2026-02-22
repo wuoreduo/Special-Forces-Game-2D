@@ -304,9 +304,9 @@ class AIController {
   // 换弹行为
   _reloadBehavior() {
     this.player.startReload();
-    this.player.moveLeft = false;
-    this.player.moveRight = false;
     this.player.shooting = false;
+    // 换弹时继续巡逻移动
+    this._patrolBehavior();
   }
 
   // 瞄准目标

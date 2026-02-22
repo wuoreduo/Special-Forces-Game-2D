@@ -65,7 +65,7 @@ class Player extends Entity {
       if (this.reloadTime <= 0) {
         this.finishReload();
       }
-      return;  // 换弹时不能做其他动作
+      // 换弹时仍可移动，继续执行下面的代码
     }
 
     // 近战冷却
