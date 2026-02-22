@@ -450,14 +450,14 @@ class Renderer {
   _drawControlArrow(player) {
     const ctx = this.ctx;
     const arrowX = player.x + player.width / 2;
-    const arrowY = player.y - 25;
-    const arrowSize = 15;
+    const arrowY = player.y - 45;  // 向上移动，浮在头盔上方
+    const arrowSize = 12;  // 缩小一点
     
     ctx.save();
     ctx.translate(arrowX, arrowY);
     
     // 箭头脉冲动画
-    const pulse = Math.sin(Date.now() / 200) * 3;
+    const pulse = Math.sin(Date.now() / 200) * 2;
     
     // 箭头主体
     ctx.fillStyle = '#4facfe';
