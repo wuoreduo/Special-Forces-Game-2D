@@ -226,22 +226,22 @@ class Renderer {
     ctx.arc(0, -14, 16, 0, Math.PI * 2);
     ctx.fill();
     
-    // 2. 画头盔（只覆盖头顶，像帽子一样）
+    // 2. 画头盔（只覆盖头顶，像帽子一样）- 向上移动不遮脸
     ctx.fillStyle = helmetColor;
     ctx.beginPath();
-    ctx.arc(0, -16, 17, Math.PI * 0.1, Math.PI * 0.9);
+    ctx.arc(0, -24, 17, Math.PI * 0.1, Math.PI * 0.9);
     ctx.fill();
     
     // 3. 头盔顶部细节
     ctx.fillStyle = helmetDark;
     ctx.beginPath();
-    ctx.arc(0, -19, 14, Math.PI * 0.15, Math.PI * 0.85);
+    ctx.arc(0, -26, 14, Math.PI * 0.15, Math.PI * 0.85);
     ctx.fill();
     
-    // 4. 护目镜（黑色，横贯式）- 戴在眼睛上
+    // 4. 护目镜（黑色，横贯式）- 戴在眼睛上，不遮嘴
     ctx.fillStyle = '#2d3748';
     ctx.beginPath();
-    ctx.roundRect(-11, -17, 22, 5, 2);
+    ctx.roundRect(-11, -19, 22, 5, 2);
     ctx.fill();
   }
 

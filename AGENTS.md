@@ -2,43 +2,41 @@
 
 ## Project Overview
 
-特战队射击游戏 2D (Special Forces Shooting Game 2D) is a vanilla JavaScript 2D side-scrolling shooter game similar to Contra. It features 5v5 team combat with AI teammates, 5 weapon types, and a complete physics system.
+特战队射击游戏 2D is a vanilla JavaScript 2D side-scrolling shooter (Contra-style) with 5v5 team combat, AI teammates, 5 weapon types, and physics.
 
 **Tech Stack:** HTML5 Canvas + CSS3 + JavaScript (ES6)
 
 ---
 
-## Build / Run / Test Commands
+## Build / Run / Test
 
 ### Running the Game
 
-There is no build step required. The game runs directly in a browser.
+No build step required. Runs directly in browser.
 
 ```bash
-# Option 1: Open directly in browser
-# Double-click index.html or open with:
+# Open directly
 open index.html  # macOS
 xdg-open index.html  # Linux
-start index.html  # Windows
 
-# Option 2: Python local server
+# Or use local server
 python -m http.server 8080
-# Then visit: http://localhost:8080
-
-# Option 3: Node.js server (requires http-server)
 npx http-server -p 8080
 ```
 
 ### Testing
 
-**No formal test framework exists.** Testing is manual:
-1. Open the game in a browser (Chrome 80+, Firefox 75+, Edge 80+)
-2. Use browser DevTools Console for debugging
-3. Access `window.game` for the game instance (debugging)
+No formal test framework. Manual testing via browser DevTools:
+```javascript
+window.game.state           // Check game state
+window.game.players         // All player entities  
+window.game.currentPlayer   // Currently controlled player
+window.game.debugGodMode    // Toggle god mode
+```
 
 ### Linting / Formatting
 
-**No linting or formatting tools are configured.** Code style is enforced by convention (see below).
+No linting or formatting tools configured.
 
 ---
 
@@ -67,15 +65,18 @@ npx http-server -p 8080
 ### JavaScript Conventions
 
 **Naming:**
-- Classes: `PascalCase` (e.g., `Player`, `Game`, `Weapon`)
-- Functions/Methods: `camelCase` (e.g., `shoot()`, `takeDamage()`)
-- Private methods: `_prefixWithUnderscore` (e.g., `_updateAI()`, `_resizeCanvas()`)
+- Classes: `PascalCase` (e.g., `Player`, `Game`)
+- Functions: `camelCase` (e.g., `shoot()`, `takeDamage()`)
+- Private methods: `_prefix` (e.g., `_updateAI()`)
 - Constants: `UPPER_SNAKE_CASE` (e.g., `WEAPONS`)
-- Files: Match class name or purpose (e.g., `Player.js`, `weapons.js`)
+
+**Imports/Modules:**
+- No ES6 modules - global script loading via `<script>` tags
+- Dependencies loaded in `index.html` in order (base classes first)
+- All classes attached to `window`: `window.ClassName = ClassName`
 
 **Classes:**
-- Use ES6 `class` syntax for all game entities
-- Export via `window.ClassName = ClassName` pattern at file end
+- ES6 `class` syntax, extend base `Entity` class
 - Constructor initializes all properties
 - Private helper methods prefixed with `_`
 
@@ -86,48 +87,29 @@ class Player extends Entity {
     this.team = team;
     this.isControlled = isControlled;
   }
-
-  // Public method
   shoot(gameTime) { ... }
-
-  // Private helper
   _handleMovement(dt) { ... }
 }
-
 window.Player = Player;
 ```
 
 **Comments:**
 - Single-line: `// Comment text`
-- File header: `// 游戏主类 - 游戏循环、状态管理` (brief purpose description)
-- Comment in Chinese (matching project language)
-
-**Code Structure:**
-- No modules (ES6 import/export) - uses global script loading
-- Dependencies loaded via `<script>` tags in `index.html` in order
-- All classes attached to `window` for global access
+- File header: `// 游戏主类 - 游戏循环、状态管理`
+- Comments in Chinese
 
 ### CSS Conventions
 
-**Naming:**
-- BEM-like pattern: `.block-element-modifier`
-- Examples: `.team-btn`, `.health-bar-fill`, `.setting-row`
-- Utility classes: `.hidden`, `.ui-screen`, `.ui-hud`
+**Naming:** BEM-like (`.team-btn`, `.health-bar-fill`), utilities (`.hidden`, `.ui-screen`)
 
-**Structure:**
-- Reset first (`* { margin: 0; padding: 0; box-sizing: border-box; }`)
-- Body/base styles
-- Component sections with comments (`/* UI 通用样式 */`, `/* 队伍选择 */`)
-- Responsive rules at end (`@media`)
+**Structure:** Reset → base → components (commented sections) → responsive (`@media`)
 
-**Colors:**
-- Use hex colors with descriptive naming in classes
-- Gradient backgrounds common for UI elements
+**Colors:** Hex colors, gradient backgrounds common for UI
 
 ### Error Handling
 
 **Patterns:**
-- Early returns for null/invalid states
+- Early returns for null/invalid states (guard clauses)
 - Guard clauses at method start:
 ```javascript
 if (!this.alive || this.reloading || !this.weapon) return [];
@@ -135,30 +117,6 @@ if (!player.alive) return false;
 ```
 - Silent failures common (game continues running)
 - Console logging for debugging in `main.js`
-
-### Performance Considerations
-
-- **Object pooling** for bullets and particles (reuse objects, reduce GC)
-- **Distance squared** comparisons avoid unnecessary `Math.sqrt()`
-- **Spatial hashing** mentioned in README for collision optimization
-- **View frustum culling** - only render on-screen objects
-- **AI throttled** to 30 FPS (not every frame)
-
----
-
-## Key Architecture Patterns
-
-1. **Game Loop**: `requestAnimationFrame` in `Game.gameLoop()`
-2. **Entity-Component-like**: Base `Entity` class with `Player`, `Projectile`, `Particle`
-3. **Object Pool**: `ObjectPool` class for bullet/particle reuse
-4. **Singleton-ish**: Systems attached to `Game` instance or `window`
-5. **Data-Driven**: Weapon configs in `WEAPONS` constant object
-
----
-
-## Cursor / Copilot Rules
-
-**No existing rules found.** This file serves as the primary AI assistant guide.
 
 ---
 
@@ -179,16 +137,18 @@ if (!player.alive) return false;
 
 ---
 
-## Browser Debugging Tips
+## Key Architecture Patterns
 
-```javascript
-// Access game instance
-window.game
+1. **Game Loop**: `requestAnimationFrame` in `Game.gameLoop()`
+2. **Entity-Component-like**: Base `Entity` class, `Player`, `Projectile`, `Particle`
+3. **Object Pool**: `ObjectPool` class for bullet/particle reuse
+4. **Singleton-ish**: Systems attached to `Game` instance or `window`
+5. **Data-Driven**: Weapon configs in `WEAPONS` constant
 
-// Common debug operations:
-window.game.state           // Check game state
-window.game.players         // All player entities
-window.game.currentPlayer   // Currently controlled player
-window.game.scores          // Current scores
-window.game.settings        // Game settings
-```
+## Performance Considerations
+
+- **Object pooling** for bullets and particles (reuse objects, reduce GC)
+- **Distance squared** comparisons avoid unnecessary `Math.sqrt()`
+- **Spatial hashing** for collision optimization
+- **View frustum culling** - only render on-screen objects
+- **AI throttled** to 30 FPS (not every frame)
