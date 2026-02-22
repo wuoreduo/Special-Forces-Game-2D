@@ -24,8 +24,12 @@ class Weapon {
     if (this.ammo <= 0) return [];
     
     const bullets = [];
+    // 枪口位置：从玩家中心，沿瞄准角度，加上手臂和武器长度
     const centerX = owner.x + owner.width / 2;
-    const centerY = owner.y + owner.height / 2;
+    const centerY = owner.y + owner.height / 2 - 5; // 手臂连接点
+    const armLength = 20;
+    const gunLength = 35;
+    const totalLength = armLength + gunLength;
     
     // 霰弹枪发射多发子弹
     for (let i = 0; i < this.bulletCount; i++) {
@@ -42,8 +46,8 @@ class Weapon {
       
       const bullet = bulletPool.get();
       bullet.spawn(
-        centerX + Math.cos(angle) * 30,
-        centerY + Math.sin(angle) * 30,
+        centerX + Math.cos(angle) * totalLength,
+        centerY + Math.sin(angle) * totalLength,
         angle,
         this.bulletSpeed,
         this.damage,

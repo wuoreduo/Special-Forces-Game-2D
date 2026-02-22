@@ -64,14 +64,21 @@ class Renderer {
   }
 
   // 绘制缓存的地图
-  drawMap(camera) {
-    if (this.mapCache && !this.mapCacheDirty) {
-      this.ctx.drawImage(
-        this.mapCache,
-        camera.x, camera.y, camera.width, camera.height,
-        0, 0, camera.width, camera.height
-      );
+  drawMap(camera, platforms) {
+    // 直接绘制平台（不使用缓存，避免缓存问题）
+    for (const platform of platforms) {
+      if (this._isPlatformInView(platform, camera)) {
+        this._drawPlatform(this.ctx, platform);
+      }
     }
+  }
+
+  // 检查平台是否在视野内
+  _isPlatformInView(platform, camera) {
+    return !(platform.x + platform.width < camera.x ||
+             platform.x > camera.x + camera.width ||
+             platform.y + platform.height < camera.y ||
+             platform.y > camera.y + camera.height);
   }
 
   // 绘制平台

@@ -144,9 +144,14 @@ class Game {
       if (player.shooting) {
         const bullets = player.shoot(this.gameTime);
         if (bullets && bullets.length > 0) {
-          // 创建枪口火焰
-          const muzzleX = player.x + player.width / 2 + Math.cos(player.aimAngle) * 30;
-          const muzzleY = player.y + player.height / 2 + Math.sin(player.aimAngle) * 30;
+          // 计算枪口位置（从玩家中心，沿瞄准角度，加上手臂和武器长度）
+          const centerX = player.x + player.width / 2;
+          const centerY = player.y + player.height / 2 - 5; // 手臂连接点
+          const armLength = 20;
+          const gunLength = 35;
+          const totalLength = armLength + gunLength;
+          const muzzleX = centerX + Math.cos(player.aimAngle) * totalLength;
+          const muzzleY = centerY + Math.sin(player.aimAngle) * totalLength;
           this._createMuzzleFlash(muzzleX, muzzleY, player.aimAngle);
         }
       }
@@ -298,12 +303,12 @@ class Game {
     this.renderer.clear();
     this.renderer.drawBackground();
     
-    // 绘制地图
-    this.renderer.drawMap(this.camera);
-    
     // 应用摄像机
     this.ctx.save();
     this.camera.apply(this.ctx);
+    
+    // 绘制地图（在摄像机变换后绘制）
+    this.renderer.drawMap(this.camera, this.map.platforms);
     
     // 绘制玩家
     for (const player of this.players) {
@@ -336,6 +341,9 @@ class Game {
     
     // 重置计分
     this.scores = { blue: 0, red: 0 };
+    
+    // 缓存地图
+    this.renderer.cacheMap(this.map.platforms);
     
     // 创建玩家
     this._createPlayers();
