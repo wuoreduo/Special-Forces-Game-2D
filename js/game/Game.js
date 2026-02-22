@@ -531,17 +531,19 @@ class Game {
         this.aiControllers.push(newAI);
       }
       
-      if (prevControlledPlayer.maxHealth === 1000) {
-        prevControlledPlayer.maxHealth = 100;
-        prevControlledPlayer.health = Math.min(prevControlledPlayer.health, 100);
-      }
+      // 前一个控制玩家恢复普通状态
+      prevControlledPlayer.invincible = false;
+      prevControlledPlayer.maxHealth = 100;
+      prevControlledPlayer.health = Math.min(prevControlledPlayer.health, 100);
     }
     
     this.currentPlayer = teamPlayers[this.playerIndex] || teamPlayers[0];
     
-    if (this.settings.debugGodMode && this.currentPlayer.maxHealth === 100) {
-      this.currentPlayer.maxHealth = 1000;
-      this.currentPlayer.health = Math.max(this.currentPlayer.health, 1000);
+    // 调试模式：新控制玩家无敌
+    if (this.settings.debugGodMode && this.currentPlayer) {
+      this.currentPlayer.invincible = true;
+      this.currentPlayer.maxHealth = 100;
+      this.currentPlayer.health = 100;
     }
     
     this.camera.setTarget(this.currentPlayer);

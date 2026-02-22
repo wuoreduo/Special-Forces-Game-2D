@@ -327,8 +327,7 @@ class Player extends Entity {
     this.x = x;
     this.y = y;
     
-    const isDebugMode = window.game && window.game.settings && window.game.settings.debugGodMode && this.isControlled;
-    this.maxHealth = isDebugMode ? 1000 : 100;
+    this.maxHealth = 100;
     this.health = this.maxHealth;
     
     this.alive = true;
@@ -338,8 +337,9 @@ class Player extends Entity {
     this.falling = false;
     this.fallenAngle = 0;
     
-    // 设置无敌状态
-    this.invincible = true;
+    // 调试模式：永久无敌
+    const isDebugMode = window.game && window.game.settings && window.game.settings.debugGodMode && this.isControlled;
+    this.invincible = isDebugMode;
     this.invincibleTime = this.invincibleDuration;
     
     if (this.weapon) {

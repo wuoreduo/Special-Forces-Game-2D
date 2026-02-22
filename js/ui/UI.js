@@ -298,19 +298,11 @@ class UIManager {
         
         const teamPlayers = this.game.players.filter(p => p.team === this.game.settings.playerTeam);
         
-        if (this.game.settings.debugGodMode) {
-          for (const p of teamPlayers) {
-            if (p.isControlled) {
-              p.maxHealth = 1000;
-              p.health = 1000;
-            }
-          }
-        } else {
-          for (const p of teamPlayers) {
-            if (p.maxHealth === 1000) {
-              p.maxHealth = 100;
-              p.health = Math.min(p.health, 100);
-            }
+        for (const p of teamPlayers) {
+          if (p.isControlled) {
+            p.invincible = this.game.settings.debugGodMode;
+            p.maxHealth = 100;
+            p.health = 100;
           }
         }
         
