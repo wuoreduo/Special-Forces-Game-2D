@@ -20,40 +20,36 @@ class Camera {
   update(mapWidth, mapHeight) {
     if (!this.target) return;
 
-    const targetX = this.target.x - this.width / 2;
-    const targetY = this.target.y - this.height / 2;
+    // 考虑缩放后的视野范围
+    const viewWidth = this.width / this.zoom;
+    const viewHeight = this.height / this.zoom;
+
+    const targetX = this.target.x + this.target.width / 2 - viewWidth / 2;
+    const targetY = this.target.y + this.target.height / 2 - viewHeight / 2;
 
     // 平滑跟随
     this.x = Utils.lerp(this.x, targetX, this.smooth);
     this.y = Utils.lerp(this.y, targetY, this.smooth);
 
     // 限制在地图范围内
-    this.x = Utils.clamp(this.x, 0, Math.max(0, mapWidth - this.width));
-    this.y = Utils.clamp(this.y, 0, Math.max(0, mapHeight - this.height));
+    this.x = Utils.clamp(this.x, 0, Math.max(0, mapWidth - viewWidth));
+    this.y = Utils.clamp(this.y, 0, Math.max(0, mapHeight - viewHeight));
   }
 
   // 应用摄像机变换（用于渲染）
   apply(ctx) {
-    const cx = this.width / 2;
-    const cy = this.height / 2;
-    
-    // 平移到屏幕中心
-    ctx.translate(cx, cy);
-    // 缩放
+    // Canvas 变换是反向应用的（后调用的先应用）
+    // 我们需要：先平移世界，再缩放
+    // 所以代码顺序是：先 scale，再 translate
     ctx.scale(this.zoom, this.zoom);
-    // 平移回并应用摄像机偏移
-    ctx.translate(-cx - this.x, -cy - this.y);
+    ctx.translate(-this.x, -this.y);
   }
 
   // 恢复摄像机变换
   reset(ctx) {
-    const cx = this.width / 2;
-    const cy = this.height / 2;
-    
-    // 反向变换：与 apply 相反
-    ctx.translate(cx + this.x, cy + this.y);
+    // 反向变换
+    ctx.translate(this.x, this.y);
     ctx.scale(1 / this.zoom, 1 / this.zoom);
-    ctx.translate(-cx, -cy);
   }
 
   // 检查对象是否在视野内（视锥剔除）
