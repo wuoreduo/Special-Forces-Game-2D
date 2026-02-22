@@ -474,6 +474,16 @@ class Renderer {
                         healthPercent > 0.25 ? '#f6ad55' : '#f56565';
     ctx.fillStyle = healthColor;
     ctx.fillRect(-barWidth / 2, -45, barWidth * healthPercent, barHeight);
+    
+    // 绘制 HP 数值（血条右侧）
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`${Math.floor(player.health)}/${Math.floor(player.maxHealth)}`, barWidth / 2 + 5, -40);
   }
 
   // 绘制弹药圆点
