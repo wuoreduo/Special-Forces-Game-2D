@@ -340,6 +340,12 @@ body {
   color: #a0aec0;
 }
 
+.secondary-weapon {
+  color: #718096;
+  font-size: 0.9em;
+  margin-left: 10px;
+}
+
 .team-info {
   display: flex;
   flex-direction: column;
@@ -460,4 +466,103 @@ body {
     font-size: 1.2em;
     padding: 8px 15px;
   }
+}
+
+/* 排行榜面板 */
+.leaderboard-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 200;
+}
+
+.leaderboard-panel.hidden {
+  display: none;
+}
+
+.leaderboard-panel h2 {
+  font-size: 2.5em;
+  margin-bottom: 30px;
+  background: linear-gradient(90deg, #4facfe, #00f2fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.leaderboard-teams {
+  display: flex;
+  gap: 60px;
+  justify-content: center;
+}
+
+.team-column {
+  min-width: 300px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.team-column h3 {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.blue-team h3 {
+  color: #4299e1;
+}
+
+.red-team h3 {
+  color: #f56565;
+}
+
+.team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leaderboard-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 1em;
+}
+
+.leaderboard-entry.player {
+  background: rgba(79, 172, 254, 0.2);
+  border: 1px solid #4facfe;
+}
+
+.leaderboard-entry .name {
+  flex: 1;
+  font-weight: bold;
+}
+
+.leaderboard-entry .stats {
+  display: flex;
+  gap: 20px;
+}
+
+.leaderboard-entry .kills {
+  color: #48bb78;
+}
+
+.leaderboard-entry .deaths {
+  color: #f56565;
+}
+
+.pause-hint {
+  margin-top: 30px;
+  font-size: 1.1em;
+  color: #a0aec0;
 }

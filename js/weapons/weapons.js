@@ -1,19 +1,20 @@
 // 武器配置数据
 
 const WEAPONS = {
-  // 手枪 - 平衡型
+  // 手枪 - 平衡型（副武器）
   pistol: {
     name: 'pistol',
     displayName: '手枪',
     damage: 25,
     fireRate: 3,
     magazineSize: 12,
-    reloadTime: 1500,
+    reloadTime: 1000,
     bulletSpeed: 90,
     maxRange: 600,
     spread: 2,
     bulletCount: 1,
-    damageFalloff: 0.0003
+    damageFalloff: 0.0003,
+    spreadIncrease: 0.4
   },
 
   // 冲锋枪 - 高射速
@@ -28,7 +29,8 @@ const WEAPONS = {
     maxRange: 1000,
     spread: 5,
     bulletCount: 1,
-    damageFalloff: 0.0005
+    damageFalloff: 0.0005,
+    spreadIncrease: 0.8
   },
 
   // 步枪 - 中距离
@@ -43,14 +45,15 @@ const WEAPONS = {
     maxRange: 1000,
     spread: 3,
     bulletCount: 1,
-    damageFalloff: 0.0005
+    damageFalloff: 0.0005,
+    spreadIncrease: 0.5
   },
 
-  // 狙击枪 - 高伤害
+  // 狙击枪 - 高伤害（爆头一击必杀，身体两枪击杀）
   sniper: {
     name: 'sniper',
     displayName: '狙击枪',
-    damage: 100,
+    damage: 60,
     fireRate: 0.5,
     magazineSize: 5,
     reloadTime: 3000,
@@ -58,7 +61,8 @@ const WEAPONS = {
     maxRange: 1500,
     spread: 0.5,
     bulletCount: 1,
-    damageFalloff: 0
+    damageFalloff: 0,
+    spreadIncrease: 0.3
   },
 
   // 霰弹枪 - 近战散射
@@ -73,7 +77,8 @@ const WEAPONS = {
     maxRange: 250,
     spread: 15,
     bulletCount: 8,
-    damageFalloff: 0
+    damageFalloff: 0,
+    spreadIncrease: 0.6
   }
 };
 

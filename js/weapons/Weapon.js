@@ -6,7 +6,7 @@ class Weapon {
     this.name = config.name;
     this.damage = config.damage;
     this.fireRate = config.fireRate;
-    this.fireDelay = 1000 / config.fireRate;  // 射击间隔（毫秒）
+    this.fireDelay = 1000 / config.fireRate;
     this.magazineSize = config.magazineSize;
     this.reloadTime = config.reloadTime;
     this.bulletSpeed = config.bulletSpeed;
@@ -14,9 +14,33 @@ class Weapon {
     this.spread = config.spread;
     this.bulletCount = config.bulletCount || 1;
     
-    // 状态
+    // 弹道偏移（后坐力散布）
+    this.spreadIncrease = config.spreadIncrease || 0.5;
+    this.maxSpreadMultiplier = 3;
+    this.consecutiveShots = 0;
+    this.lastShotTime = 0;
+    this.spreadResetDelay = 1500;
+    
     this.ammo = config.magazineSize;
     this.owner = null;
+  }
+  
+  // 获取当前散布（连续射击时增加）
+  getCurrentSpread() {
+    const spreadMultiplier = 1 + this.consecutiveShots * this.spreadIncrease;
+    return this.spread * Math.min(spreadMultiplier, this.maxSpreadMultiplier);
+  }
+  
+  // 重置散布
+  resetSpread() {
+    this.consecutiveShots = 0;
+  }
+  
+  // 更新散布状态
+  updateSpread(gameTime) {
+    if (gameTime - this.lastShotTime > this.spreadResetDelay) {
+      this.resetSpread();
+    }
   }
 
   // 开火
@@ -24,9 +48,8 @@ class Weapon {
     if (this.ammo <= 0) return [];
     
     const bullets = [];
-    // 枪口位置：从玩家中心，沿瞄准角度，加上手臂和武器长度
     const centerX = owner.x + owner.width / 2;
-    const centerY = owner.y + owner.height / 2 - 5; // 手臂连接点
+    const centerY = owner.y + owner.height / 2 - 5;
     const armLength = 20;
     const gunLength = 35;
     const totalLength = armLength + gunLength;
@@ -35,12 +58,12 @@ class Weapon {
     const isSniper = this.config.name === 'sniper';
     const tracerAlpha = isSniper ? 1.0 : 0.4;
     
-    // 霰弹枪发射多发子弹
+    const currentSpread = this.getCurrentSpread();
+    
     for (let i = 0; i < this.bulletCount; i++) {
-      // 计算散布
       let angle = owner.aimAngle;
-      if (this.spread > 0) {
-        const spreadRad = Utils.degToRad(this.spread);
+      if (currentSpread > 0) {
+        const spreadRad = Utils.degToRad(currentSpread);
         angle += Utils.randomRange(-spreadRad, spreadRad);
       }
       
@@ -133,6 +156,7 @@ class Weapon {
         if (!hitInfo.player.alive && wasAlive) {
           game._createBloodSplatter(hitInfo.player.x + hitInfo.player.width/2, hitInfo.player.y + hitInfo.player.height/2);
           game.scores[owner.team]++;
+          game._createKillFeed(owner, hitInfo.player);
         }
         
         if (game.audio) {
@@ -174,6 +198,10 @@ class Weapon {
     if (window.AudioSystem) {
       window.AudioSystem.playShoot(this.name);
     }
+    
+    // 递增连续射击计数
+    this.consecutiveShots++;
+    this.lastShotTime = window.game ? window.game.gameTime : performance.now();
     
     return bullets;
   }

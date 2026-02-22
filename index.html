@@ -32,10 +32,10 @@
       <div class="menu-section">
         <h2>选择武器</h2>
         <div class="weapon-select">
-          <button class="weapon-btn active" data-weapon="pistol">
-            <span class="weapon-name">手枪</span>
+          <button class="weapon-btn active" data-weapon="rifle">
+            <span class="weapon-name">步枪</span>
             <span class="weapon-stats">
-              <span class="stat">伤害：★★★</span>
+              <span class="stat">伤害：★★★★</span>
               <span class="stat">射速：★★★</span>
             </span>
           </button>
@@ -44,13 +44,6 @@
             <span class="weapon-stats">
               <span class="stat">伤害：★★</span>
               <span class="stat">射速：★★★★★</span>
-            </span>
-          </button>
-          <button class="weapon-btn" data-weapon="rifle">
-            <span class="weapon-name">步枪</span>
-            <span class="weapon-stats">
-              <span class="stat">伤害：★★★★</span>
-              <span class="stat">射速：★★★</span>
             </span>
           </button>
           <button class="weapon-btn" data-weapon="sniper">
@@ -68,6 +61,7 @@
             </span>
           </button>
         </div>
+        <p style="color: #a0aec0; font-size: 0.9em; margin-top: 10px;">💡 手枪为默认副武器，按 Q 键切换</p>
       </div>
       
       <div class="menu-section">
@@ -110,6 +104,7 @@
         </div>
         <div class="weapon-info">
           <span id="weaponName">手枪</span>
+          <span id="secondaryWeaponName" class="secondary-weapon"></span>
         </div>
       </div>
       <div class="score-panel team-blue-score">
@@ -133,6 +128,22 @@
         <span>🛡️ 调试模式：1000HP</span>
       </div>
     </div>
+  </div>
+  
+  <!-- 排行榜面板 -->
+  <div id="leaderboardPanel" class="leaderboard-panel hidden">
+    <h2>排行榜</h2>
+    <div class="leaderboard-teams">
+      <div class="team-column blue-team">
+        <h3>🔵 蓝队</h3>
+        <div id="blueTeamList" class="team-list"></div>
+      </div>
+      <div class="team-column red-team">
+        <h3>🔴 红队</h3>
+        <div id="redTeamList" class="team-list"></div>
+      </div>
+    </div>
+    <p class="pause-hint">按 P 返回游戏</p>
   </div>
   
   <!-- 游戏结束 UI -->

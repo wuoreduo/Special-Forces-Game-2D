@@ -273,6 +273,38 @@ class AudioSystem {
     noiseNode.stop(now + 0.1);
   }
 
+  // 播放击杀音效
+  playKill() {
+    if (!this.enabled || !this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, now);
+    osc1.frequency.exponentialRampToValueAtTime(1760, now + 0.1);
+
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1100, now);
+    osc2.frequency.exponentialRampToValueAtTime(2200, now + 0.1);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.linearRampToValueAtTime(0.3, now + 0.1);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.25);
+    osc2.stop(now + 0.25);
+  }
+
   // 启用/禁用音频
   setEnabled(enabled) {
     this.enabled = enabled;

@@ -62,6 +62,10 @@ class Game {
       red: 0
     };
     
+    // 击杀信息
+    this.killFeed = [];
+    this.killFeedDuration = 3000;
+    
     // 当前控制玩家
     this.currentPlayer = null;
     this.playerIndex = 0;
@@ -114,8 +118,11 @@ class Game {
       
       // 更新 UI
       this.ui.updateHUD();
+    } else if (this.state === 'paused') {
+      // 暂停时继续渲染游戏画面
+      this._render();
     } else if (this.state === 'menu') {
-      this._render();  // 继续渲染背景
+      this._render();
     }
     
     requestAnimationFrame((t) => this.gameLoop(t));
@@ -178,6 +185,9 @@ class Game {
     // 检查重生
     this._checkRespawns();
     
+    // 更新击杀信息
+    this._updateKillFeed(dt);
+    
     // 更新摄像机
     if (this.currentPlayer && this.currentPlayer.alive) {
       this.camera.setTarget(this.currentPlayer);
@@ -214,6 +224,9 @@ class Game {
           
           if (!player.alive && wasAlive) {
             this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
+            if (bullet.owner) {
+              this._createKillFeed(bullet.owner, player);
+            }
           }
           
           if (this.audio) {
@@ -244,10 +257,12 @@ class Game {
         if (!enemy.alive || enemy.team !== enemyTeam) continue;
         
         if (Utils.rectIntersect(meleeRange, enemy)) {
+          const wasAlive = enemy.alive;
           enemy.takeDamage(50, player);
           
-          if (!enemy.alive) {
+          if (!enemy.alive && wasAlive) {
             this.scores[player.team]++;
+            this._createKillFeed(player, enemy);
           }
         }
       }
@@ -281,6 +296,43 @@ class Game {
   _createHeadshotText(x, y) {
     const particle = this.particlePool.get();
     particle.spawnHeadshotText(x, y);
+  }
+
+  // 创建击杀信息
+  _createKillFeed(killer, victim) {
+    const entry = {
+      killerName: killer.name,
+      killerTeam: killer.team,
+      victimName: victim.name,
+      victimTeam: victim.team,
+      time: this.gameTime,
+      alpha: 1
+    };
+    this.killFeed.unshift(entry);
+    
+    // 限制最大显示数量
+    if (this.killFeed.length > 5) {
+      this.killFeed.pop();
+    }
+    
+    // 播放击杀音效
+    if (this.audio) {
+      this.audio.playKill();
+    }
+  }
+
+  // 更新击杀信息
+  _updateKillFeed(dt) {
+    for (let i = this.killFeed.length - 1; i >= 0; i--) {
+      const entry = this.killFeed[i];
+      const elapsed = this.gameTime - entry.time;
+      
+      if (elapsed > this.killFeedDuration) {
+        this.killFeed.splice(i, 1);
+      } else if (elapsed > this.killFeedDuration - 500) {
+        entry.alpha = (this.killFeedDuration - elapsed) / 500;
+      }
+    }
   }
 
 
@@ -342,6 +394,11 @@ class Game {
     });
     
     this.ctx.restore();
+    
+    // 绘制击杀信息（屏幕固定位置，不受摄像机影响）
+    if (this.killFeed.length > 0) {
+      this.renderer.drawKillFeed(this.killFeed);
+    }
   }
 
   // 开始游戏
@@ -357,6 +414,14 @@ class Game {
     
     // 重置计分
     this.scores = { blue: 0, red: 0 };
+    
+    // 重置击杀信息
+    this.killFeed = [];
+    
+    // 隐藏排行榜面板
+    if (this.ui.leaderboardPanel) {
+      this.ui.leaderboardPanel.classList.add('hidden');
+    }
     
     // 缓存地图
     this.renderer.cacheMap(this.map.platforms);
@@ -384,6 +449,9 @@ class Game {
     const blueSpawns = this.map.getSpawnPoints('blue');
     const redSpawns = this.map.getSpawnPoints('red');
     
+    // 主武器列表（不含手枪）
+    const mainWeapons = ['rifle', 'smg', 'sniper', 'shotgun'];
+    
     // 创建蓝队
     for (let i = 0; i < 5; i++) {
       const spawn = blueSpawns[i];
@@ -394,11 +462,12 @@ class Game {
       if (isPlayer) {
         player.setWeapon(WEAPONS[this.settings.playerWeapon]);
       } else {
-        // AI 随机武器
-        const weapons = Object.keys(WEAPONS);
-        const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+        const randomWeapon = mainWeapons[Math.floor(Math.random() * mainWeapons.length)];
         player.setWeapon(WEAPONS[randomWeapon]);
       }
+      
+      // 设置副武器（手枪）
+      player.setSecondaryWeapon(WEAPONS.pistol);
       
       player.setMapBounds(this.map.width, this.map.height);
       player.setPlatforms(this.platforms);
@@ -422,10 +491,12 @@ class Game {
       if (isPlayer) {
         player.setWeapon(WEAPONS[this.settings.playerWeapon]);
       } else {
-        const weapons = Object.keys(WEAPONS);
-        const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+        const randomWeapon = mainWeapons[Math.floor(Math.random() * mainWeapons.length)];
         player.setWeapon(WEAPONS[randomWeapon]);
       }
+      
+      // 设置副武器（手枪）
+      player.setSecondaryWeapon(WEAPONS.pistol);
       
       player.setMapBounds(this.map.width, this.map.height);
       player.setPlatforms(this.platforms);

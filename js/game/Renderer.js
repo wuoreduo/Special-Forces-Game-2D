@@ -581,6 +581,46 @@ class Renderer {
   endBatch() {
     // 可以添加批量渲染优化
   }
+
+  // 绘制击杀信息
+  drawKillFeed(killFeed) {
+    const ctx = this.ctx;
+    const centerX = this.width / 2;
+    const startY = this.height - 150;
+    
+    ctx.save();
+    
+    for (let i = 0; i < killFeed.length; i++) {
+      const entry = killFeed[i];
+      const y = startY - i * 30;
+      
+      ctx.globalAlpha = entry.alpha;
+      
+      const killerColor = entry.killerTeam === 'blue' ? '#4299e1' : '#f56565';
+      const victimColor = entry.victimTeam === 'blue' ? '#4299e1' : '#f56565';
+      
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      
+      const text = `${entry.killerName} 击杀 ${entry.victimName}`;
+      const metrics = ctx.measureText(text);
+      const padding = 10;
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(centerX - metrics.width / 2 - padding, y - 12, metrics.width + padding * 2, 24);
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(text, centerX, y + 4);
+      
+      ctx.fillStyle = killerColor;
+      ctx.fillText(entry.killerName, centerX - ctx.measureText(` 击杀 ${entry.victimName}`).width / 2, y + 4);
+      
+      ctx.fillStyle = victimColor;
+      ctx.fillText(entry.victimName, centerX + ctx.measureText(`${entry.killerName} 击杀 `).width / 2, y + 4);
+    }
+    
+    ctx.restore();
+  }
 }
 
 window.Renderer = Renderer;

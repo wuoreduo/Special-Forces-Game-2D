@@ -4,8 +4,11 @@ class Player extends Entity {
   constructor(x, y, team, isControlled = false) {
     super(x, y, 30, 50);
     
-    this.team = team;  // 'blue' or 'red'
-    this.isControlled = isControlled;  // 是否由玩家控制
+    this.team = team;
+    this.isControlled = isControlled;
+    
+    // 玩家名字
+    this.name = isControlled ? '玩家' : `AI-${team === 'blue' ? '蓝' : '红'}-${Math.floor(Math.random() * 100)}`;
     
     // 状态
     this.health = 100;
@@ -25,6 +28,7 @@ class Player extends Entity {
     
     // 武器
     this.weapon = null;
+    this.secondaryWeapon = null;
     this.lastShootTime = 0;
     this.reloading = false;
     this.reloadTime = 0;
@@ -47,6 +51,21 @@ class Player extends Entity {
   setWeapon(weaponConfig) {
     this.weapon = new Weapon(weaponConfig);
     this.weapon.owner = this;
+  }
+
+  // 设置副武器
+  setSecondaryWeapon(weaponConfig) {
+    this.secondaryWeapon = new Weapon(weaponConfig);
+    this.secondaryWeapon.owner = this;
+  }
+
+  // 切换主副武器
+  swapWeapon() {
+    if (!this.secondaryWeapon || this.reloading) return;
+    
+    const temp = this.weapon;
+    this.weapon = this.secondaryWeapon;
+    this.secondaryWeapon = temp;
   }
 
   // 设置平台引用（用于子弹碰撞）
@@ -191,6 +210,9 @@ class Player extends Entity {
   shoot(gameTime) {
     if (!this.alive || this.reloading || !this.weapon) return [];
     
+    // 更新散布状态
+    this.weapon.updateSpread(gameTime);
+    
     // 检查冷却
     if (gameTime - this.lastShootTime < this.weapon.fireDelay) return [];
     
@@ -212,6 +234,9 @@ class Player extends Entity {
   // 停止射击
   stopShooting() {
     this.shooting = false;
+    if (this.weapon) {
+      this.weapon.resetSpread();
+    }
   }
 
   // 开始换弹

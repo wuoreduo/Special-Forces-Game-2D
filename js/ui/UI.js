@@ -17,6 +17,7 @@ class UIManager {
     this.ammoCountEl = document.getElementById('ammoCount');
     this.reloadHintEl = document.getElementById('reloadHint');
     this.weaponNameEl = document.getElementById('weaponName');
+    this.secondaryWeaponNameEl = document.getElementById('secondaryWeaponName');
     this.teammatesEl = document.getElementById('teammates');
     this.debugIndicatorEl = document.getElementById('debugIndicator');
     
@@ -24,6 +25,11 @@ class UIManager {
     this.winnerTextEl = document.getElementById('winnerText');
     this.finalBlueScoreEl = document.getElementById('finalBlueScore');
     this.finalRedScoreEl = document.getElementById('finalRedScore');
+    
+    // 排行榜元素
+    this.leaderboardPanel = document.getElementById('leaderboardPanel');
+    this.blueTeamList = document.getElementById('blueTeamList');
+    this.redTeamList = document.getElementById('redTeamList');
     
     // 按钮
     this.startBtn = document.getElementById('startBtn');
@@ -38,7 +44,7 @@ class UIManager {
     
     // 当前选择
     this.selectedTeam = 'blue';
-    this.selectedWeapon = 'pistol';
+    this.selectedWeapon = 'rifle';
     
     this._bindEvents();
   }
@@ -188,6 +194,13 @@ class UIManager {
       }
     }
     
+    // 副武器显示
+    if (player.secondaryWeapon) {
+      this.secondaryWeaponNameEl.textContent = `| 副武器: ${player.secondaryWeapon.config.displayName}`;
+    } else {
+      this.secondaryWeaponNameEl.textContent = '';
+    }
+    
     // 队友状态
     this._updateTeammates();
     
@@ -231,6 +244,19 @@ class UIManager {
 
   // 键盘按下
   _handleKeyDown(e) {
+    // P 键暂停处理
+    if (e.code === 'KeyP') {
+      if (this.game.state === 'playing') {
+        this.game.state = 'paused';
+        this._updateLeaderboard();
+        this.leaderboardPanel.classList.remove('hidden');
+      } else if (this.game.state === 'paused') {
+        this.game.state = 'playing';
+        this.leaderboardPanel.classList.add('hidden');
+      }
+      return;
+    }
+    
     if (this.game.state !== 'playing') return;
     
     const player = this.game.currentPlayer;
@@ -263,6 +289,9 @@ class UIManager {
         break;
       case 'KeyV':
         this.game.camera.toggleGlobalView();
+        break;
+      case 'KeyQ':
+        player.swapWeapon();
         break;
       case 'KeyU':
         this.game.settings.debugGodMode = !this.game.settings.debugGodMode;
@@ -376,6 +405,45 @@ class UIManager {
     if (!player) return;
     
     player.shooting = false;
+  }
+
+  // 更新排行榜
+  _updateLeaderboard() {
+    const bluePlayers = this.game.players
+      .filter(p => p.team === 'blue')
+      .sort((a, b) => b.kills - a.kills);
+    
+    const redPlayers = this.game.players
+      .filter(p => p.team === 'red')
+      .sort((a, b) => b.kills - a.kills);
+    
+    this.blueTeamList.innerHTML = '';
+    for (const p of bluePlayers) {
+      const entry = document.createElement('div');
+      entry.className = 'leaderboard-entry' + (p.isControlled ? ' player' : '');
+      entry.innerHTML = `
+        <span class="name">${p.name}</span>
+        <div class="stats">
+          <span class="kills">${p.kills} 杀</span>
+          <span class="deaths">${p.deaths} 死</span>
+        </div>
+      `;
+      this.blueTeamList.appendChild(entry);
+    }
+    
+    this.redTeamList.innerHTML = '';
+    for (const p of redPlayers) {
+      const entry = document.createElement('div');
+      entry.className = 'leaderboard-entry' + (p.isControlled ? ' player' : '');
+      entry.innerHTML = `
+        <span class="name">${p.name}</span>
+        <div class="stats">
+          <span class="kills">${p.kills} 杀</span>
+          <span class="deaths">${p.deaths} 死</span>
+        </div>
+      `;
+      this.redTeamList.appendChild(entry);
+    }
   }
 }
 
