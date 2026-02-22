@@ -154,96 +154,113 @@ class Renderer {
     }
   }
 
-  // 绘制腿部（极简版）
+  // 绘制腿部（短腿版）
   _drawLegs(ctx, player) {
     const legColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
     const bootColor = '#1a202c';
-    const legOffset = Math.sin(player.walkAnim) * 6;
+    const legOffset = Math.sin(player.walkAnim) * 5;
     
     // 左腿
     ctx.save();
-    ctx.translate(-8, 22);
-    ctx.rotate(Utils.degToRad(player.onGround ? legOffset : -6));
+    ctx.translate(-6, 28);
+    ctx.rotate(Utils.degToRad(player.onGround ? legOffset : -5));
     ctx.fillStyle = legColor;
-    ctx.fillRect(-4, 0, 8, 20);
+    ctx.fillRect(-4, 0, 8, 10);
     ctx.fillStyle = bootColor;
-    ctx.fillRect(-5, 18, 10, 6);
+    ctx.fillRect(-5, 8, 10, 5);
     ctx.restore();
     
     // 右腿
     ctx.save();
-    ctx.translate(8, 22);
-    ctx.rotate(Utils.degToRad(player.onGround ? -legOffset : 6));
+    ctx.translate(6, 28);
+    ctx.rotate(Utils.degToRad(player.onGround ? -legOffset : 5));
     ctx.fillStyle = legColor;
-    ctx.fillRect(-4, 0, 8, 20);
+    ctx.fillRect(-4, 0, 8, 10);
     ctx.fillStyle = bootColor;
-    ctx.fillRect(-5, 18, 10, 6);
+    ctx.fillRect(-5, 8, 10, 5);
     ctx.restore();
   }
 
-  // 绘制身体（极简版）
+  // 绘制身体（圆角矩形版）
   _drawBody(ctx, player) {
     const bodyColor = player.team === 'blue' ? '#4299e1' : '#f56565';
     const vestColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
     
-    // 躯干主体
+    // 躯干主体（圆角矩形）
     ctx.fillStyle = bodyColor;
-    ctx.fillRect(-14, -18, 28, 38);
+    ctx.beginPath();
+    ctx.roundRect(-13, -18, 26, 36, 7);
+    ctx.fill();
     
-    // 战术背心
+    // 战术背心（圆角矩形）
     ctx.fillStyle = vestColor;
-    ctx.fillRect(-10, -10, 20, 24);
+    ctx.beginPath();
+    ctx.roundRect(-9, -10, 18, 22, 4);
+    ctx.fill();
     
     // 队伍标识
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(0, 0, 7, 0, Math.PI * 2);
+    ctx.arc(0, 4, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = bodyColor;
     ctx.font = 'bold 10px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(player.team === 'blue' ? 'B' : 'R', 0, 0);
+    ctx.fillText(player.team === 'blue' ? 'B' : 'R', 0, 4);
     
     // 腰带
     ctx.fillStyle = '#2d3748';
-    ctx.fillRect(-12, 18, 24, 4);
+    ctx.fillRect(-11, 16, 22, 4);
   }
 
-  // 绘制头部（极简版）
+  // 绘制头部（大头版）
   _drawHead(ctx, player) {
+    const skinColor = '#f6ad55';
     const helmetColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
     const helmetDark = player.team === 'blue' ? '#1a365d' : '#742a2a';
     
-    // 头盔
-    ctx.fillStyle = helmetColor;
+    // 脸部（黄种人肤色，圆形大头）
+    ctx.fillStyle = skinColor;
     ctx.beginPath();
-    ctx.arc(0, -22, 12, Math.PI * 0.15, Math.PI * 0.85);
-    ctx.lineTo(-11, -14);
-    ctx.lineTo(-11, -8);
-    ctx.lineTo(11, -8);
-    ctx.lineTo(11, -14);
-    ctx.closePath();
+    ctx.arc(0, -16, 17, 0, Math.PI * 2);
     ctx.fill();
     
-    // 护目镜
+    // 头盔（圆顶，覆盖上半部分）
+    ctx.fillStyle = helmetColor;
+    ctx.beginPath();
+    ctx.arc(0, -22, 18, Math.PI * 0.2, Math.PI * 0.8);
+    ctx.lineTo(-16, -10);
+    ctx.fill();
+    
+    // 头盔边缘
+    ctx.fillStyle = helmetDark;
+    ctx.beginPath();
+    ctx.arc(0, -23, 16, Math.PI * 0.25, Math.PI * 0.75);
+    ctx.fill();
+    
+    // 护目镜（黑色，横贯式）
     ctx.fillStyle = '#2d3748';
-    ctx.fillRect(-9, -23, 18, 5);
+    ctx.beginPath();
+    ctx.roundRect(-14, -21, 28, 8, 3);
+    ctx.fill();
     
     // 镜片反光
-    ctx.fillStyle = 'rgba(79, 172, 254, 0.6)';
-    ctx.fillRect(-5, -21, 3, 2);
-    ctx.fillRect(3, -21, 3, 2);
+    ctx.fillStyle = 'rgba(79, 172, 254, 0.7)';
+    ctx.beginPath();
+    ctx.ellipse(-6, -19, 4, 2.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(6, -19, 4, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  // 绘制手臂（极简版）
+  // 绘制手臂（简化版）
   _drawArm(ctx, player) {
     const sleeveColor = player.team === 'blue' ? '#2b6cb0' : '#e53e3e';
     const gloveColor = '#1a202c';
     const renderAngle = player.facingLeft ? Math.PI - player.aimAngle : player.aimAngle;
     
     ctx.save();
-    ctx.translate(10, -6);
+    ctx.translate(10, -8);
     ctx.rotate(renderAngle);
     
     // 上臂
