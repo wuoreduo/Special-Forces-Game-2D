@@ -132,6 +132,11 @@ class Renderer {
     this._drawHealthBar(ctx, player);
     
     ctx.restore();
+    
+    // 绘制控制箭头
+    if (player.isControlled && player.alive) {
+      this._drawControlArrow(player);
+    }
   }
 
   // 应用动画偏移
