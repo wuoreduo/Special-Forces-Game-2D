@@ -232,15 +232,15 @@ class Renderer {
     ctx.arc(0, -18, 17, Math.PI * 1.05, Math.PI * 1.95);
     ctx.fill();
     
-    // 3. 头盔侧边延伸（遮住耳朵）
+    // 3. 头盔侧边延伸（遮住耳朵，与头盔连接）
     ctx.fillStyle = helmetColor;
     // 左耳侧边
     ctx.beginPath();
-    ctx.roundRect(-18, -18, 6, 14, 2);
+    ctx.roundRect(-18, -21, 6, 12, 2);
     ctx.fill();
     // 右耳侧边
     ctx.beginPath();
-    ctx.roundRect(12, -18, 6, 14, 2);
+    ctx.roundRect(12, -21, 6, 12, 2);
     ctx.fill();
     
     // 4. 头盔边缘描边
