@@ -162,22 +162,22 @@ class Renderer {
     
     // 左腿
     ctx.save();
-    ctx.translate(-6, 28);
+    ctx.translate(-6, 22);
     ctx.rotate(Utils.degToRad(player.onGround ? legOffset : -5));
     ctx.fillStyle = legColor;
-    ctx.fillRect(-4, 0, 8, 10);
+    ctx.fillRect(-4, 0, 8, 12);
     ctx.fillStyle = bootColor;
-    ctx.fillRect(-5, 8, 10, 5);
+    ctx.fillRect(-5, 10, 10, 5);
     ctx.restore();
     
     // 右腿
     ctx.save();
-    ctx.translate(6, 28);
+    ctx.translate(6, 22);
     ctx.rotate(Utils.degToRad(player.onGround ? -legOffset : 5));
     ctx.fillStyle = legColor;
-    ctx.fillRect(-4, 0, 8, 10);
+    ctx.fillRect(-4, 0, 8, 12);
     ctx.fillStyle = bootColor;
-    ctx.fillRect(-5, 8, 10, 5);
+    ctx.fillRect(-5, 10, 10, 5);
     ctx.restore();
   }
 
@@ -189,29 +189,29 @@ class Renderer {
     // 躯干主体（圆角矩形）
     ctx.fillStyle = bodyColor;
     ctx.beginPath();
-    ctx.roundRect(-13, -18, 26, 36, 7);
+    ctx.roundRect(-13, -18, 26, 40, 7);
     ctx.fill();
     
     // 战术背心（圆角矩形）
     ctx.fillStyle = vestColor;
     ctx.beginPath();
-    ctx.roundRect(-9, -10, 18, 22, 4);
+    ctx.roundRect(-9, -10, 18, 24, 4);
     ctx.fill();
     
     // 队伍标识
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(0, 4, 7, 0, Math.PI * 2);
+    ctx.arc(0, 6, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = bodyColor;
     ctx.font = 'bold 10px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(player.team === 'blue' ? 'B' : 'R', 0, 4);
+    ctx.fillText(player.team === 'blue' ? 'B' : 'R', 0, 6);
     
     // 腰带
     ctx.fillStyle = '#2d3748';
-    ctx.fillRect(-11, 16, 22, 4);
+    ctx.fillRect(-11, 20, 22, 4);
   }
 
   // 绘制头部（大头版）
@@ -220,36 +220,30 @@ class Renderer {
     const helmetColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
     const helmetDark = player.team === 'blue' ? '#1a365d' : '#742a2a';
     
-    // 脸部（黄种人肤色，圆形大头）
-    ctx.fillStyle = skinColor;
-    ctx.beginPath();
-    ctx.arc(0, -16, 17, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // 头盔（圆顶，覆盖上半部分）
+    // 头盔外壳（完整的圆顶头盔）
     ctx.fillStyle = helmetColor;
     ctx.beginPath();
-    ctx.arc(0, -22, 18, Math.PI * 0.2, Math.PI * 0.8);
-    ctx.lineTo(-16, -10);
+    ctx.arc(0, -18, 18, Math.PI * 0.05, Math.PI * 0.95);
+    ctx.lineTo(-17, -5);
+    ctx.fillRect(-17, -5, 34, 12);
     ctx.fill();
     
-    // 头盔边缘
+    // 头盔顶部
     ctx.fillStyle = helmetDark;
     ctx.beginPath();
-    ctx.arc(0, -23, 16, Math.PI * 0.25, Math.PI * 0.75);
+    ctx.arc(0, -22, 15, Math.PI * 0.1, Math.PI * 0.9);
     ctx.fill();
     
-    // 护目镜（黑色，横贯式）
+    // 护目镜（黑色，横贯式）- 代替眼睛
     ctx.fillStyle = '#2d3748';
     ctx.beginPath();
-    ctx.roundRect(-14, -21, 28, 8, 3);
+    ctx.roundRect(-15, -21, 30, 8, 2);
     ctx.fill();
     
-    // 镜片反光
-    ctx.fillStyle = 'rgba(79, 172, 254, 0.7)';
+    // 脸部（黄种人肤色，只露出下半部分）
+    ctx.fillStyle = skinColor;
     ctx.beginPath();
-    ctx.ellipse(-6, -19, 4, 2.5, 0, 0, Math.PI * 2);
-    ctx.ellipse(6, -19, 4, 2.5, 0, 0, Math.PI * 2);
+    ctx.arc(0, -12, 14, 0, Math.PI * 0.5, false);
     ctx.fill();
   }
 
