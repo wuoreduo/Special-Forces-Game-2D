@@ -46,12 +46,10 @@ class Particle {
   draw(ctx, camera) {
     if (!this.active) return;
     
-    const screenPos = camera.worldToScreen(this.x, this.y);
-    
     ctx.globalAlpha = this.life;
     ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.arc(screenPos.x, screenPos.y, this.size, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
   }

@@ -316,10 +316,9 @@ class Renderer {
     if (!camera.isCircleInView(bullet, 50)) return;
     
     const ctx = this.ctx;
-    const screenPos = camera.worldToScreen(bullet.x, bullet.y);
     
     ctx.save();
-    ctx.translate(screenPos.x, screenPos.y);
+    ctx.translate(bullet.x, bullet.y);
     ctx.rotate(bullet.angle);
     
     // 子弹轨迹
@@ -340,22 +339,19 @@ class Renderer {
     if (!camera.isCircleInView(particle, 20)) return;
     
     const ctx = this.ctx;
-    const screenPos = camera.worldToScreen(particle.x, particle.y);
     
     ctx.globalAlpha = particle.life;
     ctx.fillStyle = particle.color;
     ctx.beginPath();
-    ctx.arc(screenPos.x, screenPos.y, particle.size, 0, Math.PI * 2);
+    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
   }
 
   // 绘制枪口火焰
   drawMuzzleFlash(x, y, angle, camera) {
-    const screenPos = camera.worldToScreen(x, y);
-    
     this.ctx.save();
-    this.ctx.translate(screenPos.x, screenPos.y);
+    this.ctx.translate(x, y);
     this.ctx.rotate(angle);
     
     // 火焰
@@ -374,11 +370,9 @@ class Renderer {
 
   // 绘制命中效果
   drawHitEffect(x, y, camera) {
-    const screenPos = camera.worldToScreen(x, y);
-    
     this.ctx.fillStyle = 'rgba(255, 100, 100, 0.5)';
     this.ctx.beginPath();
-    this.ctx.arc(screenPos.x, screenPos.y, 10, 0, Math.PI * 2);
+    this.ctx.arc(x, y, 10, 0, Math.PI * 2);
     this.ctx.fill();
   }
 

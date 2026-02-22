@@ -21,6 +21,11 @@ class AIController {
 
   // AI 更新（30 FPS）
   update(gameTime, dt) {
+    // 如果玩家控制此角色，跳过 AI 更新
+    if (this.player.isControlled) {
+      return;
+    }
+    
     if (!this.player.alive) {
       this.state = 'idle';
       this.target = null;

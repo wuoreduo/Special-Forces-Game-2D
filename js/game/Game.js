@@ -425,6 +425,12 @@ class Game {
   // 更新当前控制玩家
   _updateCurrentPlayer() {
     const teamPlayers = this.players.filter(p => p.team === this.settings.playerTeam);
+    
+    // 更新 isControlled 属性
+    for (const player of teamPlayers) {
+      player.isControlled = (player === teamPlayers[this.playerIndex]);
+    }
+    
     this.currentPlayer = teamPlayers[this.playerIndex] || teamPlayers[0];
     this.camera.setTarget(this.currentPlayer);
   }
@@ -435,8 +441,7 @@ class Game {
     if (teamPlayers.length <= 1) return;
     
     this.playerIndex = (this.playerIndex + 1) % teamPlayers.length;
-    this.currentPlayer = teamPlayers[this.playerIndex];
-    this.camera.setTarget(this.currentPlayer);
+    this._updateCurrentPlayer();
   }
 
   // 切换到指定队友
@@ -444,8 +449,7 @@ class Game {
     const teamPlayers = this.players.filter(p => p.team === this.settings.playerTeam && p.alive);
     if (index >= 0 && index < teamPlayers.length) {
       this.playerIndex = index;
-      this.currentPlayer = teamPlayers[index];
-      this.camera.setTarget(this.currentPlayer);
+      this._updateCurrentPlayer();
     }
   }
 

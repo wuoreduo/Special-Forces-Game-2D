@@ -26,7 +26,7 @@ class GameMap {
     // 第一层平台（底层）- 完整长平台
     this.platforms.push({
       x: 200,
-      y: this.height - 200,
+      y: this.height - 150,
       width: 1600,
       height: 25
     });
@@ -34,13 +34,13 @@ class GameMap {
     // 第二层平台（中层）- 分成两段
     this.platforms.push({
       x: 200,
-      y: this.height - 400,
+      y: this.height - 280,
       width: 700,
       height: 25
     });
     this.platforms.push({
       x: 1100,
-      y: this.height - 400,
+      y: this.height - 280,
       width: 700,
       height: 25
     });
@@ -48,19 +48,19 @@ class GameMap {
     // 第三层平台（顶层）- 分成三段
     this.platforms.push({
       x: 200,
-      y: this.height - 600,
+      y: this.height - 410,
       width: 450,
       height: 25
     });
     this.platforms.push({
       x: 775,
-      y: this.height - 600,
+      y: this.height - 410,
       width: 450,
       height: 25
     });
     this.platforms.push({
       x: 1350,
-      y: this.height - 600,
+      y: this.height - 410,
       width: 450,
       height: 25
     });
@@ -88,19 +88,19 @@ class GameMap {
     // 蓝队出生点（左侧）
     this.spawnPoints.blue = [
       { x: 100, y: this.height - 100 },
-      { x: 150, y: this.height - 250 },
-      { x: 250, y: this.height - 450 },
-      { x: 300, y: this.height - 650 },
-      { x: 400, y: this.height - 250 }
+      { x: 150, y: this.height - 200 },
+      { x: 250, y: this.height - 330 },
+      { x: 300, y: this.height - 460 },
+      { x: 400, y: this.height - 200 }
     ];
 
     // 红队出生点（右侧）
     this.spawnPoints.red = [
       { x: this.width - 100, y: this.height - 100 },
-      { x: this.width - 150, y: this.height - 250 },
-      { x: this.width - 250, y: this.height - 450 },
-      { x: this.width - 300, y: this.height - 650 },
-      { x: this.width - 400, y: this.height - 250 }
+      { x: this.width - 150, y: this.height - 200 },
+      { x: this.width - 250, y: this.height - 330 },
+      { x: this.width - 300, y: this.height - 460 },
+      { x: this.width - 400, y: this.height - 200 }
     ];
   }
 
