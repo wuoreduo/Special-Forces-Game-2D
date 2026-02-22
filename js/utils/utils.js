@@ -87,6 +87,76 @@ const Utils = {
   // 深度克隆
   deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
+  },
+
+  // 射线与矩形相交检测（SLAB 方法）
+  // 返回 { hit: boolean, point: {x, y}, distance: number }
+  raycastRect(originX, originY, dirX, dirY, rectX, rectY, rectW, rectH) {
+    const invDirX = 1 / dirX;
+    const invDirY = 1 / dirY;
+    
+    let tmin = (rectX - originX) * invDirX;
+    let tmax = (rectX + rectW - originX) * invDirX;
+    
+    if (tmin > tmax) [tmin, tmax] = [tmax, tmin];
+    
+    let tymin = (rectY - originY) * invDirY;
+    let tymax = (rectY + rectH - originY) * invDirY;
+    
+    if (tymin > tymax) [tymin, tymax] = [tymax, tymin];
+    
+    if (tmin > tymax || tymin > tmax) {
+      return { hit: false };
+    }
+    
+    const tEnter = Math.max(tmin, tymin);
+    const tExit = Math.min(tmax, tymax);
+    
+    if (tEnter < 0 && tExit < 0) {
+      return { hit: false };
+    }
+    
+    const tHit = tEnter < 0 ? tExit : tEnter;
+    
+    if (tHit < 0) {
+      return { hit: false };
+    }
+    
+    return {
+      hit: true,
+      point: {
+        x: originX + dirX * tHit,
+        y: originY + dirY * tHit
+      },
+      distance: tHit
+    };
+  },
+
+  // 射线与线段相交（用于墙壁检测）
+  raycastSegment(originX, originY, dirX, dirY, segX1, segY1, segX2, segY2) {
+    const v1X = originX - segX1;
+    const v1Y = originY - segY1;
+    const v2X = segX2 - segX1;
+    const v2Y = segY2 - segY1;
+    
+    const dot = dirX * v2Y - dirY * v2X;
+    if (dot === 0) return { hit: false };
+    
+    const t = (v1X * v2Y - v1Y * v2X) / dot;
+    const u = (v1X * dirY - v1Y * dirX) / dot;
+    
+    if (t >= 0 && u >= 0 && u <= 1) {
+      return {
+        hit: true,
+        point: {
+          x: originX + dirX * t,
+          y: originY + dirY * t
+        },
+        distance: t
+      };
+    }
+    
+    return { hit: false };
   }
 };
 

@@ -14,6 +14,9 @@ class Particle {
     this.gravity = 0;
     this.isText = false;
     this.text = '';
+    this.isTracer = false;
+    this.endX = 0;
+    this.endY = 0;
   }
 
   // 生成粒子
@@ -48,6 +51,25 @@ class Particle {
     this.text = 'HEADSHOT!';
   }
 
+  // 生成弹道线
+  spawnTracer(startX, startY, endX, endY, alpha = 0.4, life = 30, isSniper = false) {
+    this.x = startX;
+    this.y = startY;
+    this.endX = endX;
+    this.endY = endY;
+    this.vx = 0;
+    this.vy = 0;
+    this.size = isSniper ? 3 : 2;
+    this.life = life;
+    this.decay = 1 / life;
+    this.color = `rgba(255, 255, 255, ${alpha})`;
+    this.gravity = 0;
+    this.active = true;
+    this.isText = false;
+    this.isTracer = true;
+    this.text = '';
+  }
+
   // 更新粒子
   update(dt) {
     if (!this.active) return;
@@ -78,6 +100,17 @@ class Particle {
       ctx.strokeText(this.text, this.x, this.y);
       ctx.fillText(this.text, this.x, this.y);
       ctx.restore();
+    } else if (this.isTracer) {
+      ctx.save();
+      ctx.globalAlpha = this.life / 30;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.lineWidth = this.size;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(this.endX, this.endY);
+      ctx.stroke();
+      ctx.restore();
     } else {
       ctx.globalAlpha = this.life;
       ctx.fillStyle = this.color;
@@ -98,6 +131,9 @@ class Particle {
     this.life = 0;
     this.isText = false;
     this.text = '';
+    this.isTracer = false;
+    this.endX = 0;
+    this.endY = 0;
   }
 }
 

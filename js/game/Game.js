@@ -191,7 +191,7 @@ class Game {
   // 子弹碰撞检测
   _checkBulletCollisions() {
     for (const bullet of this.bulletPool.active) {
-      if (!bullet.active) continue;
+      if (!bullet.active || bullet.isVisualOnly) continue;
       
       for (const player of this.players) {
         if (!player.alive || player.team === bullet.team) continue;
