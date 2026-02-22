@@ -295,6 +295,9 @@ class Player extends Entity {
   takeDamage(amount, attacker) {
     if (!this.alive) return false;
     
+    // 无敌期间不受伤害
+    if (this.invincible) return false;
+    
     this.health -= amount;
     
     if (this.health <= 0) {
