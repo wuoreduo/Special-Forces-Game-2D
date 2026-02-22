@@ -139,8 +139,8 @@ class Renderer {
   // 应用动画偏移
   _applyAnimationOffset(ctx, player) {
     if (player.falling || player.fallenAngle > 0) {
+      ctx.translate(0, player.height * 0.5);
       ctx.rotate(Utils.degToRad(-player.fallenAngle));
-      ctx.translate(0, player.height * 0.3);
       return;
     }
     
