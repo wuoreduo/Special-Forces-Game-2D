@@ -86,11 +86,14 @@ class Player extends Entity {
       return;
     }
 
-    // 无敌时间倒计时
+    // 无敌时间倒计时（调试模式永久无敌）
     if (this.invincible) {
-      this.invincibleTime -= dt;
-      if (this.invincibleTime <= 0) {
-        this.invincible = false;
+      const isDebugMode = window.game && window.game.settings && window.game.settings.debugGodMode && this.isControlled;
+      if (!isDebugMode) {
+        this.invincibleTime -= dt;
+        if (this.invincibleTime <= 0) {
+          this.invincible = false;
+        }
       }
     }
 
