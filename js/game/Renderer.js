@@ -157,72 +157,178 @@ class Renderer {
   // 绘制腿部
   _drawLegs(ctx, player) {
     const legOffset = Math.sin(player.walkAnim) * 10;
-    const legColor = '#2d3748';
-    
-    ctx.fillStyle = legColor;
+    const thighColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
+    const shinColor = player.team === 'blue' ? '#1a365d' : '#742a2a';
+    const bootColor = '#1a202c';
     
     // 左腿
     ctx.save();
     ctx.translate(-8, 15);
-    ctx.rotate(Utils.degToRad(player.onGround ? legOffset : -10));
-    ctx.fillRect(-5, 0, 10, 18);
+    const leftLegAngle = player.onGround ? legOffset : -10;
+    ctx.rotate(Utils.degToRad(leftLegAngle));
+    
+    // 大腿
+    ctx.fillStyle = thighColor;
+    ctx.fillRect(-5, 0, 10, 12);
+    // 膝盖护具
+    ctx.fillStyle = '#2d3748';
+    ctx.fillRect(-5, 10, 10, 4);
+    // 小腿
+    ctx.fillStyle = shinColor;
+    ctx.fillRect(-5, 14, 10, 10);
+    // 军靴
+    ctx.fillStyle = bootColor;
+    ctx.fillRect(-5, 22, 10, 6);
+    
     ctx.restore();
     
     // 右腿
     ctx.save();
     ctx.translate(8, 15);
-    ctx.rotate(Utils.degToRad(player.onGround ? -legOffset : 10));
-    ctx.fillRect(-5, 0, 10, 18);
+    const rightLegAngle = player.onGround ? -legOffset : 10;
+    ctx.rotate(Utils.degToRad(rightLegAngle));
+    
+    // 大腿
+    ctx.fillStyle = thighColor;
+    ctx.fillRect(-5, 0, 10, 12);
+    // 膝盖护具
+    ctx.fillStyle = '#2d3748';
+    ctx.fillRect(-5, 10, 10, 4);
+    // 小腿
+    ctx.fillStyle = shinColor;
+    ctx.fillRect(-5, 14, 10, 10);
+    // 军靴
+    ctx.fillStyle = bootColor;
+    ctx.fillRect(-5, 22, 10, 6);
+    
     ctx.restore();
+    
+    // 腿袋（侧面）
+    ctx.fillStyle = '#2d3748';
+    ctx.fillRect(player.facingLeft ? 5 : -12, 8, 7, 8);
   }
 
   // 绘制身体
   _drawBody(ctx, player) {
     const bodyColor = player.team === 'blue' ? '#4299e1' : '#f56565';
-    const darken = player.team === 'blue' ? '#3182ce' : '#e53e3e';
+    const vestColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
+    const shoulderColor = player.team === 'blue' ? '#2b6cb0' : '#e53e3e';
     
-    // 身体主体
+    // 躯干主体
     ctx.fillStyle = bodyColor;
     ctx.beginPath();
     ctx.roundRect(-15, -10, 30, 30, 5);
     ctx.fill();
     
-    // 战术背心
-    ctx.fillStyle = darken;
-    ctx.fillRect(-12, -5, 24, 20);
+    // 肩膀（左右各一个）
+    ctx.fillStyle = shoulderColor;
+    // 左肩
+    ctx.beginPath();
+    ctx.arc(-14, -8, 8, 0, Math.PI * 2);
+    ctx.fill();
+    // 右肩
+    ctx.beginPath();
+    ctx.arc(14, -8, 8, 0, Math.PI * 2);
+    ctx.fill();
     
-    // 队伍标识
+    // 战术背心
+    ctx.fillStyle = vestColor;
+    ctx.fillRect(-12, -5, 24, 22);
+    
+    // 背心口袋细节
+    ctx.fillStyle = '#1a365d';
+    ctx.fillRect(-10, 5, 8, 8);
+    ctx.fillRect(2, 5, 8, 8);
+    
+    // 肩带
+    ctx.strokeStyle = '#1a202c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-8, -8);
+    ctx.lineTo(-5, 5);
+    ctx.moveTo(8, -8);
+    ctx.lineTo(5, 5);
+    ctx.stroke();
+    
+    // 腰带/装备包
+    ctx.fillStyle = '#2d3748';
+    ctx.fillRect(-14, 18, 28, 6);
+    // 装备包细节
+    ctx.fillStyle = '#1a202c';
+    ctx.fillRect(-10, 19, 6, 4);
+    ctx.fillRect(4, 19, 6, 4);
+    
+    // 队伍标识徽章
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 12px Arial';
+    ctx.beginPath();
+    ctx.arc(0, 8, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = player.team === 'blue' ? '#4299e1' : '#f56565';
+    ctx.font = 'bold 10px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(player.team === 'blue' ? 'B' : 'R', 0, 10);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(player.team === 'blue' ? 'B' : 'R', 0, 8);
   }
 
   // 绘制头部
   _drawHead(ctx, player) {
-    const headColor = '#f6ad55';
+    const skinColor = '#f6ad55';
+    const helmetColor = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
+    const helmetDark = player.team === 'blue' ? '#1a365d' : '#742a2a';
     
-    ctx.fillStyle = headColor;
+    // 面部（圆形）
+    ctx.fillStyle = skinColor;
     ctx.beginPath();
     ctx.arc(0, -20, 12, 0, Math.PI * 2);
     ctx.fill();
     
-    // 头盔
-    ctx.fillStyle = player.team === 'blue' ? '#2c5282' : '#9b2c2c';
+    // 下巴轮廓（侧视效果）
+    ctx.fillStyle = '#d69e5a';
     ctx.beginPath();
-    ctx.arc(0, -22, 13, Math.PI, Math.PI * 2);
+    ctx.arc(3, -17, 5, -Math.PI / 2, Math.PI / 2);
     ctx.fill();
     
-    // 眼睛
+    // 头盔主体（覆盖头顶）
+    ctx.fillStyle = helmetColor;
+    ctx.beginPath();
+    ctx.arc(0, -22, 14, Math.PI, 0);
+    ctx.lineTo(12, -20);
+    ctx.lineTo(-12, -20);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 头盔后部（突出）
+    ctx.fillStyle = helmetDark;
+    ctx.beginPath();
+    ctx.arc(-2, -23, 13, Math.PI * 0.6, Math.PI * 1.4);
+    ctx.lineTo(-8, -20);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 护目镜/面罩
+    ctx.fillStyle = '#2d3748';
+    ctx.beginPath();
+    ctx.ellipse(3, -21, 7, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 镜片反光
+    ctx.fillStyle = 'rgba(79, 172, 254, 0.6)';
+    ctx.beginPath();
+    ctx.ellipse(4, -21, 4, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 眼睛（侧视，在护目镜下）
     ctx.fillStyle = '#1a202c';
     ctx.beginPath();
-    ctx.arc(4, -20, 2, 0, Math.PI * 2);
+    ctx.arc(5, -20, 2, 0, Math.PI * 2);
     ctx.fill();
   }
 
   // 绘制手臂
   _drawArm(ctx, player) {
     const armColor = '#f6ad55';
+    const sleeveColor = player.team === 'blue' ? '#2b6cb0' : '#e53e3e';
+    const gloveColor = '#1a202c';
     // 补偿坐标系翻转：当 facingLeft 时，使用 Math.PI - aimAngle
     const renderAngle = player.facingLeft ? Math.PI - player.aimAngle : player.aimAngle;
     
@@ -230,8 +336,21 @@ class Renderer {
     ctx.translate(10, -5);
     ctx.rotate(renderAngle);
     
+    // 上臂（袖子）
+    ctx.fillStyle = sleeveColor;
+    ctx.fillRect(0, -5, 12, 10);
+    
+    // 肘部护具
+    ctx.fillStyle = '#2d3748';
+    ctx.fillRect(10, -5, 4, 10);
+    
+    // 下臂（前臂）
     ctx.fillStyle = armColor;
-    ctx.fillRect(0, -4, 20, 8);
+    ctx.fillRect(14, -4, 14, 8);
+    
+    // 手套
+    ctx.fillStyle = gloveColor;
+    ctx.fillRect(26, -5, 6, 10);
     
     ctx.restore();
   }
@@ -248,59 +367,364 @@ class Renderer {
     ctx.rotate(renderAngle);
     
     const weaponConfig = weapon.config;
-    const gunColor = '#4a5568';
-    const gripColor = '#2d3748';
-    
-    ctx.fillStyle = gunColor;
+    const gunMetal = '#4a5568';
+    const gunDark = '#2d3748';
+    const gunBlack = '#1a202c';
+    const gripBrown = '#5d4e37';
     
     // 根据不同枪械绘制不同外形
     switch (weaponConfig.name) {
       case 'pistol':
-        ctx.fillRect(15, -4, 18, 8);
-        ctx.fillStyle = gripColor;
-        ctx.fillRect(12, 2, 8, 10);
+        this._drawPistol(ctx, gunMetal, gunDark, gunBlack, gripBrown);
         break;
         
       case 'smg':
-        ctx.fillRect(15, -5, 25, 10);
-        ctx.fillStyle = gripColor;
-        ctx.fillRect(18, 3, 10, 12);
-        // 弹匣
-        ctx.fillStyle = gunColor;
-        ctx.fillRect(20, 8, 6, 10);
+        this._drawSMG(ctx, gunMetal, gunDark, gunBlack, gripBrown);
         break;
         
       case 'rifle':
-        ctx.fillRect(15, -6, 40, 10);
-        ctx.fillStyle = gripColor;
-        ctx.fillRect(25, 2, 12, 14);
-        // 瞄准器
-        ctx.fillStyle = '#2d3748';
-        ctx.fillRect(35, -10, 8, 4);
+        this._drawRifle(ctx, gunMetal, gunDark, gunBlack, gripBrown);
         break;
         
       case 'sniper':
-        ctx.fillRect(15, -5, 60, 8);
-        ctx.fillStyle = gripColor;
-        ctx.fillRect(30, 2, 10, 12);
-        // 瞄准镜
-        ctx.fillStyle = '#1a202c';
-        ctx.beginPath();
-        ctx.ellipse(45, -8, 15, 8, 0, 0, Math.PI * 2);
-        ctx.fill();
+        this._drawSniper(ctx, gunMetal, gunDark, gunBlack, gripBrown);
         break;
         
       case 'shotgun':
-        ctx.fillRect(15, -7, 35, 12);
-        ctx.fillStyle = gripColor;
-        ctx.fillRect(20, 4, 12, 14);
-        // 泵动式
-        ctx.fillStyle = '#2d3748';
-        ctx.fillRect(30, -3, 15, 6);
+        this._drawShotgun(ctx, gunMetal, gunDark, gunBlack, gripBrown);
         break;
     }
     
     ctx.restore();
+  }
+  
+  // 绘制手枪
+  _drawPistol(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 套筒（slide）
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(15, -5, 22, 10);
+    // 套筒前部斜角
+    ctx.beginPath();
+    ctx.moveTo(37, -5);
+    ctx.lineTo(40, -3);
+    ctx.lineTo(40, 3);
+    ctx.lineTo(37, 5);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 枪管（突出部分）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(35, -3, 8, 6);
+    
+    // 套筒防滑纹
+    ctx.strokeStyle = gunDark;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.moveTo(20 + i * 3, -5);
+      ctx.lineTo(20 + i * 3, 5);
+      ctx.stroke();
+    }
+    
+    // 握把（grip）
+    ctx.fillStyle = gripBrown;
+    ctx.beginPath();
+    ctx.moveTo(15, 3);
+    ctx.lineTo(20, 3);
+    ctx.lineTo(18, 16);
+    ctx.lineTo(10, 14);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 握把纹理
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 4; i++) {
+      ctx.fillRect(12, 5 + i * 2, 6, 1);
+    }
+    
+    // 扳机护圈
+    ctx.strokeStyle = gunMetal;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(18, 5, 4, 0, Math.PI, false);
+    ctx.stroke();
+    
+    // 击锤
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(12, -4, 4, 6);
+  }
+  
+  // 绘制冲锋枪
+  _drawSMG(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 机匣（receiver）
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(15, -6, 30, 12);
+    
+    // 枪管
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(45, -4, 15, 8);
+    
+    // 护木/前握把
+    ctx.fillStyle = gripBrown;
+    ctx.fillRect(48, 4, 12, 10);
+    
+    // 弹匣（前置，弯曲）
+    ctx.fillStyle = gunDark;
+    ctx.beginPath();
+    ctx.moveTo(25, 6);
+    ctx.lineTo(33, 6);
+    ctx.lineTo(30, 22);
+    ctx.lineTo(22, 20);
+    ctx.closePath();
+    ctx.fill();
+    // 弹匣细节
+    ctx.strokeStyle = gunMetal;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(25, 10);
+    ctx.lineTo(32, 10);
+    ctx.moveTo(24, 14);
+    ctx.lineTo(31, 14);
+    ctx.moveTo(23, 18);
+    ctx.lineTo(30, 18);
+    ctx.stroke();
+    
+    // 握把
+    ctx.fillStyle = gripBrown;
+    ctx.fillRect(22, 6, 8, 12);
+    // 握把纹理
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 4; i++) {
+      ctx.fillRect(23, 7 + i * 2, 6, 1);
+    }
+    
+    // 枪托（折叠式）
+    ctx.fillStyle = gunBlack;
+    ctx.beginPath();
+    ctx.moveTo(10, -3);
+    ctx.lineTo(0, -3);
+    ctx.lineTo(5, 0);
+    ctx.lineTo(10, 0);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 瞄准器（红点）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(30, -10, 8, 4);
+    ctx.fillStyle = '#e53e3e';
+    ctx.fillRect(32, -9, 4, 2);
+  }
+  
+  // 绘制步枪
+  _drawRifle(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 机匣
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(15, -7, 35, 14);
+    
+    // 枪管（长）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(50, -5, 25, 10);
+    
+    // 护木（handguard）
+    ctx.fillStyle = gripBrown;
+    ctx.fillRect(35, 5, 25, 10);
+    // 护木散热孔
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(38 + i * 4, 7, 3, 6);
+    }
+    
+    // 弹匣
+    ctx.fillStyle = gunDark;
+    ctx.beginPath();
+    ctx.moveTo(30, 7);
+    ctx.lineTo(40, 7);
+    ctx.lineTo(38, 24);
+    ctx.lineTo(32, 24);
+    ctx.closePath();
+    ctx.fill();
+    // 弹匣细节
+    ctx.strokeStyle = gunMetal;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(31, 12);
+    ctx.lineTo(39, 12);
+    ctx.moveTo(32, 17);
+    ctx.lineTo(40, 17);
+    ctx.stroke();
+    
+    // 握把
+    ctx.fillStyle = gripBrown;
+    ctx.beginPath();
+    ctx.moveTo(25, 7);
+    ctx.lineTo(32, 7);
+    ctx.lineTo(30, 20);
+    ctx.lineTo(22, 18);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 枪托（固定式）
+    ctx.fillStyle = gunBlack;
+    ctx.beginPath();
+    ctx.moveTo(5, -5);
+    ctx.lineTo(-15, -5);
+    ctx.lineTo(-15, 5);
+    ctx.lineTo(5, 5);
+    ctx.quadraticCurveTo(10, 0, 5, -5);
+    ctx.closePath();
+    ctx.fill();
+    // 枪托垫板
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(-18, -3, 5, 6);
+    
+    // 瞄准器（红点/全息）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(35, -12, 12, 5);
+    ctx.fillStyle = '#4299e1';
+    ctx.fillRect(38, -10, 6, 3);
+    
+    // 准星
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(70, -8, 3, 6);
+  }
+  
+  // 绘制狙击枪
+  _drawSniper(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 机匣（长）
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(15, -6, 40, 12);
+    
+    // 枪管（超长）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(55, -4, 50, 8);
+    
+    // 枪管散热槽
+    ctx.fillStyle = gunMetal;
+    for (let i = 0; i < 8; i++) {
+      ctx.fillRect(60 + i * 5, -4, 2, 8);
+    }
+    
+    // 两脚架
+    ctx.strokeStyle = gunDark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(50, 6);
+    ctx.lineTo(45, 18);
+    ctx.moveTo(55, 6);
+    ctx.lineTo(60, 18);
+    ctx.stroke();
+    
+    // 弹匣
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(35, 6, 8, 14);
+    
+    // 握把
+    ctx.fillStyle = gripBrown;
+    ctx.beginPath();
+    ctx.moveTo(30, 6);
+    ctx.lineTo(38, 6);
+    ctx.lineTo(36, 18);
+    ctx.lineTo(27, 16);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 枪托（带托腮板）
+    ctx.fillStyle = gunBlack;
+    ctx.beginPath();
+    ctx.moveTo(10, -4);
+    ctx.lineTo(-20, -4);
+    ctx.lineTo(-20, 6);
+    ctx.lineTo(10, 6);
+    ctx.quadraticCurveTo(15, 1, 10, -4);
+    ctx.closePath();
+    ctx.fill();
+    // 托腮板
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(-22, -2, 5, 4);
+    // 枪托垫板
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(-25, -1, 5, 2);
+    
+    // 大型瞄准镜
+    ctx.fillStyle = gunBlack;
+    ctx.beginPath();
+    ctx.ellipse(45, -12, 25, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // 镜筒
+    ctx.fillRect(25, -16, 40, 8);
+    // 调节旋钮
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(40, -20, 8, 4);
+    ctx.fillRect(50, -20, 6, 4);
+    // 镜片（前后）
+    ctx.fillStyle = '#4a5568';
+    ctx.fillRect(18, -14, 4, 8);
+    ctx.fillRect(68, -10, 4, 6);
+  }
+  
+  // 绘制霰弹枪
+  _drawShotgun(ctx, gunMetal, gunDark, gunBlack, gripBrown) {
+    // 机匣
+    ctx.fillStyle = gunMetal;
+    ctx.fillRect(15, -8, 30, 16);
+    
+    // 枪管（粗）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(45, -6, 25, 12);
+    
+    // 泵动式护木（pump forend）
+    ctx.fillStyle = gripBrown;
+    ctx.fillRect(50, 6, 20, 10);
+    // 泵动式防滑纹
+    ctx.strokeStyle = gunDark;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.moveTo(52 + i * 4, 6);
+      ctx.lineTo(52 + i * 4, 16);
+      ctx.stroke();
+    }
+    
+    // 管状弹仓（枪管下方）
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(48, -3, 20, 4);
+    
+    // 握把
+    ctx.fillStyle = gripBrown;
+    ctx.beginPath();
+    ctx.moveTo(20, 8);
+    ctx.lineTo(28, 8);
+    ctx.lineTo(26, 20);
+    ctx.lineTo(16, 18);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 握把纹理
+    ctx.fillStyle = gunDark;
+    for (let i = 0; i < 4; i++) {
+      ctx.fillRect(18, 10 + i * 2, 8, 1);
+    }
+    
+    // 枪托
+    ctx.fillStyle = gunBlack;
+    ctx.beginPath();
+    ctx.moveTo(10, -6);
+    ctx.lineTo(-15, -6);
+    ctx.lineTo(-15, 8);
+    ctx.lineTo(10, 8);
+    ctx.quadraticCurveTo(15, 1, 10, -6);
+    ctx.closePath();
+    ctx.fill();
+    // 枪托装饰纹
+    ctx.strokeStyle = gripBrown;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(-5, 0, 8, -Math.PI / 2, Math.PI / 2);
+    ctx.stroke();
+    
+    // 准星
+    ctx.fillStyle = gunDark;
+    ctx.fillRect(68, -9, 3, 6);
   }
 
   // 绘制血条
