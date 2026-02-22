@@ -353,11 +353,9 @@ class Renderer {
     
     // 绘制轨迹
     for (const point of bullet.trail) {
-      const screenX = point.x - camera.x;
-      const screenY = point.y - camera.y;
-      ctx.fillStyle = `rgba(255, 200, 50, ${point.alpha * 0.6})`;
+      ctx.fillStyle = `rgba(255, 200, 50, ${point.alpha * 0.8})`;
       ctx.beginPath();
-      ctx.arc(screenX, screenY, 3, 0, Math.PI * 2);
+      ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
       ctx.fill();
     }
     

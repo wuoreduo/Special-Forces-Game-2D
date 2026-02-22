@@ -47,6 +47,11 @@ class Player extends Entity {
     this.weapon.owner = this;
   }
 
+  // 设置平台引用（用于子弹碰撞）
+  setPlatforms(platforms) {
+    this.platforms = platforms;
+  }
+
   // 更新玩家
   update(dt, platforms) {
     if (!this.alive) {
@@ -182,7 +187,7 @@ class Player extends Entity {
     this.weapon.ammo--;
     
     // 创建子弹
-    const bullets = this.weapon.fire(this);
+    const bullets = this.weapon.fire(this, this.platforms);
     
     return bullets;
   }

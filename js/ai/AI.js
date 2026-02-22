@@ -166,7 +166,13 @@ class AIController {
   _patrolBehavior() {
     const patrolEnd = this.patrolStart + this.patrolRange * this.moveDirection;
     
-    if (Math.abs(this.player.x - patrolEnd) < 10) {
+    // 检查是否到达巡逻终点或接近地图边界
+    const mapBounds = this.game.map.getSize();
+    const safeMargin = 100;
+    
+    if (Math.abs(this.player.x - patrolEnd) < 10 ||
+        this.player.x < safeMargin ||
+        this.player.x > mapBounds.width - safeMargin) {
       this.moveDirection *= -1;
     }
 
@@ -195,16 +201,30 @@ class AIController {
       this.target.getCenterY()
     );
 
+    // 检查地图边界
+    const mapBounds = this.game.map.getSize();
+    const safeMargin = 100;
+    
     // 接近目标
     if (dist > this.attackRange) {
       if (dx > 0) {
-        this.player.moveRight = true;
-        this.player.moveLeft = false;
-        this.player.facingLeft = false;
+        // 检查是否在右边界
+        if (this.player.x < mapBounds.width - safeMargin) {
+          this.player.moveRight = true;
+          this.player.moveLeft = false;
+          this.player.facingLeft = false;
+        } else {
+          this.moveDirection = -1;
+        }
       } else {
-        this.player.moveLeft = true;
-        this.player.moveRight = false;
-        this.player.facingLeft = true;
+        // 检查是否在左边界
+        if (this.player.x > safeMargin) {
+          this.player.moveLeft = true;
+          this.player.moveRight = false;
+          this.player.facingLeft = true;
+        } else {
+          this.moveDirection = 1;
+        }
       }
     }
 
@@ -231,15 +251,23 @@ class AIController {
       this.target.getCenterY()
     );
 
+    // 检查地图边界
+    const mapBounds = this.game.map.getSize();
+    const safeMargin = 100;
+
     if (dist < this.attackRange * 0.5) {
       // 太近了，后退
       const dx = this.player.x - this.target.x;
       if (dx > 0) {
-        this.player.moveRight = true;
-        this.player.moveLeft = false;
+        if (this.player.x < mapBounds.width - safeMargin) {
+          this.player.moveRight = true;
+          this.player.moveLeft = false;
+        }
       } else {
-        this.player.moveLeft = true;
-        this.player.moveRight = false;
+        if (this.player.x > safeMargin) {
+          this.player.moveLeft = true;
+          this.player.moveRight = false;
+        }
       }
     }
   }
@@ -249,16 +277,24 @@ class AIController {
     if (!this.target) return;
 
     const dx = this.player.x - this.target.x;
+    
+    // 检查地图边界
+    const mapBounds = this.game.map.getSize();
+    const safeMargin = 100;
 
     // 远离目标
     if (dx > 0) {
-      this.player.moveRight = true;
-      this.player.moveLeft = false;
-      this.player.facingLeft = false;
+      if (this.player.x < mapBounds.width - safeMargin) {
+        this.player.moveRight = true;
+        this.player.moveLeft = false;
+        this.player.facingLeft = false;
+      }
     } else {
-      this.player.moveLeft = true;
-      this.player.moveRight = false;
-      this.player.facingLeft = true;
+      if (this.player.x > safeMargin) {
+        this.player.moveLeft = true;
+        this.player.moveRight = false;
+        this.player.facingLeft = true;
+      }
     }
 
     // 向后瞄准

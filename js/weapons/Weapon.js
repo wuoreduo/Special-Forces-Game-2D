@@ -20,7 +20,7 @@ class Weapon {
   }
 
   // 开火
-  fire(owner) {
+  fire(owner, platforms = null) {
     if (this.ammo <= 0) return [];
     
     const bullets = [];
@@ -52,7 +52,8 @@ class Weapon {
         this.bulletSpeed,
         this.damage,
         this.maxRange,
-        owner.team
+        owner.team,
+        platforms
       );
       
       bullets.push(bullet);

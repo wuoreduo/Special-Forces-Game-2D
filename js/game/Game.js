@@ -244,7 +244,7 @@ class Game {
   // 创建命中效果
   _createHitEffect(x, y) {
     const particle = this.particlePool.get();
-    particle.spawn(x, y, 0, 0, 5, 20, '#ff6b6b', 0);
+    particle.spawn(x, y, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, 4, 15, '#ff6b6b', 0);
   }
 
 
@@ -365,6 +365,7 @@ class Game {
       }
       
       player.setMapBounds(this.map.width, this.map.height);
+      player.setPlatforms(this.platforms);
       this.players.push(player);
       
       // 创建 AI
@@ -391,6 +392,7 @@ class Game {
       }
       
       player.setMapBounds(this.map.width, this.map.height);
+      player.setPlatforms(this.platforms);
       this.players.push(player);
       
       // 创建 AI

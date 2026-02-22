@@ -15,7 +15,7 @@ class Projectile extends Entity {
   }
 
   // 初始化子弹
-  spawn(x, y, angle, speed, damage, maxDist, team) {
+  spawn(x, y, angle, speed, damage, maxDist, team, platforms = null) {
     this.x = x;
     this.y = y;
     this.angle = angle;
@@ -27,31 +27,45 @@ class Projectile extends Entity {
     this.active = true;
     this.trail = [];
     this.trailTimer = 0;
+    this.platforms = platforms;
     
     // 计算速度向量
     this.vx = Math.cos(angle) * speed;
     this.vy = Math.sin(angle) * speed;
   }
 
+  // 检查是否击中墙壁
+  _checkWallCollision(newX, newY) {
+    if (!this.platforms) return false;
+    
+    for (const platform of this.platforms) {
+      if (newX >= platform.x && newX <= platform.x + platform.width &&
+          newY >= platform.y && newY <= platform.y + platform.height) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // 更新子弹
   update(dt) {
     if (!this.active) return;
     
-    // 添加轨迹点（每 3 帧添加一个点，节省性能）
+    // 添加轨迹点（每 2 帧添加一个点）
     this.trailTimer += dt;
     if (this.trailTimer > 16) {
       this.trail.push({ x: this.x, y: this.y, alpha: 1 });
       this.trailTimer = 0;
       
       // 限制轨迹长度
-      if (this.trail.length > 8) {
+      if (this.trail.length > 10) {
         this.trail.shift();
       }
     }
     
-    // 更新轨迹透明度
+    // 更新轨迹透明度（更快衰减）
     for (let i = 0; i < this.trail.length; i++) {
-      this.trail[i].alpha -= 0.15;
+      this.trail[i].alpha -= 0.3;
     }
     this.trail = this.trail.filter(t => t.alpha > 0);
     
@@ -59,8 +73,17 @@ class Projectile extends Entity {
     const moveX = Math.cos(this.angle) * this.speed;
     const moveY = Math.sin(this.angle) * this.speed;
     
-    this.x += moveX;
-    this.y += moveY;
+    const newX = this.x + moveX;
+    const newY = this.y + moveY;
+    
+    // 检查是否撞墙
+    if (this._checkWallCollision(newX, newY)) {
+      this.active = false;
+      return;
+    }
+    
+    this.x = newX;
+    this.y = newY;
     this.distTraveled += this.speed;
     
     // 检查是否超出最大距离
