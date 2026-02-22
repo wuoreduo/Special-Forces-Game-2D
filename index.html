@@ -100,6 +100,18 @@
   <!-- 游戏 HUD -->
   <div id="gameHUD" class="ui-hud hidden">
     <div class="hud-top">
+      <div class="player-info">
+        <div class="health-bar-container">
+          <div class="health-bar-fill" id="playerHealth"></div>
+        </div>
+        <div class="ammo-info">
+          <span id="ammoCount">12/12</span>
+          <span class="reload-hint hidden" id="reloadHint">按 R 换弹</span>
+        </div>
+        <div class="weapon-info">
+          <span id="weaponName">手枪</span>
+        </div>
+      </div>
       <div class="score-panel team-blue-score">
         <span class="team-icon">🔵</span>
         <span class="score" id="blueScore">0</span>
@@ -112,21 +124,6 @@
         <span class="team-name">红队</span>
         <span class="score" id="redScore">0</span>
         <span class="team-icon">🔴</span>
-      </div>
-    </div>
-    
-    <div class="hud-bottom">
-      <div class="player-info">
-        <div class="health-bar-container">
-          <div class="health-bar-fill" id="playerHealth"></div>
-        </div>
-        <div class="ammo-info">
-          <span id="ammoCount">12/12</span>
-          <span class="reload-hint hidden" id="reloadHint">按 R 换弹</span>
-        </div>
-        <div class="weapon-info">
-          <span id="weaponName">手枪</span>
-        </div>
       </div>
       <div class="team-info">
         <span>按 Tab 切换队友</span>

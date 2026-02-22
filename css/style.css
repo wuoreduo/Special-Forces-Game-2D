@@ -246,6 +246,13 @@ body {
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
 }
 
+.player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 250px;
+}
+
 .score-panel {
   display: flex;
   align-items: center;
@@ -279,23 +286,11 @@ body {
   font-family: 'Courier New', monospace;
 }
 
-.hud-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 15px 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-}
-
-.player-info {
+.team-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 10px;
-  min-width: 250px;
 }
 
 .health-bar-container {
