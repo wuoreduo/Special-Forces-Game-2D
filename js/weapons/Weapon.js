@@ -34,7 +34,6 @@ class Weapon {
     const falloffRate = this.config.damageFalloff || 0;
     const isSniper = this.config.name === 'sniper';
     const tracerAlpha = isSniper ? 1.0 : 0.4;
-    const tracerLife = isSniper ? 50 : 30;
     
     // 霰弹枪发射多发子弹
     for (let i = 0; i < this.bulletCount; i++) {
@@ -167,7 +166,7 @@ class Weapon {
         const tracer = particlePool.get();
         const endX = hitInfo ? hitInfo.point.x : muzzleX + dirX * this.maxRange;
         const endY = hitInfo ? hitInfo.point.y : muzzleY + dirY * this.maxRange;
-        tracer.spawnTracer(muzzleX, muzzleY, endX, endY, tracerAlpha, tracerLife, isSniper);
+        tracer.spawnTracer(muzzleX, muzzleY, endX, endY, tracerAlpha, 15, isSniper);
       }
     }
     

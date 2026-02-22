@@ -42,8 +42,8 @@ class Particle {
     this.vx = 0;
     this.vy = -1;
     this.size = 24;
-    this.life = 80;
-    this.decay = 1 / 80;
+    this.life = 40;
+    this.decay = 1 / 40;
     this.color = '#ff3333';
     this.gravity = 0;
     this.active = true;
@@ -52,7 +52,7 @@ class Particle {
   }
 
   // 生成弹道线
-  spawnTracer(startX, startY, endX, endY, alpha = 0.4, life = 30, isSniper = false) {
+  spawnTracer(startX, startY, endX, endY, alpha = 0.4, life = 15, isSniper = false) {
     this.x = startX;
     this.y = startY;
     this.endX = endX;
@@ -60,8 +60,8 @@ class Particle {
     this.vx = 0;
     this.vy = 0;
     this.size = isSniper ? 3 : 2;
-    this.life = life;
-    this.decay = 1 / life;
+    this.life = isSniper ? 20 : 15;
+    this.decay = 1 / (isSniper ? 20 : 15);
     this.color = `rgba(255, 255, 255, ${alpha})`;
     this.gravity = 0;
     this.active = true;
@@ -90,7 +90,7 @@ class Particle {
     
     if (this.isText) {
       ctx.save();
-      ctx.globalAlpha = this.life / 80;
+      ctx.globalAlpha = this.life / 40;
       ctx.fillStyle = this.color;
       ctx.font = 'bold 24px Arial';
       ctx.strokeStyle = '#000';
@@ -102,7 +102,7 @@ class Particle {
       ctx.restore();
     } else if (this.isTracer) {
       ctx.save();
-      ctx.globalAlpha = this.life / 30;
+      ctx.globalAlpha = this.life / 20;
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.lineWidth = this.size;
       ctx.lineCap = 'round';
