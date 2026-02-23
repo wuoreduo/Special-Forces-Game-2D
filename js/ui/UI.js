@@ -244,15 +244,15 @@ class UIManager {
   }
 
   // 更新队友状态
-  _updateTeammates() {
+  _updateTeammateIcons() {
+    this.teammatesEl.innerHTML = '';
+    
     const player = this.game.currentPlayer;
     if (!player) return;
     
     const teammates = this.game.players.filter(p => 
       p.team === player.team && p !== player
     );
-    
-    this.teammatesEl.innerHTML = '';
     
     for (const teammate of teammates) {
       const icon = document.createElement('div');
@@ -265,6 +265,46 @@ class UIManager {
         icon.classList.add('alive');
         icon.textContent = '👤';
       }
+      
+      if (teammate === player) {
+        icon.classList.add('current');
+      }
+      
+      this.teammatesEl.appendChild(icon);
+    }
+  }
+  
+  // 寻找最近的倒地队友
+  _findNearestDownedTeammate(player) {
+    const rescueRange = 50;
+    const teammates = this.game.players.filter(p => 
+      p.team === player.team && 
+      p.isDowned && 
+      p.alive &&
+      p !== player
+    );
+    
+    if (teammates.length === 0) return null;
+    
+    let nearestDowned = null;
+    let nearestDist = rescueRange * 2;
+    
+    for (const downed of teammates) {
+      const dist = Utils.distance(
+        player.getCenterX(),
+        player.getCenterY(),
+        downed.getCenterX(),
+        downed.getCenterY()
+      );
+      
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearestDowned = downed;
+      }
+    }
+    
+    return nearestDowned;
+  }
       
       if (teammate === player) {
         icon.classList.add('current');
@@ -318,6 +358,17 @@ class UIManager {
         break;
       case 'KeyF':
         player.melee(this.game.gameTime);
+        break;
+      case 'KeyE':
+        // 救援队友
+        if (player.isRescuing) {
+          player.cancelRescue();
+        } else {
+          const downedTeammate = this._findNearestDownedTeammate(player);
+          if (downedTeammate) {
+            player.startRescue(downedTeammate);
+          }
+        }
         break;
       case 'KeyV':
         this.game.camera.toggleGlobalView();

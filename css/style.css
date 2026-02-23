@@ -619,3 +619,25 @@ body {
   font-size: 1.1em;
   color: #a0aec0;
 }
+
+/* 救援进度条 */
+.rescue-progress-container {
+  position: absolute;
+  width: 60px;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #4a5568;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rescue-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #48bb78, #38a169);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.rescue-progress-fill.rescuing {
+  background: linear-gradient(90deg, #4facfe, #00f2fe);
+}

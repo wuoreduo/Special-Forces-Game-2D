@@ -16,6 +16,17 @@ class Player extends Entity {
     this.alive = true;
     this.deadTime = 0;
     
+    // 倒地状态（可救援）
+    this.isDowned = false;
+    this.downedTime = 0;
+    this.maxDownedTime = 10000;  // 倒地最长 10 秒（超时真正死亡）
+    
+    // 救援状态
+    this.isRescuing = false;
+    this.rescueTarget = null;
+    this.rescueProgress = 0;
+    this.rescueTime = 5000;  // 救援需要 5 秒
+    
     // 朝向
     this.facingLeft = false;
     this.aimAngle = 0;
@@ -81,9 +92,30 @@ class Player extends Entity {
   // 更新玩家
   update(dt, platforms) {
     if (!this.alive) {
-      this.deadTime += dt;
+      // 倒地状态处理
+      if (this.isDowned) {
+        this.downedTime += dt;
+        if (this.downedTime >= this.maxDownedTime) {
+          // 超时真正死亡
+          this.isDowned = false;
+          this.deadTime = 0;
+          this.deaths++;
+          this.falling = true;
+          this.fallenAngle = 0;
+        }
+      } else {
+        this.deadTime += dt;
+      }
       this._updateAnimation();
       return;
+    }
+    
+    // 更新救援进度
+    if (this.isRescuing && this.rescueTarget) {
+      this.rescueProgress += dt;
+      if (this.rescueProgress >= this.rescueTime) {
+        this._completeRescue();
+      }
     }
 
     // 无敌时间倒计时（调试模式永久无敌）
@@ -127,6 +159,13 @@ class Player extends Entity {
 
   // 处理移动
   _handleMovement(dt) {
+    // 救援中不能移动
+    if (this.isRescuing) {
+      this.moveLeft = false;
+      this.moveRight = false;
+      return;
+    }
+    
     const moveSpeed = this.crouching ? 2 : 5;
     
     if (this.moveLeft) {
@@ -175,6 +214,12 @@ class Player extends Entity {
 
   // 更新动画状态
   _updateAnimation() {
+    // 倒地状态
+    if (this.isDowned) {
+      this.animationState = 'downed';
+      return;
+    }
+    
     if (!this.alive) {
       if (this.falling) {
         this.fallenAngle += 10;
@@ -184,6 +229,12 @@ class Player extends Entity {
         }
       }
       this.animationState = 'death';
+      return;
+    }
+    
+    // 救援中
+    if (this.isRescuing) {
+      this.animationState = 'rescuing';
       return;
     }
     
@@ -312,17 +363,60 @@ class Player extends Entity {
     return false;
   }
 
-  // 死亡
+  // 死亡（进入倒地状态，可救援）
   die(killer) {
-    this.alive = false;
-    this.deadTime = 0;
+    this.isDowned = true;
+    this.downedTime = 0;
+    this.health = 0;
+    this.alive = false;  // 暂时标记为不可行动
     this.deaths++;
-    this.falling = true;
-    this.fallenAngle = 0;
+    this.falling = false;
+    this.fallenAngle = 90;  // 倒地姿势
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.shooting = false;
+    this.crouching = false;
     
     if (killer && killer !== this) {
       killer.kills++;
     }
+  }
+  
+  // 开始救援
+  startRescue(target) {
+    if (!this.alive || this.isRescuing || !target || !target.isDowned) return;
+    
+    this.isRescuing = true;
+    this.rescueTarget = target;
+    this.rescueProgress = 0;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.shooting = false;
+  }
+  
+  // 取消救援
+  cancelRescue() {
+    this.isRescuing = false;
+    this.rescueTarget = null;
+    this.rescueProgress = 0;
+  }
+  
+  // 完成救援
+  _completeRescue() {
+    if (this.rescueTarget && this.rescueTarget.isDowned) {
+      // 恢复目标 25 HP
+      this.rescueTarget.health = 25;
+      this.rescueTarget.isDowned = false;
+      this.rescueTarget.alive = true;
+      this.rescueTarget.invincible = true;
+      this.rescueTarget.invincibleTime = 2000;  // 2 秒无敌时间
+      this.rescueTarget.downedTime = 0;
+    }
+    
+    // 重置救援状态
+    this.isRescuing = false;
+    this.rescueTarget = null;
+    this.rescueProgress = 0;
   }
 
   // 重生

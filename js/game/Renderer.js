@@ -604,6 +604,51 @@ class Renderer {
     ctx.fillText(name, nameX, nameY);
     
     ctx.restore();
+    
+    // 绘制救援进度条
+    if (player.isRescuing || player.isDowned) {
+      this._drawRescueProgressBar(player);
+    }
+  }
+  
+  // 绘制救援进度条
+  _drawRescueProgressBar(player) {
+    const ctx = this.ctx;
+    const barWidth = 60;
+    const barHeight = 6;
+    const barX = player.x + player.width / 2 - barWidth / 2;
+    const barY = player.y - 40;
+    
+    ctx.save();
+    
+    // 背景
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.strokeStyle = '#4a5568';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(barX, barY, barWidth, barHeight, 3);
+    ctx.fill();
+    ctx.stroke();
+    
+    // 进度
+    let progress = 0;
+    let progressColor = '#48bb78';
+    
+    if (player.isRescuing) {
+      progress = player.rescueProgress / player.rescueTime;
+      progressColor = '#4facfe';
+    } else if (player.isDowned) {
+      // 倒地剩余时间进度（红色递减）
+      progress = 1 - (player.downedTime / player.maxDownedTime);
+      progressColor = '#f56565';
+    }
+    
+    ctx.fillStyle = progressColor;
+    ctx.beginPath();
+    ctx.roundRect(barX + 2, barY + 2, (barWidth - 4) * progress, barHeight - 4, 2);
+    ctx.fill();
+    
+    ctx.restore();
   }
 
   // 绘制无敌效果
