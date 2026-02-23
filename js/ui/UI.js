@@ -209,7 +209,7 @@ class UIManager {
     }
     
     // 队友状态
-    this._updateTeammates();
+    this._updateTeammateIcons();
     
     if (this.game.settings.debugGodMode) {
       this.debugIndicatorEl.classList.remove('hidden');
