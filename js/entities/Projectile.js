@@ -47,42 +47,61 @@ class Projectile extends Entity {
     return this.baseDamage * (1 - falloff);
   }
 
-  // 检查是否击中墙壁（改进版：更密集的采样 + 边界墙参数）
+  // 检查是否击中墙壁（使用射线与矩形相交检测）
   _checkWallCollision(newX, newY, ignoreBorderWalls = true) {
     if (!this.platforms) return false;
     
-    // 使用射线检测，检查从旧位置到新位置的路径
-    const steps = 10;  // 增加采样点数
-    const stepX = (newX - this.x) / steps;
-    const stepY = (newY - this.y) / steps;
+    const dirX = newX - this.x;
+    const dirY = newY - this.y;
+    const dist = Math.sqrt(dirX * dirX + dirY * dirY);
     
-    let checkX = this.x;
-    let checkY = this.y;
-    const bulletRadius = 3;  // 减小碰撞半径
+    if (dist === 0) return false;
     
-    for (let i = 0; i < steps; i++) {
-      checkX += stepX;
-      checkY += stepY;
-      
-      for (const platform of this.platforms) {
-        // 忽略边界墙（根据参数）
-        if (ignoreBorderWalls) {
-          const isBorderWall = (platform.x <= 0) || 
-                               (platform.x >= 1970) || 
-                               (platform.y >= 1170);
-          if (isBorderWall) continue;
-        }
-        
-        // 小碰撞盒检测（子弹半径）
-        if (checkX >= platform.x + bulletRadius && 
-            checkX <= platform.x + platform.width - bulletRadius &&
-            checkY >= platform.y + bulletRadius && 
-            checkY <= platform.y + platform.height - bulletRadius) {
-          return true;
-        }
+    const normDirX = dirX / dist;
+    const normDirY = dirY / dist;
+    
+    for (const platform of this.platforms) {
+      // 忽略边界墙（根据参数）
+      if (ignoreBorderWalls) {
+        const isBorderWall = (platform.x <= 0) || 
+                             (platform.x >= 1970) || 
+                             (platform.y >= 1170);
+        if (isBorderWall) continue;
       }
+      
+      // 使用射线与矩形相交检测
+      const hit = this._raycastRect(this.x, this.y, normDirX, normDirY, platform.x, platform.y, platform.width, platform.height, dist);
+      if (hit) return true;
     }
     return false;
+  }
+  
+  // 射线与矩形相交检测
+  _raycastRect(originX, originY, dirX, dirY, rectX, rectY, rectW, rectH, maxDist) {
+    const invDirX = 1 / dirX;
+    const invDirY = 1 / dirY;
+    
+    let tmin = (rectX - originX) * invDirX;
+    let tmax = (rectX + rectW - originX) * invDirX;
+    
+    if (tmin > tmax) [tmin, tmax] = [tmax, tmin];
+    
+    let tymin = (rectY - originY) * invDirY;
+    let tymax = (rectY + rectH - originY) * invDirY;
+    
+    if (tymin > tymax) [tymin, tymax] = [tymax, tymin];
+    
+    if (tmin > tymax || tymin > tmax) return false;
+    
+    const tEnter = Math.max(tmin, tymin);
+    const tExit = Math.min(tmax, tymax);
+    
+    // 如果射线起点在矩形内，或者射线与矩形相交且距离在范围内
+    if (tEnter < 0 && tExit < 0) return false;
+    
+    const tHit = tEnter < 0 ? tExit : tEnter;
+    
+    return tHit >= 0 && tHit <= maxDist;
   }
 
   // 更新子弹
