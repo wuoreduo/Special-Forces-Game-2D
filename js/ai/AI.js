@@ -14,7 +14,7 @@ class AIController {
     // 配合参数
     this.supportRange = 300;    // 支援范围
     this.separationDist = 200;  // 与队友保持距离
-    this.rescueRange = 50;      // 救援距离
+    this.rescueRange = 100;      // 救援距离放宽到 100
     
     // 基础移动
     this.moveDirection = 1;  // 1=向右，-1=向左
@@ -22,6 +22,9 @@ class AIController {
     
     // 瞄准参数
     this.aimSpeed = 0.06;    // 瞄准角速度（弧度/帧）
+    
+    // 救援参数
+    this.rescueTime = 3000;  // 3 秒救援时间
     
     // 检测范围
     this.detectionRange = 600;
@@ -632,10 +635,10 @@ class AIController {
       return;
     }
     
-    // 4. 救援（仅在安全时）- 中优先级
-    // 危险时不救援，保命要紧
-    if (!this.isInDanger && this.attackedCooldown <= 0) {
-      if (this.squadState === 'rescuing' || this._checkRescue()) {
+    // 4. 救援（没有直接危险时）- 中优先级
+    // 修改条件：只要不是正在被攻击就可以救援
+    if (this.attackedCooldown <= 0) {
+      if (this._checkRescue()) {
         if (!this.rescueTarget) {
           this.rescueTarget = this._checkRescue();
         }

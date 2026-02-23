@@ -276,7 +276,7 @@ class UIManager {
   
   // 寻找最近的倒地队友
   _findNearestDownedTeammate(player) {
-    const rescueRange = 50;
+    const rescueRange = 100;  // 救援距离放宽到 100 像素
     const teammates = this.game.players.filter(p => 
       p.team === player.team && 
       p.isDowned &&
