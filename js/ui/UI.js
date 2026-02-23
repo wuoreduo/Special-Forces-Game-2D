@@ -305,14 +305,6 @@ class UIManager {
     
     return nearestDowned;
   }
-      
-      if (teammate === player) {
-        icon.classList.add('current');
-      }
-      
-      this.teammatesEl.appendChild(icon);
-    }
-  }
 
   // 键盘按下
   _handleKeyDown(e) {
