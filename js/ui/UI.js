@@ -16,6 +16,7 @@ class UIManager {
     this.playerHealthEl = document.getElementById('playerHealth');
     this.healthValueEl = document.getElementById('healthValue');
     this.ammoDotsEl = document.getElementById('ammoDots');
+    this.ammoCountTextEl = document.getElementById('ammoCountText');
     this.reloadHintEl = document.getElementById('reloadHint');
     this.weaponNameEl = document.getElementById('weaponName');
     this.secondaryWeaponNameEl = document.getElementById('secondaryWeaponName');
@@ -221,6 +222,7 @@ class UIManager {
   _drawAmmoDots(player) {
     if (!player.weapon || !player.weapon.magazineSize) {
       this.ammoDotsEl.innerHTML = '';
+      this.ammoCountTextEl.textContent = '';
       return;
     }
     
@@ -237,6 +239,8 @@ class UIManager {
       }
       this.ammoDotsEl.appendChild(dot);
     }
+    
+    this.ammoCountTextEl.textContent = `${currentAmmo}/${maxAmmo}`;
   }
 
   // 更新队友状态
