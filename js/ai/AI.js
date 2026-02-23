@@ -824,17 +824,6 @@ class AIController {
     this._applyDynamicPatrol();
     this.player.shooting = false;
   }
-    
-    if (this.isInDanger) {
-      this._handleDangerResponse();
-      if (this.target) {
-        this._aimAtTargetSlowly(this.target, 16);
-        this.player.shooting = true;
-      }
-    } else {
-      this._applyBaseMovement();
-    }
-  }
   
   // 动态巡逻（无敌人时的移动行为）
   _applyDynamicPatrol() {
