@@ -322,6 +322,14 @@ class UIManager {
       case 'KeyV':
         this.game.camera.toggleGlobalView();
         break;
+      case 'Equal':
+      case 'NumpadAdd':
+        this.game.camera.zoomIn();
+        break;
+      case 'Minus':
+      case 'NumpadSubtract':
+        this.game.camera.zoomOut();
+        break;
       case 'KeyQ':
         player.swapWeapon();
         break;

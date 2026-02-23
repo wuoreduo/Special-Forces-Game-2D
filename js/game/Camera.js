@@ -7,10 +7,13 @@ class Camera {
     this.width = width;
     this.height = height;
     this.target = null;
-    this.smooth = 0.1;
+    this.smooth = 0.08;
     this.zoom = 1;
     this.globalView = false;
-    this.defaultZoom = 3;
+    this.defaultZoom = 1.5;
+    this.minZoom = 1;
+    this.maxZoom = 4;
+    this.lookAhead = 100;
   }
 
   // 设置跟随目标
@@ -21,7 +24,7 @@ class Camera {
   // 更新摄像机位置
   update(mapWidth, mapHeight) {
     if (this.globalView) {
-      this.zoom = 1;
+      this.zoom = this.minZoom;
       this.x = 0;
       this.y = 0;
       return;
@@ -33,8 +36,15 @@ class Camera {
     const viewWidth = this.width / this.zoom;
     const viewHeight = this.height / this.zoom;
 
-    const targetX = this.target.x + this.target.width / 2 - viewWidth / 2;
-    const targetY = this.target.y + this.target.height / 2 - viewHeight / 2;
+    // 目标位置：考虑玩家移动方向，提前显示前方视野
+    let targetX = this.target.x + this.target.width / 2 - viewWidth / 2;
+    let targetY = this.target.y + this.target.height / 2 - viewHeight / 2;
+
+    // 根据玩家速度动态调整视野偏移
+    if (this.target.velX) {
+      const lookAheadOffset = (this.target.velX / this.target.maxSpeed) * this.lookAhead;
+      targetX += lookAheadOffset;
+    }
 
     // 平滑跟随
     this.x = Utils.lerp(this.x, targetX, this.smooth);
@@ -49,7 +59,7 @@ class Camera {
   toggleGlobalView() {
     this.globalView = !this.globalView;
     if (this.globalView) {
-      this.zoom = 1;
+      this.zoom = this.minZoom;
     } else {
       this.zoom = this.defaultZoom;
     }
@@ -58,7 +68,23 @@ class Camera {
   // 设置全局视角
   setGlobalView(enabled) {
     this.globalView = enabled;
-    this.zoom = enabled ? 1 : this.defaultZoom;
+    this.zoom = enabled ? this.minZoom : this.defaultZoom;
+  }
+
+  // 缩放控制
+  zoomIn() {
+    this.zoom = Math.min(this.zoom + 0.2, this.maxZoom);
+    this.globalView = false;
+  }
+
+  zoomOut() {
+    this.zoom = Math.max(this.zoom - 0.2, this.minZoom);
+    this.globalView = false;
+  }
+
+  setZoom(zoom) {
+    this.zoom = Utils.clamp(zoom, this.minZoom, this.maxZoom);
+    this.globalView = false;
   }
 
   // 应用摄像机变换（用于渲染）
