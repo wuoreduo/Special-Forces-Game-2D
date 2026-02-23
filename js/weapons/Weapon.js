@@ -177,7 +177,8 @@ class Weapon {
           this.maxRange,
           owner.team,
           platforms,
-          falloffRate
+          falloffRate,
+          true  // ignoreBorderWalls: 忽略边界墙
         );
         // 标记为纯视觉效果，不进行碰撞检测
         bullet.isVisualOnly = true;

@@ -16,7 +16,7 @@ class Projectile extends Entity {
   }
 
   // 初始化子弹
-  spawn(x, y, angle, speed, damage, maxDist, team, platforms = null, falloffRate = 0) {
+  spawn(x, y, angle, speed, damage, maxDist, team, platforms = null, falloffRate = 0, ignoreBorderWalls = true) {
     this.x = x;
     this.y = y;
     this.angle = angle;
@@ -31,6 +31,7 @@ class Projectile extends Entity {
     this.trailTimer = 0;
     this.platforms = platforms;
     this.falloffRate = falloffRate;
+    this.ignoreBorderWalls = ignoreBorderWalls;
     
     // 计算速度向量
     this.vx = Math.cos(angle) * speed;
@@ -46,31 +47,33 @@ class Projectile extends Entity {
     return this.baseDamage * (1 - falloff);
   }
 
-  // 检查是否击中墙壁
-  _checkWallCollision(newX, newY) {
+  // 检查是否击中墙壁（改进版：更密集的采样 + 边界墙参数）
+  _checkWallCollision(newX, newY, ignoreBorderWalls = true) {
     if (!this.platforms) return false;
     
     // 使用射线检测，检查从旧位置到新位置的路径
-    const steps = 5;
+    const steps = 10;  // 增加采样点数
     const stepX = (newX - this.x) / steps;
     const stepY = (newY - this.y) / steps;
     
     let checkX = this.x;
     let checkY = this.y;
+    const bulletRadius = 3;  // 减小碰撞半径
     
     for (let i = 0; i < steps; i++) {
       checkX += stepX;
       checkY += stepY;
       
       for (const platform of this.platforms) {
-        // 忽略边界墙（左右边界和地面）
-        const isBorderWall = (platform.x <= 0) || 
-                             (platform.x >= 1970) || 
-                             (platform.y >= 1170);
-        if (isBorderWall) continue;
+        // 忽略边界墙（根据参数）
+        if (ignoreBorderWalls) {
+          const isBorderWall = (platform.x <= 0) || 
+                               (platform.x >= 1970) || 
+                               (platform.y >= 1170);
+          if (isBorderWall) continue;
+        }
         
         // 小碰撞盒检测（子弹半径）
-        const bulletRadius = 4;
         if (checkX >= platform.x + bulletRadius && 
             checkX <= platform.x + platform.width - bulletRadius &&
             checkY >= platform.y + bulletRadius && 
@@ -112,7 +115,7 @@ class Projectile extends Entity {
     const newY = this.y + moveY;
     
     // 检查是否撞墙
-    if (this._checkWallCollision(newX, newY)) {
+    if (this._checkWallCollision(newX, newY, this.ignoreBorderWalls)) {
       this.active = false;
       return;
     }

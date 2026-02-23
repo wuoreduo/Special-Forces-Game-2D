@@ -43,10 +43,10 @@ const WEAPONS = {
     reloadTime: 2000,
     bulletSpeed: 110,
     maxRange: 1000,
-    spread: 3,
+    spread: 1.5,
     bulletCount: 1,
     damageFalloff: 0.0005,
-    spreadIncrease: 0.5
+    spreadIncrease: 0.3
   },
 
   // 狙击枪 - 高伤害（爆头一击必杀，身体两枪击杀）
@@ -59,10 +59,10 @@ const WEAPONS = {
     reloadTime: 3000,
     bulletSpeed: 175,
     maxRange: 1500,
-    spread: 0.5,
+    spread: 0,
     bulletCount: 1,
     damageFalloff: 0,
-    spreadIncrease: 0.3
+    spreadIncrease: 0
   },
 
   // 霰弹枪 - 近战散射
