@@ -11,7 +11,7 @@ class Camera {
     this.zoom = 1;
     this.globalView = false;
     this.defaultZoom = 1.5;
-    this.minZoom = 1;
+    this.minZoom = 0.6;
     this.maxZoom = 4;
     this.lookAhead = 100;
   }
