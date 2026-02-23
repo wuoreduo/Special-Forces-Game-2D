@@ -224,10 +224,13 @@ class Game {
           this._createHitEffect(bullet.x, bullet.y);
           
           // 检查是否进入倒地状态（原逻辑：!player.alive，但 die() 后 alive 仍为 true）
-          if (player.isDowned && wasAlive && bullet.owner) {
-            this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
-            this._createKillFeed(bullet.owner, player);
-            this.scores[bullet.team]++;
+          if (player.isDowned && wasAlive) {
+            console.log('[命中] 玩家倒地，击杀者:', bullet.owner ? bullet.owner.name : '无');
+            if (bullet.owner) {
+              this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
+              this._createKillFeed(bullet.owner, player);
+              this.scores[bullet.team]++;
+            }
           }
           
           if (this.audio) {
@@ -300,12 +303,16 @@ class Game {
   _createKillFeed(killer, victim) {
     // 自杀检测
     if (killer === victim) {
+      console.log('[击杀] 自杀事件');
       return;
     }
     
     // 只在击杀者存活时增加击杀数
     if (killer.alive) {
       killer.kills++;
+      console.log(`[击杀] ${killer.name} 击杀 ${victim.name}, 总击杀数：${killer.kills}`);
+    } else {
+      console.log(`[击杀] ${killer.name} 已死亡，不增加击杀数 (受害者：${victim.name})`);
     }
     
     const entry = {
