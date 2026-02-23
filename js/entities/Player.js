@@ -340,10 +340,15 @@ class Player extends Entity {
     this.falling = false;
     this.fallenAngle = 0;
     
+    // 复活时无敌时间
+    this.invincible = true;
+    this.invincibleTime = this.invincibleDuration;
+    
     // 调试模式：永久无敌
     const isDebugMode = window.game && window.game.settings && window.game.settings.debugGodMode && this.isControlled;
-    this.invincible = isDebugMode;
-    this.invincibleTime = this.invincibleDuration;
+    if (isDebugMode) {
+      this.invincible = true;
+    }
     
     if (this.weapon) {
       this.weapon.ammo = this.weapon.magazineSize;
