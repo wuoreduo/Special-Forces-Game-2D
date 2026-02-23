@@ -20,6 +20,7 @@ class Player extends Entity {
     this.isDowned = false;
     this.downedTime = 0;
     this.maxDownedTime = 8000;  // 倒地最长 8 秒（超时真正死亡）
+    this.lastAttacker = null;   // 最后攻击者（用于倒地死亡时统计）
     
     // 救援状态
     this.isRescuing = false;
@@ -102,6 +103,11 @@ class Player extends Entity {
         this.deaths++;
         this.falling = true;
         this.fallenAngle = 0;
+        
+        // 更新最后攻击者的击杀数
+        if (this.lastAttacker && this.lastAttacker !== this) {
+          this.lastAttacker.kills++;
+        }
       }
       this._updateAnimation();
       return;
@@ -361,6 +367,11 @@ class Player extends Entity {
     
     this.health -= amount;
     
+    // 记录最后攻击者
+    if (attacker && attacker !== this) {
+      this.lastAttacker = attacker;
+    }
+    
     if (this.health <= 0) {
       this.health = 0;
       this.die(attacker);
@@ -379,7 +390,7 @@ class Player extends Entity {
     this.downedTime = 0;
     this.health = 0;
     // 注意：alive 保持 true，只是 isDowned=true 表示倒地无法行动
-    this.deaths++;
+    // 不增加 deaths，等到真正死亡时才增加
     this.falling = false;
     this.fallenAngle = 90;  // 倒地姿势
     this.moveLeft = false;
@@ -390,9 +401,8 @@ class Player extends Entity {
     this.rescueTarget = null;
     this.rescueProgress = 0;
     
-    if (killer && killer !== this) {
-      killer.kills++;
-    }
+    // 记录最后攻击者（用于倒地超时死亡时统计）
+    this.lastAttacker = killer;
   }
   
   // 开始救援

@@ -235,6 +235,7 @@ class AIController {
     if (!this.rescueTarget || !this.rescueTarget.alive || !this.rescueTarget.isDowned) {
       this.rescueTarget = null;
       this.rescueProgress = 0;
+      this.player.isRescuing = false;
       return;
     }
     
@@ -250,11 +251,14 @@ class AIController {
       // 还没到达，继续移动
       this._moveToPosition(this.rescueTarget.x, this.rescueTarget.y);
       this.rescueProgress = 0;
+      this.player.isRescuing = false;
     } else {
       // 到达救援位置，开始救援
       this.player.moveLeft = false;
       this.player.moveRight = false;
       this.player.shooting = false;
+      this.player.isRescuing = true;  // 设置救援状态（用于 UI 显示）
+      this.player.rescueProgress = this.rescueProgress;  // 同步进度
       
       // 更新救援进度
       this.rescueProgress += dt;
@@ -280,6 +284,8 @@ class AIController {
     }
     
     // 重置救援者状态
+    this.player.isRescuing = false;
+    this.player.rescueProgress = 0;
     this.rescueTarget = null;
     this.rescueProgress = 0;
   }

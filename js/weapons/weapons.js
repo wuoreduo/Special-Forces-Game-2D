@@ -54,9 +54,9 @@ const WEAPONS = {
     name: 'sniper',
     displayName: '狙击枪',
     damage: 60,
-    fireRate: 0.5,
+    fireRate: 0.8,        // 射速提高（发射间隔缩短）
     magazineSize: 5,
-    reloadTime: 3000,
+    reloadTime: 1800,     // 装弹时间缩短（3000→1800ms）
     bulletSpeed: 175,
     maxRange: 1500,
     spread: 0,
