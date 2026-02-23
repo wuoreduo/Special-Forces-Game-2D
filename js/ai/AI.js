@@ -251,7 +251,6 @@ class AIController {
     this.rescueTarget = null;
     this.rescueProgress = 0;
   }
-  }
   
   // 检查撤退条件
   _checkRetreat() {
