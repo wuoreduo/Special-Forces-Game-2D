@@ -476,8 +476,6 @@ class Game {
       player.invincible = true;
       player.invincibleTime = player.invincibleDuration;
       
-      console.log(`蓝队玩家 ${player.name} 设置无敌时间：${player.invincibleTime}ms`);
-      
       this.players.push(player);
       
       // 创建 AI
@@ -511,8 +509,6 @@ class Game {
       // 游戏开始时所有玩家都有无敌时间
       player.invincible = true;
       player.invincibleTime = player.invincibleDuration;
-      
-      console.log(`红队玩家 ${player.name} 设置无敌时间：${player.invincibleTime}ms`);
       
       this.players.push(player);
       

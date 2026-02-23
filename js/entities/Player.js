@@ -93,7 +93,6 @@ class Player extends Entity {
         this.invincibleTime -= dt;
         if (this.invincibleTime <= 0) {
           this.invincible = false;
-          console.log(`玩家 ${this.name} 无敌时间结束`);
         }
       }
     }
