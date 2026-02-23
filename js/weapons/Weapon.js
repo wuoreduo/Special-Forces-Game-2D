@@ -79,7 +79,7 @@ class Weapon {
       let hitInfo = null;
       let maxDist = this.maxRange;
       
-      // 检测墙壁遮挡
+      // 检测墙壁遮挡（使用矩形检测，避免从上下方穿墙）
       if (platforms) {
         for (const platform of platforms) {
           // 忽略边界墙
@@ -88,28 +88,15 @@ class Weapon {
                                (platform.y >= 1170);
           if (isBorderWall) continue;
           
-          // 检测射线与平台四条边的相交
-          const walls = [
-            // 上边
-            { x1: platform.x, y1: platform.y, x2: platform.x + platform.width, y2: platform.y },
-            // 下边
-            { x1: platform.x, y1: platform.y + platform.height, x2: platform.x + platform.width, y2: platform.y + platform.height },
-            // 左边
-            { x1: platform.x, y1: platform.y, x2: platform.x, y2: platform.y + platform.height },
-            // 右边
-            { x1: platform.x + platform.width, y1: platform.y, x2: platform.x + platform.width, y2: platform.y + platform.height }
-          ];
-          
-          for (const wall of walls) {
-            const wallHit = Utils.raycastSegment(muzzleX, muzzleY, dirX, dirY, wall.x1, wall.y1, wall.x2, wall.y2);
-            if (wallHit.hit && wallHit.distance < maxDist) {
-              maxDist = wallHit.distance;
-              hitInfo = {
-                type: 'wall',
-                point: wallHit.point,
-                distance: wallHit.distance
-              };
-            }
+          // 使用矩形检测（而不是线段检测），可以检测从任何方向穿过平台的情况
+          const wallHit = Utils.raycastRect(muzzleX, muzzleY, dirX, dirY, platform.x, platform.y, platform.width, platform.height);
+          if (wallHit.hit && wallHit.distance > 0 && wallHit.distance < maxDist) {
+            maxDist = wallHit.distance;
+            hitInfo = {
+              type: 'wall',
+              point: wallHit.point,
+              distance: wallHit.distance
+            };
           }
         }
       }
