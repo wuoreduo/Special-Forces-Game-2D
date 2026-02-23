@@ -103,12 +103,6 @@ class Player extends Entity {
         this.deaths++;
         this.falling = true;
         this.fallenAngle = 0;
-        
-        // 更新最后攻击者的击杀数
-        if (this.lastAttacker && this.lastAttacker !== this && this.lastAttacker.alive) {
-          this.lastAttacker.kills++;
-          console.log(`[统计] ${this.name} 死亡，${this.lastAttacker.name} 获得击杀 (K:${this.lastAttacker.kills})`);
-        }
       }
       this._updateAnimation();
       return;
@@ -455,11 +449,15 @@ class Player extends Entity {
     this.health = this.maxHealth;
     
     this.alive = true;
+    this.isDowned = false;
     this.vx = 0;
     this.vy = 0;
     this.reloading = false;
     this.falling = false;
     this.fallenAngle = 0;
+    this.deadTime = 0;
+    this.downedTime = 0;
+    this.lastAttacker = null;
     
     // 复活时无敌时间
     this.invincible = true;

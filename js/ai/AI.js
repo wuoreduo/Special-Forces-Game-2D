@@ -8,36 +8,36 @@ class AIController {
     
     // 动态组队：根据距离自然组队
     this.dynamicSquadMembers = [];  // 动态小队成员（附近的队友）
-    this.squadRange = 400;          // 组队距离范围
+    this.squadRange = 500;          // 组队距离范围（扩大）
     
     // 小队共享状态
     this.squadTarget = null;   // 小队集火目标
     this.squadState = 'normal'; // normal, retreating, pursuing
     
     // 配合参数
-    this.supportRange = 300;    // 支援范围
-    this.separationDist = 200;  // 与队友保持距离
-    this.rescueRange = 100;      // 救援距离
+    this.supportRange = 400;    // 支援范围（扩大）
+    this.separationDist = 250;  // 与队友保持距离
+    this.rescueRange = 120;      // 救援距离（扩大）
     
     // 基础移动
     this.moveDirection = 1;  // 1=向右，-1=向左
-    this.moveSpeedFactor = 0.65;  // AI 移动速度是玩家的 65%
+    this.moveSpeedFactor = 0.85;  // AI 移动速度是玩家的 85%（更活跃）
     
     // 瞄准参数
-    this.aimSpeed = 0.06;    // 瞄准角速度（弧度/帧）
+    this.aimSpeed = 0.12;    // 瞄准角速度（弧度/帧，更快）
     
     // 救援参数
     this.rescueTime = 3000;  // 3 秒救援时间
     
-    // 检测范围
-    this.detectionRange = 600;
-    this.attackRange = 400;
-    this.dangerDistance = 250;
+    // 检测范围（扩大）
+    this.detectionRange = 800;    //  detection range 增加
+    this.attackRange = 500;       // 攻击范围增加
+    this.dangerDistance = 300;    // 危险距离增加
     
-    // 危险反应参数
-    this.freezeChance = 0.3;
-    this.crouchChance = 0.3;
-    this.randomJumpChance = 0.5;
+    // 危险反应参数（降低，让 AI 更积极）
+    this.freezeChance = 0.15;     // 降低冻结概率
+    this.crouchChance = 0.15;     // 降低蹲下概率
+    this.randomJumpChance = 0.6;  // 增加跳跃概率
     
     // 状态追踪
     this.target = null;
@@ -123,12 +123,12 @@ class AIController {
     // 4. 判断小队优劣势
     const numAdvantage = aliveMembers.length - enemyCount;
     
-    // 5. 更新小队状态
-    if (numAdvantage <= -2 || healthRatio < 0.4) {
+    // 5. 更新小队状态（更积极的追击，更慢的撤退）
+    if (numAdvantage <= -3 || healthRatio < 0.3) {
       this.squadState = 'retreating';
-    } else if (numAdvantage >= 1 && enemyPlayers.length > 0) {
+    } else if (numAdvantage >= 0 && enemyPlayers.length > 0) {
       const enemyHealthRatio = enemyPlayers.reduce((sum, p) => sum + p.health, 0) / (enemyCount * 100);
-      if (enemyHealthRatio < 0.6) {
+      if (enemyHealthRatio < 0.7) {
         this.squadState = 'pursuing';
       } else {
         this.squadState = 'normal';
@@ -342,17 +342,17 @@ class AIController {
     this.rescueProgress = 0;
   }
   
-  // 检查撤退条件
+  // 检查撤退条件（更难撤退）
   _checkRetreat() {
     const aliveMembers = this.dynamicSquadMembers.filter(ai => ai.player.alive && !ai.player.isDowned);
     const enemyTeam = this.player.team === 'blue' ? 'red' : 'blue';
     const enemyCount = this.game.players.filter(p => p.team === enemyTeam && p.alive && !p.isDowned).length;
     
-    // 人数劣势 ≥2 或 血量 <40%
+    // 人数劣势 ≥3 或 血量 <30% 才撤退
     const numDisadvantage = aliveMembers.length - enemyCount;
     const healthRatio = this.player.health / 100;
     
-    return numDisadvantage <= -2 || healthRatio < 0.4;
+    return numDisadvantage <= -3 || healthRatio < 0.3;
   }
   
   // 执行撤退
@@ -394,7 +394,7 @@ class AIController {
     }
   }
   
-  // 检查追击条件
+  // 检查追击条件（更积极追击）
   _checkPursue() {
     const aliveMembers = this.dynamicSquadMembers.filter(ai => ai.player.alive && !ai.player.isDowned);
     const enemyTeam = this.player.team === 'blue' ? 'red' : 'blue';
@@ -407,6 +407,14 @@ class AIController {
         enemyAliveCount++;
         enemyTotalHealth += enemy.health;
       }
+    }
+    
+    // 人数优势 ≥0（不劣势）且 敌方总血量 <70% 就追击
+    const numAdvantage = aliveMembers.length - enemyAliveCount;
+    const enemyHealthRatio = enemyAliveCount > 0 ? enemyTotalHealth / (enemyAliveCount * 100) : 0;
+    
+    return numAdvantage >= 0 && enemyHealthRatio < 0.7;
+  }
     }
     
     // 人数优势 ≥1 且 敌方总血量 <60%
@@ -799,8 +807,8 @@ class AIController {
     }
     
     // 4. 救援（没有直接危险时）- 中优先级
-    // 修改条件：只要不是正在被攻击就可以救援
-    if (this.attackedCooldown <= 0) {
+    // 修改条件：只在空闲时救援，优先攻击
+    if (this.attackedCooldown <= 0 && !this.target) {
       if (this._checkRescue()) {
         if (!this.rescueTarget) {
           this.rescueTarget = this._checkRescue();

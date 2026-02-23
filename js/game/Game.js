@@ -223,11 +223,11 @@ class Game {
           
           this._createHitEffect(bullet.x, bullet.y);
           
-          if (!player.alive && wasAlive) {
+          // 检查是否进入倒地状态（原逻辑：!player.alive，但 die() 后 alive 仍为 true）
+          if (player.isDowned && wasAlive && bullet.owner) {
             this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
-            if (bullet.owner) {
-              this._createKillFeed(bullet.owner, player);
-            }
+            this._createKillFeed(bullet.owner, player);
+            this.scores[bullet.team]++;
           }
           
           if (this.audio) {
@@ -235,10 +235,6 @@ class Game {
           }
           
           this.bulletPool.release(bullet);
-          
-          if (!player.alive) {
-            this.scores[bullet.team]++;
-          }
           
           break;
         }
@@ -255,13 +251,14 @@ class Game {
       const enemyTeam = player.team === 'blue' ? 'red' : 'blue';
       
       for (const enemy of this.players) {
-        if (!enemy.alive || enemy.team !== enemyTeam) continue;
+        if (!enemy.alive || enemy.team !== enemyTeam || enemy.isDowned) continue;
         
         if (Utils.rectIntersect(meleeRange, enemy)) {
-          const wasAlive = enemy.alive;
+          const wasAlive = enemy.health > 0;
           enemy.takeDamage(50, player);
           
-          if (!enemy.alive && wasAlive) {
+          // 检查是否进入倒地状态
+          if (enemy.isDowned && wasAlive) {
             this.scores[player.team]++;
             this._createKillFeed(player, enemy);
           }
@@ -301,6 +298,16 @@ class Game {
 
   // 创建击杀信息
   _createKillFeed(killer, victim) {
+    // 自杀检测
+    if (killer === victim) {
+      return;
+    }
+    
+    // 只在击杀者存活时增加击杀数
+    if (killer.alive) {
+      killer.kills++;
+    }
+    
     const entry = {
       killerName: killer.name,
       killerTeam: killer.team,

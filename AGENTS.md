@@ -152,3 +152,65 @@ if (!player.alive) return false;
 - **Spatial hashing** for collision optimization
 - **View frustum culling** - only render on-screen objects
 - **AI throttled** to 30 FPS (not every frame)
+
+---
+
+## Script Load Order (Critical)
+
+Scripts in `index.html` must load in dependency order:
+1. Utils → Pool → Audio → Game systems (Camera, Physics, Renderer)
+2. Entity base class → Entity subclasses (Player, Projectile, Particle)
+3. Weapon classes → AI → Map → UI → Game → Main
+
+**Never change load order** - classes are attached to `window` and loaded via global script tags, not ES6 modules.
+
+## Additional Code Conventions
+
+**Constructor Pattern:**
+- All properties initialized in constructor (no class fields)
+- Default parameters for optional arguments
+- No destructuring in constructor signature
+
+**Method Organization:**
+- Public methods first, private methods (`_` prefix) after
+- Related methods grouped together
+- Getter/setter pairs kept adjacent
+
+**State Management:**
+- Game state in `Game.settings` object
+- Entity state as direct properties
+- No external state management libraries
+
+## CSS Specific Conventions
+
+**Layout:**
+- Absolute positioning for game UI overlays
+- Flexbox for menu layouts
+- Z-index layers: 100 for UI screens, HUD elements inline
+
+**Responsive:**
+- Canvas fills `window.innerWidth/Height`
+- Menu containers use max-width + percentage width
+- No media queries currently (desktop-only)
+
+## Debugging Patterns
+
+**DevTools Access:**
+```javascript
+window.game              // Game instance
+window.game.currentPlayer // Controlled player
+window.game.debugGodMode  // Toggle 无敌 mode
+```
+
+**Console Logging:**
+- Startup info in `main.js`
+- Kill feed logged to console
+- No production logging in game loop
+
+## Common Pitfalls
+
+1. **Script order**: Adding new files requires `<script>` tag in correct position
+2. **Global namespace**: All classes on `window`, avoid name collisions
+3. **Physics tuning**: Values in `Player._applyPhysics()`, test incrementally
+4. **AI throttling**: AI controllers update max 30 times/second
+5. **Object pool reset**: Pooled objects must call `reset()` before reuse
