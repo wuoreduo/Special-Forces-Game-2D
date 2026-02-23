@@ -403,7 +403,7 @@ class AIController {
     let enemyTotalHealth = 0;
     
     for (const enemy of this.game.players) {
-      if (enemy.team === enemyTeam && enemy.alive) {
+      if (enemy.team === enemyTeam && enemy.alive && !enemy.isDowned) {
         enemyAliveCount++;
         enemyTotalHealth += enemy.health;
       }
@@ -414,14 +414,6 @@ class AIController {
     const enemyHealthRatio = enemyAliveCount > 0 ? enemyTotalHealth / (enemyAliveCount * 100) : 0;
     
     return numAdvantage >= 0 && enemyHealthRatio < 0.7;
-  }
-    }
-    
-    // 人数优势 ≥1 且 敌方总血量 <60%
-    const numAdvantage = aliveMembers.length - enemyAliveCount;
-    const enemyHealthRatio = enemyAliveCount > 0 ? enemyTotalHealth / (enemyAliveCount * 100) : 0;
-    
-    return numAdvantage >= 1 && enemyHealthRatio < 0.6;
   }
   
   // 执行追击
