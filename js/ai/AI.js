@@ -88,13 +88,10 @@ class AIController {
     // 4. 更新危险状态
     this._updateDangerState();
     
-    // 5. 边界反弹
-    this._checkBoundaryBounce();
-    
-    // 6. 平台边缘跳跃
+    // 5. 平台边缘跳跃
     this._checkPlatformEdgeJump();
     
-    // 7. 应用行为（优先级：救援 > 自卫 > 撤退 > 追击 > 集火 > 巡逻）
+    // 6. 应用行为（优先级：自卫 > 锁敌攻击 > 撤退 > 救援 > 追击 > 动态巡逻）
     this._applyBehavior();
   }
   
@@ -123,10 +120,9 @@ class AIController {
     // 判断小队优劣势
     const numAdvantage = aliveMembers.length - aliveOtherSquad.length;
     
-    // 更新小队状态
-    if (downedMembers.length > 0) {
-      this.squadState = 'rescuing';
-    } else if (numAdvantage <= -2 || healthRatio < 0.4) {
+    // 更新小队状态（仅用于撤退和追击判断）
+    // 救援不再是小队状态，而是条件行为（安全时才会救援）
+    if (numAdvantage <= -2 || healthRatio < 0.4) {
       this.squadState = 'retreating';
     } else if (numAdvantage >= 1 && enemyHealthRatio < 0.6) {
       this.squadState = 'pursuing';
@@ -381,6 +377,9 @@ class AIController {
   // 应用队形/分散站位
   _applyFormation() {
     // 检查与小队成员的距离
+    let tooClose = false;
+    let moveAwayDir = 0;
+    
     for (const member of this.squadMembers) {
       if (member.player === this.player || !member.player.alive || member.player.isDowned) continue;
       
@@ -393,16 +392,23 @@ class AIController {
       
       // 如果太近，稍微远离
       if (dist < this.separationDist * 0.5) {
+        tooClose = true;
         const dx = this.player.getCenterX() - member.player.getCenterX();
-        if (dx > 0) {
-          this.player.moveRight = true;
-          this.player.moveLeft = false;
-        } else {
-          this.player.moveLeft = true;
-          this.player.moveRight = false;
-        }
+        moveAwayDir = dx > 0 ? 1 : -1;
       }
     }
+    
+    // 如果太近，远离队友
+    if (tooClose) {
+      if (moveAwayDir > 0) {
+        this.player.moveRight = true;
+        this.player.moveLeft = false;
+      } else {
+        this.player.moveLeft = true;
+        this.player.moveRight = false;
+      }
+    }
+    // 否则保持当前移动状态
   }
 
   // 检测受击（血量减少）
@@ -547,6 +553,16 @@ class AIController {
     // 应用移动速度系数
     const baseSpeed = 5 * this.moveSpeedFactor;
     
+    // 边界保护（防止走出地图）
+    const mapBounds = this.game.map.getSize();
+    const margin = 80;
+    
+    if (this.player.x < margin) {
+      this.moveDirection = 1;  // 强制向右
+    } else if (this.player.x > mapBounds.width - margin - this.player.width) {
+      this.moveDirection = -1;  // 强制向左
+    }
+    
     if (this.moveDirection > 0) {
       this.player.moveRight = true;
       this.player.moveLeft = false;
@@ -581,18 +597,7 @@ class AIController {
     // 重置移动状态
     this.player.crouching = false;
     
-    // 1. 优先检查救援
-    if (this.squadState === 'rescuing' || this._checkRescue()) {
-      if (!this.rescueTarget) {
-        this.rescueTarget = this._checkRescue();
-      }
-      if (this.rescueTarget) {
-        this._performRescue(16);  // 假设 16ms 每帧
-        return;
-      }
-    }
-    
-    // 2. 自卫（自己被攻击）
+    // 1. 自卫（自己被攻击）- 最高优先级
     if (this.isInDanger && this.attackedCooldown > 0) {
       this._handleDangerResponse();
       if (this.target) {
@@ -602,42 +607,52 @@ class AIController {
       return;
     }
     
-    // 3. 撤退（小队劣势）
+    // 2. 锁敌攻击（有敌人在视线内）- 高优先级
+    if (this.target && this._canAttack()) {
+      this._applyBaseMovement();
+      this._aimAtTargetSlowly(this.target, 16);
+      this.player.shooting = true;
+      // 应用队形
+      this._applyFormation();
+      return;
+    }
+    
+    // 3. 撤退（小队劣势）- 中高优先级
     if (this.squadState === 'retreating' || this._checkRetreat()) {
       this.squadState = 'retreating';
       this._performRetreat();
       return;
     }
     
-    // 4. 追击（小队优势）
+    // 4. 救援（仅在安全时）- 中优先级
+    // 危险时不救援，保命要紧
+    if (!this.isInDanger && this.attackedCooldown <= 0) {
+      if (this.squadState === 'rescuing' || this._checkRescue()) {
+        if (!this.rescueTarget) {
+          this.rescueTarget = this._checkRescue();
+        }
+        if (this.rescueTarget) {
+          this._performRescue(16);
+          return;
+        }
+      }
+    }
+    
+    // 5. 追击（小队优势）- 中低优先级
     if (this.squadState === 'pursuing' || this._checkPursue()) {
       this.squadState = 'pursuing';
       this._performPursue();
       return;
     }
     
-    // 5. 集火攻击（正常战斗）- 使用小队目标
-    if (this.squadTarget && this.squadTarget.alive && !this.squadTarget.isDowned) {
-      this.target = this.squadTarget;  // 使用小队集火目标
-    }
-    
-    if (this.target && this._canAttack()) {
-      this._applyBaseMovement();
-      this._aimAtTargetSlowly(this.target, 16);
-      this.player.shooting = true;
-      
-      // 应用队形
-      this._applyFormation();
-    } else {
-      // 6. 安全：正常移动/巡逻
-      this._applyBaseMovement();
-      this.player.shooting = false;
-    }
+    // 6. 动态巡逻（无敌人时）- 最低优先级
+    // 不再使用固定路径，改为动态移动
+    this._applyDynamicPatrol();
+    this.player.shooting = false;
   }
 
   // 继续当前状态（非更新帧）
   _continueCurrentState() {
-    this._checkBoundaryBounce();
     this._checkPlatformEdgeJump();
     
     // 继续救援
@@ -655,6 +670,82 @@ class AIController {
     } else {
       this._applyBaseMovement();
     }
+  }
+  
+  // 动态巡逻（无敌人时的移动行为）
+  _applyDynamicPatrol() {
+    // 不再使用固定路径巡逻
+    // 改为：根据小队成员位置动态移动，保持队形
+    
+    // 1. 如果附近有小队成员，保持分散站位
+    const nearbyMembers = this._getNearbySquadMembers(300);
+    
+    if (nearbyMembers.length > 0) {
+      // 有小队在附近，保持当前区域，小范围移动
+      this._applyFormation();
+      
+      // 50% 概率保持移动，50% 概率停下观察
+      if (Math.random() < 0.5) {
+        this._applyBaseMovement();
+      } else {
+        // 停下，面向前方
+        this.player.moveLeft = false;
+        this.player.moveRight = false;
+      }
+    } else {
+      // 没有小队成员在附近，主动靠拢
+      const nearestMember = this._getNearestSquadMember();
+      if (nearestMember) {
+        this._moveToPosition(nearestMember.player.x, nearestMember.player.y);
+        this._applyBaseMovement();
+      } else {
+        // 孤独一人，小范围随机移动
+        this._applyBaseMovement();
+        
+        // 每 30 帧改变一次方向
+        if (this.game.gameTime % 30 === 0) {
+          this.moveDirection = Math.random() < 0.5 ? -1 : 1;
+        }
+      }
+    }
+  }
+  
+  // 获取附近的小队成员
+  _getNearbySquadMembers(range) {
+    return this.squadMembers.filter(ai => {
+      if (!ai.player.alive || ai.player.isDowned) return false;
+      const dist = Utils.distance(
+        this.player.getCenterX(),
+        this.player.getCenterY(),
+        ai.player.getCenterX(),
+        ai.player.getCenterY()
+      );
+      return dist < range;
+    });
+  }
+  
+  // 获取最近的小队成员
+  _getNearestSquadMember() {
+    let nearest = null;
+    let nearestDist = Infinity;
+    
+    for (const ai of this.squadMembers) {
+      if (!ai.player.alive || ai.player.isDowned) continue;
+      
+      const dist = Utils.distance(
+        this.player.getCenterX(),
+        this.player.getCenterY(),
+        ai.player.getCenterX(),
+        ai.player.getCenterY()
+      );
+      
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearest = ai;
+      }
+    }
+    
+    return nearest;
   }
 
   // 缓慢瞄准目标（替代原有的瞬间瞄准）
