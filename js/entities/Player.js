@@ -353,7 +353,8 @@ class Player extends Entity {
 
   // 受到伤害
   takeDamage(amount, attacker) {
-    if (!this.alive) return false;
+    // 倒地玩家不受伤害，真正死亡的玩家也不受伤害
+    if (!this.alive || this.isDowned) return false;
     
     // 无敌期间不受伤害
     if (this.invincible) return false;
@@ -371,6 +372,9 @@ class Player extends Entity {
 
   // 死亡（进入倒地状态，可救援）
   die(killer) {
+    // 如果已经倒地，不要重复进入倒地状态
+    if (this.isDowned) return;
+    
     this.isDowned = true;
     this.downedTime = 0;
     this.health = 0;
