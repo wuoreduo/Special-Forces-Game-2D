@@ -204,7 +204,8 @@ class Game {
       if (!bullet.active || bullet.isVisualOnly) continue;
       
       for (const player of this.players) {
-        if (!player.alive || player.team === bullet.team) continue;
+        // 倒地玩家不受子弹伤害，真正死亡的玩家也不受伤害
+        if (!player.alive || player.team === bullet.team || player.isDowned) continue;
         
         const hitResult = player.checkBulletHit(bullet);
         

@@ -325,6 +325,21 @@ class UIManager {
     const player = this.game.currentPlayer;
     if (!player) return;
     
+    // 倒地玩家只能按 E 救援（如果附近有队友）或等待救援
+    // 不能执行其他动作
+    if (player.isDowned) {
+      // 倒地时只能按 E 尝试救援附近的队友（如果有的话）
+      if (e.code === 'KeyE') {
+        if (!player.isRescuing) {
+          const downedTeammate = this._findNearestDownedTeammate(player);
+          if (downedTeammate) {
+            player.startRescue(downedTeammate);
+          }
+        }
+      }
+      return;
+    }
+    
     switch (e.code) {
       case 'KeyW':
       case 'ArrowUp':
@@ -469,7 +484,8 @@ class UIManager {
     if (e.button !== 0) return;  // 只处理左键
     
     const player = this.game.currentPlayer;
-    if (!player || !player.alive) return;
+    // 倒地玩家不能射击
+    if (!player || !player.alive || player.isDowned) return;
     
     player.shooting = true;
   }

@@ -279,7 +279,8 @@ class Player extends Entity {
 
   // 射击
   shoot(gameTime) {
-    if (!this.alive || this.reloading || !this.weapon) return [];
+    // 倒地玩家不能射击
+    if (!this.alive || this.isDowned || this.reloading || !this.weapon) return [];
     
     // 更新散布状态
     this.weapon.updateSpread(gameTime);
@@ -331,7 +332,8 @@ class Player extends Entity {
 
   // 近战攻击
   melee(gameTime) {
-    if (!this.alive || this.meleeCooldown > 0) return;
+    // 倒地玩家不能近战
+    if (!this.alive || this.isDowned || this.meleeCooldown > 0) return;
     
     this.meleeAttacking = true;
     this.meleeCooldown = 500;

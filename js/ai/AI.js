@@ -173,11 +173,19 @@ class AIController {
     
     if (downedTeammates.length === 0) return null;
     
-    // 找最近的倒地队友
+    // 找最近的倒地队友，且该队友没有被其他 AI 救援
     let nearestDowned = null;
     let nearestDist = this.rescueRange * 2;
     
     for (const downed of downedTeammates) {
+      // 检查是否已经有其他 AI 在救援这个倒地者
+      const isBeingRescued = this.game.aiControllers.some(ai => 
+        ai.rescueTarget === downed && ai !== this
+      );
+      
+      // 如果已经有人在救援，跳过这个倒地者
+      if (isBeingRescued) continue;
+      
       const dist = Utils.distance(
         this.player.getCenterX(),
         this.player.getCenterY(),
