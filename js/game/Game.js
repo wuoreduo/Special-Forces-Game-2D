@@ -226,6 +226,10 @@ class Game {
           // 检查是否进入倒地状态（倒地时不统计击杀，等待超时或救援）
           if (player.isDowned && wasAlive) {
             this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
+            // 立即播放击杀音效（玩家击倒敌人时）
+            if (this.audio && bullet.owner && bullet.owner.isControlled) {
+              this.audio.playKill();
+            }
           }
           
           if (this.audio) {
@@ -318,11 +322,6 @@ class Game {
     // 限制最大显示数量
     if (this.killFeed.length > 5) {
       this.killFeed.pop();
-    }
-    
-    // 播放击杀音效（只有玩家击杀时才播放）
-    if (this.audio && killer.isControlled) {
-      this.audio.playKill();
     }
   }
 
