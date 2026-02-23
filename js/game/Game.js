@@ -471,6 +471,11 @@ class Game {
       
       player.setMapBounds(this.map.width, this.map.height);
       player.setPlatforms(this.platforms);
+      
+      // 游戏开始时所有玩家都有无敌时间
+      player.invincible = true;
+      player.invincibleTime = player.invincibleDuration;
+      
       this.players.push(player);
       
       // 创建 AI
@@ -500,6 +505,11 @@ class Game {
       
       player.setMapBounds(this.map.width, this.map.height);
       player.setPlatforms(this.platforms);
+      
+      // 游戏开始时所有玩家都有无敌时间
+      player.invincible = true;
+      player.invincibleTime = player.invincibleDuration;
+      
       this.players.push(player);
       
       // 创建 AI
