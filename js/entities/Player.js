@@ -91,21 +91,25 @@ class Player extends Entity {
 
   // 更新玩家
   update(dt, platforms) {
-    if (!this.alive) {
-      // 倒地状态处理
-      if (this.isDowned) {
-        this.downedTime += dt;
-        if (this.downedTime >= this.maxDownedTime) {
-          // 超时真正死亡
-          this.isDowned = false;
-          this.deadTime = 0;
-          this.deaths++;
-          this.falling = true;
-          this.fallenAngle = 0;
-        }
-      } else {
-        this.deadTime += dt;
+    // 倒地状态处理（倒地时仍然 alive=true，但无法行动）
+    if (this.isDowned) {
+      this.downedTime += dt;
+      if (this.downedTime >= this.maxDownedTime) {
+        // 超时真正死亡
+        this.isDowned = false;
+        this.alive = false;
+        this.deadTime = 0;
+        this.deaths++;
+        this.falling = true;
+        this.fallenAngle = 0;
       }
+      this._updateAnimation();
+      return;
+    }
+    
+    // 真正死亡后的处理
+    if (!this.alive) {
+      this.deadTime += dt;
       this._updateAnimation();
       return;
     }
@@ -368,7 +372,7 @@ class Player extends Entity {
     this.isDowned = true;
     this.downedTime = 0;
     this.health = 0;
-    this.alive = false;  // 暂时标记为不可行动
+    // 注意：alive 保持 true，只是 isDowned=true 表示倒地无法行动
     this.deaths++;
     this.falling = false;
     this.fallenAngle = 90;  // 倒地姿势
@@ -376,6 +380,9 @@ class Player extends Entity {
     this.moveRight = false;
     this.shooting = false;
     this.crouching = false;
+    this.isRescuing = false;
+    this.rescueTarget = null;
+    this.rescueProgress = 0;
     
     if (killer && killer !== this) {
       killer.kills++;
@@ -407,10 +414,12 @@ class Player extends Entity {
       // 恢复目标 25 HP
       this.rescueTarget.health = 25;
       this.rescueTarget.isDowned = false;
-      this.rescueTarget.alive = true;
+      // alive 已经为 true，不需要再设置
       this.rescueTarget.invincible = true;
       this.rescueTarget.invincibleTime = 2000;  // 2 秒无敌时间
       this.rescueTarget.downedTime = 0;
+      this.rescueTarget.fallenAngle = 0;
+      this.rescueTarget.falling = false;
     }
     
     // 重置救援状态

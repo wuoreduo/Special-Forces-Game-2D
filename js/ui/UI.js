@@ -279,8 +279,7 @@ class UIManager {
     const rescueRange = 50;
     const teammates = this.game.players.filter(p => 
       p.team === player.team && 
-      p.isDowned && 
-      p.alive &&
+      p.isDowned &&
       p !== player
     );
     
@@ -352,10 +351,8 @@ class UIManager {
         player.melee(this.game.gameTime);
         break;
       case 'KeyE':
-        // 救援队友
-        if (player.isRescuing) {
-          player.cancelRescue();
-        } else {
+        // 救援队友 - 按住 E 键持续救援
+        if (!player.isRescuing) {
           const downedTeammate = this._findNearestDownedTeammate(player);
           if (downedTeammate) {
             player.startRescue(downedTeammate);
@@ -429,6 +426,12 @@ class UIManager {
         break;
       case 'Space':
         player.jumpHeld = false;
+        break;
+      case 'KeyE':
+        // 松开 E 键取消救援
+        if (player.isRescuing) {
+          player.cancelRescue();
+        }
         break;
     }
   }

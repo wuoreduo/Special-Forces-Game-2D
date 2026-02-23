@@ -59,7 +59,8 @@ class AIController {
 
   // AI 更新（30 FPS）
   update(gameTime, dt) {
-    if (this.player.isControlled || !this.player.alive) {
+    // 被玩家控制或倒地时不能行动
+    if (this.player.isControlled || !this.player.alive || this.player.isDowned) {
       return;
     }
     
@@ -165,13 +166,12 @@ class AIController {
   
   // 检查救援
   _checkRescue() {
-    if (!this.player.alive) return null;
+    if (!this.player.alive || this.player.isDowned) return null;
     
     // 查找倒地的队友
     const downedTeammates = this.game.players.filter(p => 
       p.team === this.player.team && 
-      p.isDowned && 
-      p.alive &&
+      p.isDowned &&
       p !== this.player
     );
     
@@ -236,17 +236,21 @@ class AIController {
   
   // 完成救援
   _completeRescue() {
-    if (this.rescueTarget && this.rescueTarget.alive && this.rescueTarget.isDowned) {
+    if (this.rescueTarget && this.rescueTarget.isDowned) {
       // 恢复目标 25 HP
       this.rescueTarget.health = 25;
       this.rescueTarget.isDowned = false;
       this.rescueTarget.invincible = true;
       this.rescueTarget.invincibleTime = 2000;  // 2 秒无敌时间
-      
-      // 重置救援状态
-      this.rescueTarget = null;
-      this.rescueProgress = 0;
+      this.rescueTarget.downedTime = 0;
+      this.rescueTarget.fallenAngle = 0;
+      this.rescueTarget.falling = false;
     }
+    
+    // 重置救援者状态
+    this.rescueTarget = null;
+    this.rescueProgress = 0;
+  }
   }
   
   // 检查撤退条件
