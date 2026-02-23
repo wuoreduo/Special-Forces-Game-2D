@@ -1,20 +1,23 @@
-// AI 系统 - 团队配合版：小队配合、集火、掩护、救援、撤退、追击
+// AI 系统 - 团队配合版：动态组队、集火、掩护、救援、撤退、追击
 
 class AIController {
   constructor(player, game, squadId = 0) {
     this.player = player;
     this.game = game;
-    this.squadId = squadId;
-    this.squadMembers = [];  // 同小队 AI 控制器引用
+    // squadId 参数保留但不再使用（兼容旧代码）
+    
+    // 动态组队：根据距离自然组队
+    this.dynamicSquadMembers = [];  // 动态小队成员（附近的队友）
+    this.squadRange = 400;          // 组队距离范围
     
     // 小队共享状态
     this.squadTarget = null;   // 小队集火目标
-    this.squadState = 'normal'; // normal, retreating, pursuing, rescuing
+    this.squadState = 'normal'; // normal, retreating, pursuing
     
     // 配合参数
     this.supportRange = 300;    // 支援范围
     this.separationDist = 200;  // 与队友保持距离
-    this.rescueRange = 100;      // 救援距离放宽到 100
+    this.rescueRange = 100;      // 救援距离
     
     // 基础移动
     this.moveDirection = 1;  // 1=向右，-1=向左
@@ -47,7 +50,6 @@ class AIController {
     // 救援状态
     this.rescueTarget = null;
     this.rescueProgress = 0;
-    this.rescueTime = 5000;  // 5 秒救援时间
     
     // 撤退/追击状态
     this.retreatDirection = 0;
@@ -98,43 +100,66 @@ class AIController {
     this._applyBehavior();
   }
   
-  // 更新小队信息
+  // 更新小队信息（动态组队）
   _updateSquadInfo() {
-    // 获取小队存活成员
-    const aliveMembers = this.squadMembers.filter(ai => ai.player.alive && !ai.player.isDowned);
-    const downedMembers = this.squadMembers.filter(ai => ai.player.isDowned);
+    // 1. 动态组队：查找附近的队友（400 像素内）
+    this._updateDynamicSquad();
     
-    // 获取敌方小队（同队伍的其他小队）
-    const sameTeamAIs = this.game.aiControllers.filter(ai => 
-      ai.player.team === this.player.team && ai.squadId !== this.squadId
-    );
-    const aliveOtherSquad = sameTeamAIs.filter(ai => ai.player.alive && !ai.player.isDowned);
+    const aliveMembers = this.dynamicSquadMembers.filter(ai => ai.player.alive && !ai.player.isDowned);
+    const downedMembers = this.dynamicSquadMembers.filter(ai => ai.player.isDowned);
     
-    // 计算小队总血量
+    // 2. 计算小队总血量
     const totalHealth = aliveMembers.reduce((sum, ai) => sum + ai.player.health, 0);
     const maxHealth = aliveMembers.length * 100;
     const healthRatio = aliveMembers.length > 0 ? totalHealth / maxHealth : 0;
     
-    // 计算敌方小队状态
-    const enemyTotalHealth = aliveOtherSquad.reduce((sum, ai) => sum + ai.player.health, 0);
-    const enemyMaxHealth = aliveOtherSquad.length * 100;
-    const enemyHealthRatio = aliveOtherSquad.length > 0 ? enemyTotalHealth / enemyMaxHealth : 0;
+    // 3. 计算敌方状态（所有敌方玩家）
+    const enemyTeam = this.player.team === 'blue' ? 'red' : 'blue';
+    const enemyPlayers = this.game.players.filter(p => 
+      p.team === enemyTeam && p.alive && !p.isDowned
+    );
+    const enemyCount = enemyPlayers.length;
     
-    // 判断小队优劣势
-    const numAdvantage = aliveMembers.length - aliveOtherSquad.length;
+    // 4. 判断小队优劣势
+    const numAdvantage = aliveMembers.length - enemyCount;
     
-    // 更新小队状态（仅用于撤退和追击判断）
-    // 救援不再是小队状态，而是条件行为（安全时才会救援）
+    // 5. 更新小队状态
     if (numAdvantage <= -2 || healthRatio < 0.4) {
       this.squadState = 'retreating';
-    } else if (numAdvantage >= 1 && enemyHealthRatio < 0.6) {
-      this.squadState = 'pursuing';
+    } else if (numAdvantage >= 1 && enemyPlayers.length > 0) {
+      const enemyHealthRatio = enemyPlayers.reduce((sum, p) => sum + p.health, 0) / (enemyCount * 100);
+      if (enemyHealthRatio < 0.6) {
+        this.squadState = 'pursuing';
+      } else {
+        this.squadState = 'normal';
+      }
     } else {
       this.squadState = 'normal';
     }
     
-    // 更新小队集火目标（优先集火正在攻击队友的敌人）
+    // 6. 更新小队集火目标
     this._updateSquadTarget(aliveMembers);
+  }
+  
+  // 更新动态小队成员（附近的队友）
+  _updateDynamicSquad() {
+    const allAIs = this.game.aiControllers;
+    
+    this.dynamicSquadMembers = allAIs.filter(ai => {
+      if (ai === this) return false;
+      if (ai.player.team !== this.player.team) return false;
+      if (!ai.player.alive) return false;
+      
+      // 检查距离（400 像素内）
+      const dist = Utils.distance(
+        this.player.getCenterX(),
+        this.player.getCenterY(),
+        ai.player.getCenterX(),
+        ai.player.getCenterY()
+      );
+      
+      return dist < this.squadRange;
+    });
   }
   
   // 更新小队集火目标
@@ -152,7 +177,7 @@ class AIController {
     
     // 如果没有优先目标，使用最近敌人的共同目标
     if (!priorityTarget) {
-      for (const member of this.squadMembers) {
+      for (const member of this.dynamicSquadMembers) {
         if (member.player.alive && member.target) {
           priorityTarget = member.target;
           break;
@@ -261,7 +286,7 @@ class AIController {
   
   // 检查撤退条件
   _checkRetreat() {
-    const aliveMembers = this.squadMembers.filter(ai => ai.player.alive && !ai.player.isDowned);
+    const aliveMembers = this.dynamicSquadMembers.filter(ai => ai.player.alive && !ai.player.isDowned);
     const enemyTeam = this.player.team === 'blue' ? 'red' : 'blue';
     const enemyCount = this.game.players.filter(p => p.team === enemyTeam && p.alive && !p.isDowned).length;
     
@@ -313,7 +338,7 @@ class AIController {
   
   // 检查追击条件
   _checkPursue() {
-    const aliveMembers = this.squadMembers.filter(ai => ai.player.alive && !ai.player.isDowned);
+    const aliveMembers = this.dynamicSquadMembers.filter(ai => ai.player.alive && !ai.player.isDowned);
     const enemyTeam = this.player.team === 'blue' ? 'red' : 'blue';
     
     let enemyAliveCount = 0;
@@ -391,7 +416,7 @@ class AIController {
     let tooClose = false;
     let moveAwayDir = 0;
     
-    for (const member of this.squadMembers) {
+    for (const member of this.dynamicSquadMembers) {
       if (member.player === this.player || !member.player.alive || member.player.isDowned) continue;
       
       const dist = Utils.distance(
@@ -723,7 +748,7 @@ class AIController {
   
   // 获取附近的小队成员
   _getNearbySquadMembers(range) {
-    return this.squadMembers.filter(ai => {
+    return this.dynamicSquadMembers.filter(ai => {
       if (!ai.player.alive || ai.player.isDowned) return false;
       const dist = Utils.distance(
         this.player.getCenterX(),
@@ -740,7 +765,7 @@ class AIController {
     let nearest = null;
     let nearestDist = Infinity;
     
-    for (const ai of this.squadMembers) {
+    for (const ai of this.dynamicSquadMembers) {
       if (!ai.player.alive || ai.player.isDowned) continue;
       
       const dist = Utils.distance(

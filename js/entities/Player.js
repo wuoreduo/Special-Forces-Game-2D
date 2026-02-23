@@ -19,7 +19,7 @@ class Player extends Entity {
     // 倒地状态（可救援）
     this.isDowned = false;
     this.downedTime = 0;
-    this.maxDownedTime = 15000;  // 倒地最长 15 秒（超时真正死亡）
+    this.maxDownedTime = 8000;  // 倒地最长 8 秒（超时真正死亡）
     
     // 救援状态
     this.isRescuing = false;

@@ -479,10 +479,9 @@ class Game {
       
       this.players.push(player);
       
-      // 创建 AI（分配小队 ID：前 3 人小队 0，后 2 人小队 1）
+      // 创建 AI（动态组队，不再需要固定小队 ID）
       if (!isPlayer) {
-        const squadId = i < 3 ? 0 : 1;
-        const ai = new AIController(player, this, squadId);
+        const ai = new AIController(player, this);
         ai.setPatrolPoint(spawn.x);
         this.aiControllers.push(ai);
       }
@@ -514,25 +513,12 @@ class Game {
       
       this.players.push(player);
       
-      // 创建 AI（分配小队 ID：前 3 人小队 0，后 2 人小队 1）
+      // 创建 AI（动态组队，不再需要固定小队 ID）
       if (!isPlayer) {
-        const squadId = i < 3 ? 0 : 1;
-        const ai = new AIController(player, this, squadId);
+        const ai = new AIController(player, this);
         ai.setPatrolPoint(spawn.x);
         this.aiControllers.push(ai);
       }
-    }
-    
-    // 建立小队成员引用
-    this._setupSquadMembers();
-  }
-  
-  // 建立小队成员引用
-  _setupSquadMembers() {
-    for (const ai of this.aiControllers) {
-      ai.squadMembers = this.aiControllers.filter(
-        other => other.squadId === ai.squadId && other !== ai
-      );
     }
   }
 
@@ -549,16 +535,12 @@ class Game {
     if (prevControlledPlayer && prevControlledPlayer !== teamPlayers[this.playerIndex]) {
       const existingAI = this.aiControllers.find(ai => ai.player === prevControlledPlayer);
       if (!existingAI) {
-        // 计算小队 ID（根据玩家在队伍中的索引）
-        const playerIndexInTeam = teamPlayers.indexOf(prevControlledPlayer);
-        const squadId = playerIndexInTeam < 3 ? 0 : 1;
-        const newAI = new AIController(prevControlledPlayer, this, squadId);
+        // 动态组队，不再需要小队 ID
+        const newAI = new AIController(prevControlledPlayer, this);
         const spawnPoints = this.map.getSpawnPoints(prevControlledPlayer.team);
         const spawnPoint = spawnPoints[0];
         newAI.setPatrolPoint(spawnPoint ? spawnPoint.x : prevControlledPlayer.x);
         this.aiControllers.push(newAI);
-        // 重新建立小队成员引用
-        this._setupSquadMembers();
       }
       
       // 前一个控制玩家恢复普通状态
