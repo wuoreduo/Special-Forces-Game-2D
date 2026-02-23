@@ -71,7 +71,7 @@ class AIController {
     
     // 限制更新频率
     if (gameTime - this.lastUpdateTime < this.updateInterval) {
-      this._continueCurrentState();
+      this._continueCurrentState(dt);
       return;
     }
     this.lastUpdateTime = gameTime;
@@ -97,7 +97,7 @@ class AIController {
     this._checkPlatformEdgeJump();
     
     // 6. 应用行为（优先级：自卫 > 锁敌攻击 > 撤退 > 救援 > 追击 > 动态巡逻）
-    this._applyBehavior();
+    this._applyBehavior(dt);
   }
   
   // 更新小队信息（动态组队）
@@ -283,6 +283,7 @@ class AIController {
       this.rescueTarget = null;
       this.rescueProgress = 0;
       this.player.isRescuing = false;
+      this.player.rescueProgress = 0;
       return;
     }
     
@@ -299,6 +300,7 @@ class AIController {
       this._moveToPosition(this.rescueTarget.x, this.rescueTarget.y);
       this.rescueProgress = 0;
       this.player.isRescuing = false;
+      this.player.rescueProgress = 0;
     } else {
       // 到达救援位置，开始救援
       this.player.moveLeft = false;
@@ -307,8 +309,11 @@ class AIController {
       this.player.isRescuing = true;  // 设置救援状态（用于 UI 显示）
       this.player.rescueProgress = this.rescueProgress;  // 同步进度
       
-      // 更新救援进度
+      // 更新救援进度（dt 是毫秒）
       this.rescueProgress += dt;
+      
+      // 同步到 player（每帧更新）
+      this.player.rescueProgress = this.rescueProgress;
       
       if (this.rescueProgress >= this.rescueTime) {
         // 救援完成
@@ -741,14 +746,84 @@ class AIController {
   }
 
   // 继续当前状态（非更新帧）
-  _continueCurrentState() {
+  _continueCurrentState(dt) {
     this._checkPlatformEdgeJump();
     
     // 继续救援
     if (this.rescueTarget && this.rescueTarget.alive && this.rescueTarget.isDowned) {
-      this._performRescue(16);
+      this._performRescue(dt);
       return;
     }
+    
+    if (this.isInDanger) {
+      this._handleDangerResponse();
+      if (this.target) {
+        this._aimAtTargetSlowly(this.target, dt);
+        this.player.shooting = true;
+      }
+    } else {
+      this._applyBaseMovement();
+    }
+  }
+  
+  // 应用行为（优先级系统）
+  _applyBehavior(dt) {
+    // 重置移动状态
+    this.player.crouching = false;
+    
+    // 1. 自卫（自己被攻击）- 最高优先级
+    if (this.isInDanger && this.attackedCooldown > 0) {
+      this._handleDangerResponse();
+      if (this.target) {
+        this._aimAtTargetSlowly(this.target, dt);
+        this.player.shooting = true;
+      }
+      return;
+    }
+    
+    // 2. 锁敌攻击（有敌人在视线内）- 高优先级
+    if (this.target && this._canAttack()) {
+      this._applyBaseMovement();
+      this._aimAtTargetSlowly(this.target, dt);
+      this.player.shooting = true;
+      // 应用队形
+      this._applyFormation();
+      return;
+    }
+    
+    // 3. 撤退（小队劣势）- 中高优先级
+    if (this.squadState === 'retreating' || this._checkRetreat()) {
+      this.squadState = 'retreating';
+      this._performRetreat();
+      return;
+    }
+    
+    // 4. 救援（没有直接危险时）- 中优先级
+    // 修改条件：只要不是正在被攻击就可以救援
+    if (this.attackedCooldown <= 0) {
+      if (this._checkRescue()) {
+        if (!this.rescueTarget) {
+          this.rescueTarget = this._checkRescue();
+        }
+        if (this.rescueTarget) {
+          this._performRescue(dt);
+          return;
+        }
+      }
+    }
+    
+    // 5. 追击（小队优势）- 中低优先级
+    if (this.squadState === 'pursuing' || this._checkPursue()) {
+      this.squadState = 'pursuing';
+      this._performPursue();
+      return;
+    }
+    
+    // 6. 动态巡逻（无敌人时）- 最低优先级
+    // 不再使用固定路径，改为动态移动
+    this._applyDynamicPatrol();
+    this.player.shooting = false;
+  }
     
     if (this.isInDanger) {
       this._handleDangerResponse();

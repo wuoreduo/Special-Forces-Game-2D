@@ -105,8 +105,9 @@ class Player extends Entity {
         this.fallenAngle = 0;
         
         // 更新最后攻击者的击杀数
-        if (this.lastAttacker && this.lastAttacker !== this) {
+        if (this.lastAttacker && this.lastAttacker !== this && this.lastAttacker.alive) {
           this.lastAttacker.kills++;
+          console.log(`[统计] ${this.name} 死亡，${this.lastAttacker.name} 获得击杀 (K:${this.lastAttacker.kills})`);
         }
       }
       this._updateAnimation();
@@ -123,6 +124,7 @@ class Player extends Entity {
     // 更新救援进度
     if (this.isRescuing && this.rescueTarget) {
       this.rescueProgress += dt;
+      // console.log(`[救援] ${this.name} 救援进度：${this.rescueProgress}/${this.rescueTime}`);
       if (this.rescueProgress >= this.rescueTime) {
         this._completeRescue();
       }
