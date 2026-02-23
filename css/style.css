@@ -331,12 +331,17 @@ body {
   text-align: left;
 }
 
+.ammo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
 .ammo-dots {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-  margin: 8px 0;
-  max-width: 300px;
 }
 
 .ammo-dot {
