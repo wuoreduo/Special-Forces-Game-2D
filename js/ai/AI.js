@@ -145,10 +145,11 @@ class AIController {
   _updateDynamicSquad() {
     const allAIs = this.game.aiControllers;
     
-    this.dynamicSquadMembers = allAIs.filter(ai => {
+    // 查找所有符合条件的队友
+    const nearbyAIs = allAIs.filter(ai => {
       if (ai === this) return false;
       if (ai.player.team !== this.player.team) return false;
-      if (!ai.player.alive) return false;
+      if (!ai.player.alive || ai.player.isDowned) return false;
       
       // 检查距离（400 像素内）
       const dist = Utils.distance(
@@ -160,6 +161,26 @@ class AIController {
       
       return dist < this.squadRange;
     });
+    
+    // 按距离排序，只保留最近的 2 个队友（避免链式组队）
+    nearbyAIs.sort((a, b) => {
+      const distA = Utils.distance(
+        this.player.getCenterX(),
+        this.player.getCenterY(),
+        a.player.getCenterX(),
+        a.player.getCenterY()
+      );
+      const distB = Utils.distance(
+        this.player.getCenterX(),
+        this.player.getCenterY(),
+        b.player.getCenterX(),
+        b.player.getCenterY()
+      );
+      return distA - distB;
+    });
+    
+    // 只保留最近的 2 个（形成 2-3 人自然小队）
+    this.dynamicSquadMembers = nearbyAIs.slice(0, 2);
   }
   
   // 更新小队集火目标
@@ -193,37 +214,63 @@ class AIController {
     if (!this.player.alive || this.player.isDowned) return null;
     
     // 查找倒地的队友
-    const downedTeammates = this.game.players.filter(p => 
+    const allDownedTeammates = this.game.players.filter(p => 
       p.team === this.player.team && 
       p.isDowned &&
       p !== this.player
     );
     
-    if (downedTeammates.length === 0) return null;
+    if (allDownedTeammates.length === 0) return null;
     
-    // 找最近的倒地队友，且该队友没有被其他 AI 救援
+    // 优先救援动态小队内的倒地队友
     let nearestDowned = null;
     let nearestDist = this.rescueRange * 2;
     
-    for (const downed of downedTeammates) {
-      // 检查是否已经有其他 AI 在救援这个倒地者
-      const isBeingRescued = this.game.aiControllers.some(ai => 
-        ai.rescueTarget === downed && ai !== this
-      );
-      
-      // 如果已经有人在救援，跳过这个倒地者
-      if (isBeingRescued) continue;
-      
-      const dist = Utils.distance(
-        this.player.getCenterX(),
-        this.player.getCenterY(),
-        downed.getCenterX(),
-        downed.getCenterY()
-      );
-      
-      if (dist < nearestDist) {
-        nearestDist = dist;
-        nearestDowned = downed;
+    // 第一阶段：检查小队内是否有倒地的
+    for (const member of this.dynamicSquadMembers) {
+      if (member.player.isDowned) {
+        // 检查是否已经有其他 AI 在救援
+        const isBeingRescued = this.game.aiControllers.some(ai => 
+          ai.rescueTarget === member.player && ai !== this
+        );
+        
+        if (!isBeingRescued) {
+          const dist = Utils.distance(
+            this.player.getCenterX(),
+            this.player.getCenterY(),
+            member.player.getCenterX(),
+            member.player.getCenterY()
+          );
+          
+          if (dist < nearestDist) {
+            nearestDist = dist;
+            nearestDowned = member.player;
+          }
+        }
+      }
+    }
+    
+    // 如果小队内没有需要救援的，检查其他倒地队友
+    if (!nearestDowned) {
+      for (const downed of allDownedTeammates) {
+        // 检查是否已经有其他 AI 在救援
+        const isBeingRescued = this.game.aiControllers.some(ai => 
+          ai.rescueTarget === downed && ai !== this
+        );
+        
+        if (isBeingRescued) continue;
+        
+        const dist = Utils.distance(
+          this.player.getCenterX(),
+          this.player.getCenterY(),
+          downed.getCenterX(),
+          downed.getCenterY()
+        );
+        
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearestDowned = downed;
+        }
       }
     }
     
