@@ -379,7 +379,15 @@ class Player extends Entity {
     
     if (this.health <= 0) {
       this.health = 0;
+      const wasAlive = true;  // 能进入 takeDamage 说明之前是活的
       this.die(attacker);
+      
+      // 触发击倒事件（统一处理音效、特效等）
+      const game = window.game;
+      if (game && attacker && attacker !== this) {
+        game.onEnemyDowned(attacker, this);
+      }
+      
       return true;
     }
     

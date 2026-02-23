@@ -140,13 +140,8 @@ class Weapon {
         
         game._createHitEffect(hitInfo.point.x, hitInfo.point.y);
         
-        // 检查是否进入倒地状态（倒地时不统计击杀，等待超时或救援）
-        if (hitInfo.player.isDowned && wasAlive) {
-          game._createBloodSplatter(hitInfo.player.x + hitInfo.player.width/2, hitInfo.player.y + hitInfo.player.height/2);
-          // 立即播放击杀音效（玩家击倒敌人时）
-          if (game.audio && owner.isControlled) {
-            game.audio.playKill();
-          }
+        if (hitInfo.isHead) {
+          game._createHeadshotText(hitInfo.player.x, hitInfo.player.y);
         }
         
         if (game.audio) {

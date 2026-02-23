@@ -198,6 +198,17 @@ class Game {
     this._checkVictory();
   }
 
+  // 统一处理击倒事件（无论子弹/近战/其他武器）
+  onEnemyDowned(killer, victim) {
+    // 播放击杀音效（只有玩家击倒敌人才播放）
+    if (this.audio && killer.isControlled) {
+      this.audio.playKill();
+    }
+    
+    // 创建血液效果
+    this._createBloodSplatter(victim.x + victim.width/2, victim.y + victim.height/2);
+  }
+
   // 子弹碰撞检测
   _checkBulletCollisions() {
     for (const bullet of this.bulletPool.active) {
@@ -210,8 +221,6 @@ class Game {
         const hitResult = player.checkBulletHit(bullet);
         
         if (hitResult.hit) {
-          const wasAlive = player.health > 0;
-          
           let damage = bullet.getDamage();
           
           if (hitResult.isHead) {
@@ -222,15 +231,6 @@ class Game {
           player.takeDamage(damage, bullet.owner);
           
           this._createHitEffect(bullet.x, bullet.y);
-          
-          // 检查是否进入倒地状态（倒地时不统计击杀，等待超时或救援）
-          if (player.isDowned && wasAlive) {
-            this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
-            // 立即播放击杀音效（玩家击倒敌人时）
-            if (this.audio && bullet.owner && bullet.owner.isControlled) {
-              this.audio.playKill();
-            }
-          }
           
           if (this.audio) {
             this.audio.playHit();
@@ -256,13 +256,7 @@ class Game {
         if (!enemy.alive || enemy.team !== enemyTeam || enemy.isDowned) continue;
         
         if (Utils.rectIntersect(meleeRange, enemy)) {
-          const wasAlive = enemy.health > 0;
           enemy.takeDamage(50, player);
-          
-          // 检查是否进入倒地状态（倒地时不统计击杀，等待超时或救援）
-          if (enemy.isDowned && wasAlive) {
-            // 倒地效果由 Renderer 处理
-          }
         }
       }
     }
