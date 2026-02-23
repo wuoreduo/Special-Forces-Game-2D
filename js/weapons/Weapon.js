@@ -140,10 +140,9 @@ class Weapon {
         
         game._createHitEffect(hitInfo.point.x, hitInfo.point.y);
         
-        if (!hitInfo.player.alive && wasAlive) {
+        // 检查是否进入倒地状态（倒地时不统计击杀，等待超时或救援）
+        if (hitInfo.player.isDowned && wasAlive) {
           game._createBloodSplatter(hitInfo.player.x + hitInfo.player.width/2, hitInfo.player.y + hitInfo.player.height/2);
-          game.scores[owner.team]++;
-          game._createKillFeed(owner, hitInfo.player);
         }
         
         if (game.audio) {

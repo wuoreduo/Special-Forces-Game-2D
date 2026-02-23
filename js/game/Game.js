@@ -223,14 +223,9 @@ class Game {
           
           this._createHitEffect(bullet.x, bullet.y);
           
-          // 检查是否进入倒地状态（原逻辑：!player.alive，但 die() 后 alive 仍为 true）
+          // 检查是否进入倒地状态（倒地时不统计击杀，等待超时或救援）
           if (player.isDowned && wasAlive) {
-            console.log('[命中] 玩家倒地，击杀者:', bullet.owner ? bullet.owner.name : '无');
-            if (bullet.owner) {
-              this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
-              this._createKillFeed(bullet.owner, player);
-              this.scores[bullet.team]++;
-            }
+            this._createBloodSplatter(player.x + player.width/2, player.y + player.height/2);
           }
           
           if (this.audio) {
@@ -260,10 +255,9 @@ class Game {
           const wasAlive = enemy.health > 0;
           enemy.takeDamage(50, player);
           
-          // 检查是否进入倒地状态
+          // 检查是否进入倒地状态（倒地时不统计击杀，等待超时或救援）
           if (enemy.isDowned && wasAlive) {
-            this.scores[player.team]++;
-            this._createKillFeed(player, enemy);
+            // 倒地效果由 Renderer 处理
           }
         }
       }

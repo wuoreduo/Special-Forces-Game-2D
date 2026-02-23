@@ -103,6 +103,15 @@ class Player extends Entity {
         this.deaths++;
         this.falling = true;
         this.fallenAngle = 0;
+        
+        // 给最后攻击者增加击杀数和队伍分数
+        if (this.lastAttacker && this.lastAttacker !== this) {
+          this.lastAttacker.kills++;
+          const game = window.game;
+          if (game) {
+            game.scores[this.lastAttacker.team]++;
+          }
+        }
       }
       this._updateAnimation();
       return;
@@ -432,6 +441,7 @@ class Player extends Entity {
       this.rescueTarget.downedTime = 0;
       this.rescueTarget.fallenAngle = 0;
       this.rescueTarget.falling = false;
+      this.rescueTarget.lastAttacker = null;  // 被救了，清空最后攻击者
     }
     
     // 重置救援状态
